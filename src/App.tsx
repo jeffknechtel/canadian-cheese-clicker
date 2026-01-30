@@ -16,7 +16,8 @@ import { CombatResultsModal } from './components/ui/CombatResultsModal';
 import { ActiveBuffsBar } from './components/ui/crafting/ActiveBuffsBar';
 import { LoadingScreen } from './components/ui/LoadingScreen';
 import { KeyboardHelpModal } from './components/ui/KeyboardHelpModal';
-import { PrivacyConsent, usePrivacyConsent } from './components/ui/PrivacyConsent';
+import { PrivacyConsent } from './components/ui/PrivacyConsent';
+import { usePrivacyConsent } from './hooks/usePrivacyConsent';
 import { BetaAgreement } from './components/ui/BetaAgreement';
 import { useBetaAgreement } from './hooks/useBetaAgreement';
 import { FeedbackWidget } from './components/ui/FeedbackWidget';
@@ -150,6 +151,7 @@ function App() {
   useEffect(() => {
     if (!showLoading) return;
 
+    let animationFrameId: number;
     const startTime = Date.now();
     const minLoadTime = 1500; // Minimum 1.5 seconds to show tips
 
@@ -164,11 +166,15 @@ function App() {
       setLoadingProgress(progress);
 
       if (progress < 100) {
-        requestAnimationFrame(updateProgress);
+        animationFrameId = requestAnimationFrame(updateProgress);
       }
     };
 
-    requestAnimationFrame(updateProgress);
+    animationFrameId = requestAnimationFrame(updateProgress);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
   }, [showLoading]);
 
   const handleLoadingComplete = useCallback(() => {

@@ -30,6 +30,11 @@ function PartySlot({ position, heroId, onClick, onRemove }: PartySlotProps) {
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-label={hero
+        ? `${hero.name} in ${POSITION_LABELS[position]} position. Click to change.`
+        : `Empty ${POSITION_LABELS[position]} slot. Click to assign hero.`}
       className={`
         relative p-2 rounded-lg border-2 transition-all cursor-pointer
         ${hero
@@ -38,6 +43,12 @@ function PartySlot({ position, heroId, onClick, onRemove }: PartySlotProps) {
         }
       `}
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
     >
       {/* Row indicator */}
       <div className="absolute -top-2 left-1/2 -translate-x-1/2 text-xs px-1.5 bg-cream rounded">
@@ -70,6 +81,7 @@ function PartySlot({ position, heroId, onClick, onRemove }: PartySlotProps) {
             }}
             className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs flex items-center justify-center shadow transition-colors"
             title="Remove from party"
+            aria-label={`Remove ${hero.name} from party`}
           >
             ×
           </button>

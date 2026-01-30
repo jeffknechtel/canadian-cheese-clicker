@@ -355,3 +355,19 @@ export function getAdjustedParticleCount(baseCount: number): number {
       return baseCount;
   }
 }
+
+// ===== Global Particle Emitter =====
+
+// Global emitter for triggering particles from anywhere
+type EmitCallback = (x: number, y: number, effect: ParticleEffect) => void;
+let globalEmitter: EmitCallback | null = null;
+
+export function setGlobalParticleEmitter(emitter: EmitCallback | null): void {
+  globalEmitter = emitter;
+}
+
+export function emitParticles(x: number, y: number, effect: ParticleEffect): void {
+  if (globalEmitter) {
+    globalEmitter(x, y, effect);
+  }
+}

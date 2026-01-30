@@ -127,6 +127,9 @@ function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, 
                 active:scale-95
               `}
               title={`${SLOT_LABELS[slot]}${equipped ? ' (equipped)' : ''}`}
+              aria-label={equipped
+                ? `${hero.name}'s ${SLOT_LABELS[slot]} slot - equipped`
+                : `${hero.name}'s ${SLOT_LABELS[slot]} slot - empty`}
             >
               <div className="text-center">
                 <span className="transition-transform duration-200 inline-block hover:scale-110">{SLOT_ICONS[slot]}</span>

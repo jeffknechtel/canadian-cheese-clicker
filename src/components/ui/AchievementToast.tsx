@@ -61,7 +61,7 @@ interface AchievementToastItemProps {
 function AchievementToastItem({ item, onDismiss }: AchievementToastItemProps) {
   const [isExiting, setIsExiting] = useState(false);
   const [particles, setParticles] = useState<Particle[]>([]);
-  const animationRef = useRef<number>(undefined);
+  const animationRef = useRef<number | undefined>(undefined);
   const lastTimeRef = useRef<number>(0);
   const particleConfigRef = useRef<ParticleConfig | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -142,6 +142,9 @@ function AchievementToastItem({ item, onDismiss }: AchievementToastItemProps) {
   return (
     <div
       ref={containerRef}
+      role="button"
+      tabIndex={0}
+      aria-label={`Dismiss achievement notification: ${item.achievement.name}`}
       className={`
         relative flex items-center gap-3 p-4 rounded-lg shadow-lg border-2 border-cheddar-400
         bg-linear-to-r from-cheddar-100 to-cheddar-50 backdrop-blur
@@ -151,6 +154,13 @@ function AchievementToastItem({ item, onDismiss }: AchievementToastItemProps) {
       onClick={() => {
         setIsExiting(true);
         setTimeout(() => onDismiss(item.id), 300);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setIsExiting(true);
+          setTimeout(() => onDismiss(item.id), 300);
+        }
       }}
     >
       {/* Particle effects */}

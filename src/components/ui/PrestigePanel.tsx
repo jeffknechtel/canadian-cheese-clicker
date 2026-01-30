@@ -79,6 +79,18 @@ function AgingUpgradeCard({ upgrade, purchaseCount, canPurchase, onPurchase }: A
 
   return (
     <div
+      role="button"
+      tabIndex={canPurchase && !isMaxed && !isLocked ? 0 : -1}
+      aria-label={
+        isMaxed
+          ? `${upgrade.name} - Maximum level reached`
+          : isLocked
+            ? `${upgrade.name} - Locked`
+            : canPurchase
+              ? `Purchase ${upgrade.name} for ${upgrade.cost} Rennet`
+              : `${upgrade.name} - Cannot afford (costs ${upgrade.cost} Rennet)`
+      }
+      aria-disabled={!canPurchase || isMaxed || isLocked}
       className={`
         p-3 rounded-lg transition-all
         ${isMaxed
@@ -91,6 +103,12 @@ function AgingUpgradeCard({ upgrade, purchaseCount, canPurchase, onPurchase }: A
         }
       `}
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
     >
       <div className="flex items-start gap-3">
         {/* Icon */}
@@ -141,7 +159,7 @@ export function PrestigePanel() {
   const [prestigeMessage, setPrestigeMessage] = useState<string | null>(null);
   const [showPrestigeAnimation, setShowPrestigeAnimation] = useState(false);
   const [particles, setParticles] = useState<Particle[]>([]);
-  const animationRef = useRef<number>(undefined);
+  const animationRef = useRef<number | undefined>(undefined);
   const lastTimeRef = useRef<number>(0);
   const particleConfigRef = useRef<ParticleConfig | null>(null);
 

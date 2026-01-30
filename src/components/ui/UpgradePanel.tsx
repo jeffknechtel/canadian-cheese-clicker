@@ -74,6 +74,16 @@ const UpgradeCard = memo(function UpgradeCard({ upgrade, isPurchased, index }: U
 
   return (
     <div
+      role="button"
+      tabIndex={isPurchased ? -1 : 0}
+      aria-label={
+        isPurchased
+          ? `${upgrade.name} - Already purchased`
+          : canAfford
+            ? `Purchase ${upgrade.name} for ${upgrade.cost} ${upgrade.costCurrency}`
+            : `${upgrade.name} - Cannot afford (costs ${upgrade.cost} ${upgrade.costCurrency})`
+      }
+      aria-disabled={isPurchased || !canAfford}
       className={`
         p-3 rounded-lg transition-all item-canadian btn-scale
         ${isPurchased
@@ -88,6 +98,12 @@ const UpgradeCard = memo(function UpgradeCard({ upgrade, isPurchased, index }: U
       `}
       style={{ animationDelay: `${staggerDelay}ms` }}
       onClick={handleBuy}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleBuy();
+        }
+      }}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">

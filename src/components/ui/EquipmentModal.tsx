@@ -238,6 +238,7 @@ export function EquipmentModal({ heroId, slot, onClose }: EquipmentModalProps) {
             <button
               onClick={onClose}
               className="w-8 h-8 flex items-center justify-center rounded hover:bg-timber-100 transition-colors"
+              aria-label="Close equipment modal"
             >
               ×
             </button>

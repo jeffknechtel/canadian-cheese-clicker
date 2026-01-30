@@ -181,6 +181,7 @@ export function DebugPanel({ className = '' }: DebugPanelProps) {
           onClick={() => setIsOpen(true)}
           className="px-3 py-2 bg-gray-800/90 hover:bg-gray-700 text-white text-xs font-mono rounded-lg shadow-lg transition-colors"
           title="Open Debug Panel"
+          aria-label="Open debug panel"
         >
           🛠️ Debug
         </button>

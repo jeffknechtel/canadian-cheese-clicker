@@ -159,43 +159,6 @@ export function PrivacyConsent({
 }
 
 /**
- * Hook to manage privacy consent state
- */
-export function usePrivacyConsent() {
-  const [showConsent, setShowConsent] = useState(false);
-  const [analyticsEnabled, setAnalyticsEnabled] = useState(
-    analytics.isEnabled()
-  );
-
-  // Check if we need to show consent on mount
-  useEffect(() => {
-    if (!analytics.hasConsentDecision()) {
-      setShowConsent(true);
-    }
-  }, []);
-
-  const handleConsentChange = useCallback((enabled: boolean) => {
-    setAnalyticsEnabled(enabled);
-  }, []);
-
-  const openConsentDialog = useCallback(() => {
-    setShowConsent(true);
-  }, []);
-
-  const closeConsentDialog = useCallback(() => {
-    setShowConsent(false);
-  }, []);
-
-  return {
-    showConsent,
-    analyticsEnabled,
-    openConsentDialog,
-    closeConsentDialog,
-    handleConsentChange,
-  };
-}
-
-/**
  * Inline privacy toggle for settings panel
  */
 export function PrivacyToggle(): ReactElement {
