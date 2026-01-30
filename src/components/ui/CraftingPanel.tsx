@@ -53,16 +53,16 @@ export function CraftingPanel() {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`
-              flex-1 px-2 py-1.5 text-xs rounded font-medium transition-colors
+              flex-1 px-2 py-1.5 text-xs rounded font-medium transition-colors border
               ${activeTab === tab.id
-                ? 'bg-timber-500 text-white'
-                : 'bg-white/50 text-timber-700 hover:bg-white/70'
+                ? 'bg-timber-500 text-white border-timber-600'
+                : 'bg-timber-100 text-timber-700 border-timber-300 hover:bg-timber-200'
               }
             `}
           >
             {tab.label}
             {tab.count !== undefined && tab.count > 0 && (
-              <span className={`ml-1 ${activeTab === tab.id ? 'text-white/80' : 'text-timber-500'}`}>
+              <span className={`ml-1 ${activeTab === tab.id ? 'text-white/80' : 'text-timber-600'}`}>
                 ({tab.count})
               </span>
             )}

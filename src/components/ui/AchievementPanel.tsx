@@ -155,10 +155,10 @@ export function AchievementPanel() {
             key={cat.value}
             onClick={() => setCategoryFilter(cat.value)}
             className={`
-              px-2 py-1 text-xs rounded font-medium transition-colors
+              px-2 py-1 text-xs rounded font-medium transition-colors border
               ${categoryFilter === cat.value
-                ? 'bg-cheddar-500 text-white'
-                : 'bg-white/50 text-rind hover:bg-white/70'
+                ? 'bg-cheddar-500 text-white border-cheddar-600'
+                : 'bg-cheddar-100 text-cheddar-700 border-cheddar-300 hover:bg-cheddar-200'
               }
             `}
           >

@@ -264,10 +264,10 @@ export function EquipmentModal({ heroId, slot, onClose }: EquipmentModalProps) {
               key={f}
               onClick={() => setFilter(f)}
               className={`
-                flex-1 px-2 py-1 text-xs rounded font-medium transition-colors capitalize
+                flex-1 px-2 py-1 text-xs rounded font-medium transition-colors capitalize border
                 ${filter === f
-                  ? 'bg-timber-500 text-white'
-                  : 'bg-white/50 text-timber-700 hover:bg-white/70'
+                  ? 'bg-timber-500 text-white border-timber-600'
+                  : 'bg-timber-100 text-timber-700 border-timber-300 hover:bg-timber-200'
                 }
               `}
             >
