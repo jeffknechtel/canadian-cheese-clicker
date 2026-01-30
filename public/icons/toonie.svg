@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="toonieOuter" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9ca3af"/>
+      <stop offset="50%" style="stop-color:#6b7280"/>
+      <stop offset="100%" style="stop-color:#9ca3af"/>
+    </linearGradient>
+    <linearGradient id="toonieInner" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24"/>
+      <stop offset="50%" style="stop-color:#d97706"/>
+      <stop offset="100%" style="stop-color:#fbbf24"/>
+    </linearGradient>
+  </defs>
+  <!-- Outer silver ring -->
+  <circle cx="50" cy="50" r="48" fill="url(#toonieOuter)" stroke="#374151" stroke-width="2"/>
+  <!-- Inner gold center -->
+  <circle cx="50" cy="50" r="30" fill="url(#toonieInner)" stroke="#92400e" stroke-width="1"/>
+  <!-- Polar bear silhouette (simplified) -->
+  <path d="M35 55 Q40 50 45 52 Q50 48 55 52 Q60 50 65 55 L60 58 Q50 62 40 58 L35 55" fill="#374151" opacity="0.6"/>
+  <!-- 2 dollar sign -->
+  <text x="50" y="45" text-anchor="middle" font-size="14" font-weight="bold" fill="#92400e" opacity="0.6">$2</text>
+</svg>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Great Canadian Cheese Quest</title>
+    <meta name="description" content="An incremental clicker game with Canadian cheese theme, JRPG combat, and prestige mechanics" />
+  </head>
+  <body>
+    <!-- SVG Filters for Colorblind Mode Accessibility -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+      <!-- Protanopia (red-blind) filter - based on Machado et al. 2009 -->
+      <filter id="protanopia-filter">
+        <feColorMatrix type="matrix" values="
+          0.567, 0.433, 0,     0, 0
+          0.558, 0.442, 0,     0, 0
+          0,     0.242, 0.758, 0, 0
+          0,     0,     0,     1, 0
+        "/>
+      </filter>
+      <!-- Deuteranopia (green-blind) filter - based on Machado et al. 2009 -->
+      <filter id="deuteranopia-filter">
+        <feColorMatrix type="matrix" values="
+          0.625, 0.375, 0,     0, 0
+          0.7,   0.3,   0,     0, 0
+          0,     0.3,   0.7,   0, 0
+          0,     0,     0,     1, 0
+        "/>
+      </filter>
+      <!-- Tritanopia (blue-blind) filter - based on Machado et al. 2009 -->
+      <filter id="tritanopia-filter">
+        <feColorMatrix type="matrix" values="
+          0.95,  0.05,  0,     0, 0
+          0,     0.433, 0.567, 0, 0
+          0,     0.475, 0.525, 0, 0
+          0,     0,     0,     1, 0
+        "/>
+      </filter>
+    </svg>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

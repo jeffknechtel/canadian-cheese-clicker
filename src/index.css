@@ -1,0 +1,1146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+}
+
+/* Smooth transitions for interactive elements */
+@layer utilities {
+  .transition-smooth {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* Custom scrollbar for panels */
+@layer components {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #fcd34d transparent; /* cheddar-300 */
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #fcd34d; /* cheddar-300 */
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: #fbbf24; /* cheddar-400 */
+  }
+}
+
+/* Loading spinner animation */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 2s linear infinite;
+}
+
+/* Pulse animation for purchase feedback */
+@keyframes pulse-once {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.animate-pulse-once {
+  animation: pulse-once 0.3s ease-out;
+}
+
+/* Number counter animation */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Focus styles for accessibility */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #f59e0b; /* cheddar-500 */
+  outline-offset: 2px;
+}
+
+/* Canadian-themed Panel Styles */
+@layer components {
+  /* Wood panel styling - rustic Canadian cabin feel */
+  .panel-wood {
+    background: linear-gradient(
+      135deg,
+      rgba(139, 105, 20, 0.08) 0%,
+      rgba(139, 105, 20, 0.03) 25%,
+      rgba(139, 105, 20, 0.06) 50%,
+      rgba(139, 105, 20, 0.03) 75%,
+      rgba(139, 105, 20, 0.08) 100%
+    );
+    border: 2px solid rgba(139, 115, 85, 0.25);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      inset 0 -1px 0 rgba(139, 105, 20, 0.1),
+      0 4px 12px rgba(139, 115, 85, 0.15);
+  }
+
+  /* Wood grain texture overlay (CSS-only) */
+  .wood-grain {
+    position: relative;
+  }
+
+  .wood-grain::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 2px,
+        rgba(139, 105, 20, 0.02) 2px,
+        rgba(139, 105, 20, 0.02) 4px
+      ),
+      repeating-linear-gradient(
+        180deg,
+        transparent 0px,
+        rgba(139, 105, 20, 0.015) 60px,
+        transparent 120px
+      );
+    border-radius: inherit;
+  }
+
+  /* Tim Hortons-inspired header styling */
+  .header-timmys {
+    background: linear-gradient(
+      180deg,
+      #c8102e 0%,
+      #a80d24 50%,
+      #8a0a1e 100%
+    );
+    border-bottom: 3px solid #4a2c2a;
+  }
+
+  /* Maple leaf separator */
+  .maple-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(200, 16, 46, 0.4);
+    font-size: 0.75rem;
+    padding: 0.25rem 0;
+  }
+
+  .maple-divider::before,
+  .maple-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(200, 16, 46, 0.2), transparent);
+  }
+
+  /* Canadian flag accent border */
+  .border-canadian {
+    border-image: linear-gradient(
+      to right,
+      #c8102e 0%,
+      #c8102e 25%,
+      #ffffff 25%,
+      #ffffff 75%,
+      #c8102e 75%,
+      #c8102e 100%
+    ) 1;
+  }
+
+  /* Loonie/Toonie coin styling */
+  .coin-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 0.75rem;
+    box-shadow:
+      inset 0 2px 4px rgba(255, 255, 255, 0.3),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+      0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+
+  .coin-loonie {
+    background: linear-gradient(135deg, #fbbf24, #d97706, #fbbf24);
+    color: #92400e;
+  }
+
+  .coin-toonie {
+    background: linear-gradient(135deg, #9ca3af, #6b7280, #9ca3af);
+    color: #374151;
+    position: relative;
+  }
+
+  .coin-toonie::after {
+    content: '';
+    position: absolute;
+    width: 60%;
+    height: 60%;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fbbf24, #d97706);
+  }
+
+  /* Canadian-themed item card hover */
+  .item-canadian {
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+  }
+
+  .item-canadian:hover {
+    border-left-color: #c8102e;
+    background: rgba(200, 16, 46, 0.03);
+  }
+
+  /* Generator tier styling */
+  .tier-basic {
+    background: linear-gradient(135deg, rgba(255, 254, 245, 0.8), rgba(254, 243, 199, 0.6));
+  }
+
+  .tier-canadian {
+    background: linear-gradient(135deg, rgba(254, 242, 242, 0.6), rgba(254, 226, 226, 0.4));
+    border-left: 3px solid rgba(200, 16, 46, 0.3);
+  }
+}
+
+/* ===== Combat Feedback Animations ===== */
+
+/* Damage number floating up and fading */
+@keyframes damage-float {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) scale(0.8);
+  }
+}
+
+.animate-damage-float {
+  animation: damage-float 1s ease-out forwards;
+}
+
+/* Screen shake animations */
+@keyframes shake-light {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  50% { transform: translateX(2px); }
+  75% { transform: translateX(-1px); }
+}
+
+@keyframes shake-medium {
+  0%, 100% { transform: translateX(0); }
+  10% { transform: translateX(-4px) rotate(-0.5deg); }
+  20% { transform: translateX(4px) rotate(0.5deg); }
+  30% { transform: translateX(-3px) rotate(-0.25deg); }
+  40% { transform: translateX(3px) rotate(0.25deg); }
+  50% { transform: translateX(-2px); }
+  60% { transform: translateX(2px); }
+  70% { transform: translateX(-1px); }
+  80% { transform: translateX(1px); }
+}
+
+@keyframes shake-heavy {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  10% { transform: translate(-8px, 2px) rotate(-1deg); }
+  20% { transform: translate(8px, -2px) rotate(1deg); }
+  30% { transform: translate(-6px, 1px) rotate(-0.75deg); }
+  40% { transform: translate(6px, -1px) rotate(0.75deg); }
+  50% { transform: translate(-4px, 1px) rotate(-0.5deg); }
+  60% { transform: translate(4px, -1px) rotate(0.5deg); }
+  70% { transform: translate(-2px, 0) rotate(-0.25deg); }
+  80% { transform: translate(2px, 0) rotate(0.25deg); }
+}
+
+.animate-shake-light {
+  animation: shake-light 0.15s ease-in-out;
+}
+
+.animate-shake-medium {
+  animation: shake-medium 0.3s ease-in-out;
+}
+
+.animate-shake-heavy {
+  animation: shake-heavy 0.5s ease-in-out;
+}
+
+/* Flash effect for crits and big hits */
+@keyframes flash {
+  0% { opacity: 0.6; }
+  100% { opacity: 0; }
+}
+
+.animate-flash {
+  animation: flash 0.15s ease-out forwards;
+}
+
+/* Victory/Defeat banner animation */
+@keyframes result-banner {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(-20px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) translateY(0);
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-result-banner {
+  animation: result-banner 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Attack effect burst */
+@keyframes attack-effect {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.5);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2);
+  }
+}
+
+.animate-attack-effect {
+  animation: attack-effect 0.4s ease-out forwards;
+}
+
+/* ATB fill pulse when ready */
+@keyframes atb-ready-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(251, 191, 36, 0);
+  }
+}
+
+.animate-atb-ready {
+  animation: atb-ready-pulse 1s ease-in-out infinite;
+}
+
+/* Enemy hit flash */
+@keyframes hit-flash {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.5) saturate(0.5); }
+}
+
+.animate-hit-flash {
+  animation: hit-flash 0.15s ease-out;
+}
+
+/* Hero action indicator */
+@keyframes action-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(200, 16, 46, 0.4);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 8px rgba(200, 16, 46, 0);
+  }
+}
+
+.animate-action-pulse {
+  animation: action-pulse 0.5s ease-out;
+}
+
+/* Limit break activation glow */
+@keyframes limit-break-glow {
+  0% {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.8), 0 0 60px rgba(255, 165, 0, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  }
+}
+
+.animate-limit-glow {
+  animation: limit-break-glow 1s ease-in-out infinite;
+}
+
+/* ===== Prestige System Animations ===== */
+
+/* Float up animation for prestige particles */
+@keyframes float-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(-60px) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-120px) scale(0.8);
+  }
+}
+
+.animate-float-up {
+  animation: float-up 2s ease-out forwards;
+}
+
+/* Animation delay utilities for staggered particles */
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-400 {
+  animation-delay: 0.4s;
+}
+
+.animation-delay-600 {
+  animation-delay: 0.6s;
+}
+
+/* Slide down animation for prestige message */
+@keyframes slide-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  85% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 5s ease-out forwards;
+}
+
+/* Golden shimmer effect for Rennet display */
+@keyframes golden-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.animate-golden-shimmer {
+  background: linear-gradient(
+    90deg,
+    #f59e0b 0%,
+    #fcd34d 25%,
+    #fef3c7 50%,
+    #fcd34d 75%,
+    #f59e0b 100%
+  );
+  background-size: 200% 100%;
+  animation: golden-shimmer 2s linear infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Prestige button ready glow */
+@keyframes prestige-ready-glow {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba(245, 158, 11, 0.6), 0 0 40px rgba(251, 191, 36, 0.3);
+  }
+}
+
+.animate-prestige-ready {
+  animation: prestige-ready-glow 2s ease-in-out infinite;
+}
+
+/* Cheese wheel aging rotation */
+@keyframes age-rotate {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(90deg) scale(1.1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1);
+  }
+  75% {
+    transform: rotate(270deg) scale(1.1);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.animate-age-rotate {
+  animation: age-rotate 3s ease-in-out;
+}
+
+/* Upgrade unlock sparkle */
+@keyframes unlock-sparkle {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(180deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8) rotate(360deg);
+  }
+}
+
+.animate-unlock-sparkle {
+  animation: unlock-sparkle 0.6s ease-out forwards;
+}
+
+/* ===== Loading Screen Animations ===== */
+
+/* Shimmer effect for progress bar */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ===== Accessibility Styles ===== */
+
+/* Font size preferences - applied to root element */
+/* All relative units (rem, em) will scale proportionally */
+.font-size-small {
+  font-size: 14px;
+  --base-spacing: 0.875;
+}
+
+.font-size-medium {
+  font-size: 16px;
+  --base-spacing: 1;
+}
+
+.font-size-large {
+  font-size: 20px;
+  --base-spacing: 1.25;
+}
+
+/* Ensure layout adapts to larger font sizes */
+.font-size-large .text-xs {
+  font-size: 0.8rem;
+}
+
+.font-size-large .text-sm {
+  font-size: 0.9rem;
+}
+
+/* Increase tap targets for larger font sizes */
+.font-size-large button,
+.font-size-large [role="button"],
+.font-size-large a {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* Ensure icons scale with text */
+.font-size-small svg {
+  width: 1em;
+  height: 1em;
+}
+
+.font-size-medium svg {
+  width: 1.125em;
+  height: 1.125em;
+}
+
+.font-size-large svg {
+  width: 1.25em;
+  height: 1.25em;
+}
+
+/* Line height adjustments for readability */
+.font-size-large p,
+.font-size-large li,
+.font-size-large span {
+  line-height: 1.6;
+}
+
+/* High contrast mode - WCAG 2.1 AA compliant */
+.high-contrast {
+  --color-text: #000000;
+  --color-background: #ffffff;
+  --color-primary: #0000cc;
+  --color-success: #006600;
+  --color-error: #cc0000;
+  --color-warning: #996600;
+  --color-border: #000000;
+}
+
+.high-contrast * {
+  border-color: var(--color-border) !important;
+}
+
+/* Increase border widths for better visibility */
+.high-contrast button,
+.high-contrast [role="button"],
+.high-contrast input,
+.high-contrast select,
+.high-contrast textarea {
+  border-width: 2px !important;
+}
+
+/* Ensure text has high contrast */
+.high-contrast .text-cheddar-600,
+.high-contrast .text-cheddar-700,
+.high-contrast .text-rind {
+  color: var(--color-text) !important;
+}
+
+/* High contrast backgrounds */
+.high-contrast .bg-cream,
+.high-contrast .bg-cheddar-50,
+.high-contrast .bg-white\/50 {
+  background-color: var(--color-background) !important;
+}
+
+/* High contrast links and interactive elements */
+.high-contrast a,
+.high-contrast button:not(:disabled),
+.high-contrast [role="button"]:not([aria-disabled="true"]) {
+  text-decoration: underline;
+}
+
+/* High contrast focus indicators */
+.high-contrast :focus-visible {
+  outline: 3px solid var(--color-text) !important;
+  outline-offset: 3px !important;
+}
+
+/* High contrast disabled states */
+.high-contrast button:disabled,
+.high-contrast [aria-disabled="true"] {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+/* High contrast progress bars */
+.high-contrast [role="progressbar"] {
+  border: 2px solid var(--color-border) !important;
+}
+
+/* Sharper shadows for depth perception */
+.high-contrast .shadow,
+.high-contrast .shadow-lg,
+.high-contrast .shadow-md {
+  box-shadow: 2px 2px 0 var(--color-border) !important;
+}
+
+/* Reduced motion - respects both setting and system preference */
+/* Replaces animations with instant state changes while keeping essential feedback */
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Keep essential visual feedback via opacity/color changes instead of motion */
+.reduced-motion [data-feedback="success"] {
+  background-color: rgba(34, 197, 94, 0.2) !important;
+}
+
+.reduced-motion [data-feedback="error"] {
+  background-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+.reduced-motion [data-feedback="purchase"] {
+  background-color: rgba(251, 191, 36, 0.2) !important;
+}
+
+/* System preference detection */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Keep essential visual feedback via opacity/color changes */
+  [data-feedback="success"] {
+    background-color: rgba(34, 197, 94, 0.2) !important;
+  }
+
+  [data-feedback="error"] {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+  }
+
+  [data-feedback="purchase"] {
+    background-color: rgba(251, 191, 36, 0.2) !important;
+  }
+}
+
+/* Colorblind mode filters - uses SVG filters from index.html */
+/* Based on Machado et al. 2009 colorblind simulation matrices */
+.colorblind-protanopia {
+  filter: url('#protanopia-filter');
+}
+
+.colorblind-deuteranopia {
+  filter: url('#deuteranopia-filter');
+}
+
+.colorblind-tritanopia {
+  filter: url('#tritanopia-filter');
+}
+
+/* ===== Colorblind-Friendly Indicators ===== */
+/* Use patterns and shapes instead of color alone for important information */
+
+/* Success states: add checkmark pattern */
+.colorblind-protanopia [data-status="success"]::before,
+.colorblind-deuteranopia [data-status="success"]::before,
+.colorblind-tritanopia [data-status="success"]::before {
+  content: '\2713 ';  /* Checkmark */
+}
+
+/* Error states: add X pattern */
+.colorblind-protanopia [data-status="error"]::before,
+.colorblind-deuteranopia [data-status="error"]::before,
+.colorblind-tritanopia [data-status="error"]::before {
+  content: '\2717 ';  /* X mark */
+}
+
+/* Warning states: add exclamation */
+.colorblind-protanopia [data-status="warning"]::before,
+.colorblind-deuteranopia [data-status="warning"]::before,
+.colorblind-tritanopia [data-status="warning"]::before {
+  content: '\26A0 ';  /* Warning sign */
+}
+
+/* Health bar patterns for colorblind modes */
+.colorblind-protanopia .health-bar,
+.colorblind-deuteranopia .health-bar,
+.colorblind-tritanopia .health-bar {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.1) 2px,
+    rgba(0, 0, 0, 0.1) 4px
+  );
+}
+
+/* ATB gauge patterns for colorblind modes */
+.colorblind-protanopia .atb-bar,
+.colorblind-deuteranopia .atb-bar,
+.colorblind-tritanopia .atb-bar {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.2) 2px,
+    rgba(255, 255, 255, 0.2) 4px
+  );
+}
+
+/* Rarity indicators with shapes for colorblind modes */
+.colorblind-protanopia [data-rarity="common"]::after,
+.colorblind-deuteranopia [data-rarity="common"]::after,
+.colorblind-tritanopia [data-rarity="common"]::after {
+  content: ' \25CB';  /* Circle outline */
+}
+
+.colorblind-protanopia [data-rarity="rare"]::after,
+.colorblind-deuteranopia [data-rarity="rare"]::after,
+.colorblind-tritanopia [data-rarity="rare"]::after {
+  content: ' \25C6';  /* Diamond */
+}
+
+.colorblind-protanopia [data-rarity="epic"]::after,
+.colorblind-deuteranopia [data-rarity="epic"]::after,
+.colorblind-tritanopia [data-rarity="epic"]::after {
+  content: ' \2605';  /* Star */
+}
+
+.colorblind-protanopia [data-rarity="legendary"]::after,
+.colorblind-deuteranopia [data-rarity="legendary"]::after,
+.colorblind-tritanopia [data-rarity="legendary"]::after {
+  content: ' \2728';  /* Sparkles */
+}
+
+/* Ensure sufficient contrast for colorblind modes */
+.colorblind-protanopia,
+.colorblind-deuteranopia,
+.colorblind-tritanopia {
+  --cb-border-contrast: 1.5;
+}
+
+.colorblind-protanopia button,
+.colorblind-deuteranopia button,
+.colorblind-tritanopia button,
+.colorblind-protanopia [role="button"],
+.colorblind-deuteranopia [role="button"],
+.colorblind-tritanopia [role="button"] {
+  border-width: 2px;
+}
+
+/* ===== Phase 8.2: UI Animation Utilities ===== */
+
+/* Float animation for hovering elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.animate-float {
+  animation: float 2s ease-in-out infinite;
+}
+
+/* Pulse glow effect for important elements */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px currentColor; }
+  50% { box-shadow: 0 0 20px currentColor; }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Shake animation for errors/failures */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.animate-shake {
+  animation: shake 0.3s ease-in-out;
+}
+
+/* Slide up animation for panels/cards */
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
+}
+
+/* Slide down for dropdown menus */
+@keyframes slide-down {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slide-down-fast {
+  animation: slide-down 0.2s ease-out forwards;
+}
+
+/* Number pop animation for value changes */
+@keyframes number-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.animate-number-pop {
+  animation: number-pop 0.3s ease-out;
+}
+
+/* Slide in from left for panel transitions */
+@keyframes slide-in-left {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.25s ease-out forwards;
+}
+
+/* Slide in from right for panel transitions */
+@keyframes slide-in-right {
+  from { transform: translateX(20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.25s ease-out forwards;
+}
+
+/* Fade in animation */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+/* Scale and fade in for modals */
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-modal-in {
+  animation: modal-in 0.25s ease-out forwards;
+}
+
+/* Backdrop fade in */
+@keyframes backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-backdrop-in {
+  animation: backdrop-in 0.2s ease-out forwards;
+}
+
+/* Staggered animation delays for lists */
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
+.stagger-3 { animation-delay: 150ms; }
+.stagger-4 { animation-delay: 200ms; }
+.stagger-5 { animation-delay: 250ms; }
+
+/* Button ripple effect */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease-out, height 0.3s ease-out;
+}
+
+.btn-ripple:active::after {
+  width: 200%;
+  height: 200%;
+}
+
+/* Button hover scale effect */
+.btn-scale {
+  transition: transform 0.15s ease-out;
+}
+
+.btn-scale:hover:not(:disabled) {
+  transform: scale(1.02);
+}
+
+.btn-scale:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Success flash animation */
+@keyframes success-flash {
+  0% { background-color: inherit; }
+  50% { background-color: rgba(34, 197, 94, 0.3); }
+  100% { background-color: inherit; }
+}
+
+.animate-success-flash {
+  animation: success-flash 0.4s ease-out;
+}
+
+/* Currency value change highlight */
+@keyframes value-highlight {
+  0% { color: inherit; }
+  50% { color: #22c55e; }
+  100% { color: inherit; }
+}
+
+.animate-value-highlight {
+  animation: value-highlight 0.5s ease-out;
+}
+
+/* Smooth counting transition for numbers */
+.counting-transition {
+  transition: transform 0.2s ease-out;
+}
+
+/* ===== Screen Reader Only (Visually Hidden) ===== */
+/* Content that is visually hidden but accessible to screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Allow sr-only content to become visible on focus (for skip links) */
+.sr-only-focusable:focus,
+.sr-only-focusable:focus-within {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Skip link styling */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: #c8102e;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 0 0 0.5rem 0.5rem;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 2px solid #fbbf24;
+  outline-offset: 2px;
+}
+
+/* Ensure focus indicators are always visible */
+:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+/* Focus trap indicator for modals */
+[role="dialog"]:focus {
+  outline: none;
+}
+
+/* Ensure interactive elements have visible focus states */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[tabindex="0"]:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+/* ===== Keyboard Key Styling ===== */
+.keyboard-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  padding: 0.125rem 0.375rem;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  background: linear-gradient(180deg, #ffffff 0%, #f3f4f6 100%);
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  box-shadow:
+    0 1px 0 1px rgba(0, 0, 0, 0.05),
+    0 2px 0 0 #e5e7eb,
+    0 3px 0 0 #d1d5db;
+}
+
+/* High contrast mode keyboard keys */
+.high-contrast .keyboard-key {
+  background: #ffffff;
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0 #000000;
+}
