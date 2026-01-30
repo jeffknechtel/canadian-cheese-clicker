@@ -85,13 +85,17 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
-          <span className="font-semibold text-rind truncate" title={generator.name}>{generator.name}</span>
-          <span className={`text-sm font-medium ${isCanadianTier ? 'text-maple-600' : 'text-cheddar-700'} tabular-nums`} aria-label={`${owned} owned`}>
+          <span className="font-semibold truncate" style={{ color: '#8b7355' }} title={generator.name}>{generator.name}</span>
+          <span
+            className="text-sm font-medium tabular-nums"
+            style={{ color: isCanadianTier ? '#dc2626' : '#b45309' }}
+            aria-label={`${owned} owned`}
+          >
             ×{owned}
           </span>
         </div>
-        <p className="text-xs text-gray-600 truncate" title={generator.description}>{generator.description}</p>
-        <p className={`text-xs ${isCanadianTier ? 'text-maple-600' : 'text-cheddar-600'}`}>
+        <p className="text-xs truncate" style={{ color: '#4b5563' }} title={generator.description}>{generator.description}</p>
+        <p className="text-xs" style={{ color: isCanadianTier ? '#dc2626' : '#d97706' }}>
           +{formatNumber(generator.baseCps)} cps each
         </p>
       </div>
@@ -100,15 +104,14 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
         disabled={!canAfford}
         aria-label={buyButtonLabel}
         aria-disabled={!canAfford}
-        className={`
-          px-4 py-2 rounded-lg font-medium text-sm transition-all btn-ripple btn-scale
-          ${canAfford
-            ? isCanadianTier
-              ? 'bg-maple-500 hover:bg-maple-600 text-white shadow-md hover:shadow-lg'
-              : 'bg-cheddar-500 hover:bg-cheddar-600 text-white shadow-md hover:shadow-lg'
-            : 'bg-gray-200 text-gray-700 cursor-not-allowed'
-          }
-        `}
+        className="px-4 py-2 rounded-lg font-medium text-sm transition-all btn-ripple btn-scale shadow-md hover:shadow-lg"
+        style={{
+          backgroundColor: canAfford
+            ? isCanadianTier ? '#ef4444' : '#f59e0b'
+            : '#e5e7eb',
+          color: canAfford ? '#ffffff' : '#374151',
+          cursor: canAfford ? 'pointer' : 'not-allowed',
+        }}
       >
         <div className="text-center" aria-hidden="true">
           <div>Buy {buyAmount === 'max' ? `×${effectiveAmount || 0}` : `×${buyAmount}`}</div>
@@ -128,7 +131,7 @@ export function GeneratorPanel() {
   return (
     <section className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain" aria-labelledby="generators-heading">
       <div className="flex items-center justify-between mb-3">
-        <h2 id="generators-heading" className="text-lg font-bold text-timber-700 flex items-center gap-2">
+        <h2 id="generators-heading" className="text-lg font-bold flex items-center gap-2" style={{ color: '#5f4810' }}>
           <span>Generators</span>
         </h2>
         <div className="flex gap-1" role="group" aria-label="Buy quantity selector">
@@ -138,13 +141,11 @@ export function GeneratorPanel() {
               onClick={() => setBuyAmount(amount)}
               aria-pressed={buyAmount === amount}
               aria-label={amount === 'max' ? 'Buy maximum affordable' : `Buy ${amount} at a time`}
-              className={`
-                px-2 py-1 text-xs rounded font-medium transition-colors
-                ${buyAmount === amount
-                  ? 'bg-timber-500 text-white'
-                  : 'bg-white/50 text-timber-700 hover:bg-white/70'
-                }
-              `}
+              className="px-2 py-1 text-xs rounded font-medium transition-colors"
+              style={{
+                backgroundColor: buyAmount === amount ? '#8b6914' : 'rgba(255,255,255,0.5)',
+                color: buyAmount === amount ? '#ffffff' : '#5f4810',
+              }}
             >
               {amount === 'max' ? 'MAX' : `×${amount}`}
             </button>

@@ -460,13 +460,19 @@ function App() {
         {/* Header with currency display - Tim Hortons-inspired */}
         <header className="p-3 sm:p-4 header-timmys text-white shadow-lg" role="banner">
           <div className="max-w-7xl mx-auto flex justify-between items-center gap-2">
-            <h1 className="text-lg sm:text-2xl font-bold truncate flex items-center gap-2">
-              <span className="text-2xl sm:text-3xl">🍁</span>
-              <span>
-                <span className="hidden sm:inline">The Great Canadian Cheese Quest</span>
-                <span className="sm:hidden">Cheese Quest</span>
-              </span>
-            </h1>
+            <div className="flex items-center gap-3">
+              {/* Debug Panel Button (Beta Only) - positioned in header */}
+              {BETA_FEATURES.debugPanel && (
+                <DebugPanel />
+              )}
+              <h1 className="text-lg sm:text-2xl font-bold truncate flex items-center gap-2">
+                <span className="text-2xl sm:text-3xl">🍁</span>
+                <span>
+                  <span className="hidden sm:inline">The Great Canadian Cheese Quest</span>
+                  <span className="sm:hidden">Cheese Quest</span>
+                </span>
+              </h1>
+            </div>
             <div className="flex items-center gap-3">
               <CurrencyDisplay />
               {/* Active cheese buffs display */}
@@ -855,10 +861,6 @@ function App() {
         <FeedbackWidget />
       )}
 
-      {/* Debug Panel (Beta Only) */}
-      {BETA_FEATURES.debugPanel && (
-        <DebugPanel />
-      )}
     </Layout>
     </div>
     </>
