@@ -55,7 +55,7 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-70 flex items-center justify-center bg-black/50 backdrop-blur-xs"
       onClick={(e) => e.target === e.currentTarget && onClose()}
       role="dialog"
       aria-modal="true"
@@ -63,7 +63,7 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
     >
       <div className="bg-cream rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-cheddar-500 to-cheddar-600 text-white">
+        <div className="flex items-center justify-between px-6 py-4 bg-linear-to-r from-cheddar-500 to-cheddar-600 text-white">
           <h2 id="changelog-title" className="text-xl font-bold flex items-center gap-2">
             <span className="text-2xl" aria-hidden="true">
               📜

@@ -144,7 +144,7 @@ function AchievementToastItem({ item, onDismiss }: AchievementToastItemProps) {
       ref={containerRef}
       className={`
         relative flex items-center gap-3 p-4 rounded-lg shadow-lg border-2 border-cheddar-400
-        bg-gradient-to-r from-cheddar-100 to-cheddar-50 backdrop-blur
+        bg-linear-to-r from-cheddar-100 to-cheddar-50 backdrop-blur
         transform transition-all duration-300 overflow-hidden
         ${isExiting ? 'opacity-0 translate-x-full' : 'opacity-100 translate-x-0'}
       `}
@@ -184,7 +184,7 @@ function AchievementToastItem({ item, onDismiss }: AchievementToastItemProps) {
       </div>
 
       {/* Dismiss hint */}
-      <div className="text-xs text-gray-400 flex-shrink-0 relative z-10">
+      <div className="text-xs text-gray-400 shrink-0 relative z-10">
         Click to dismiss
       </div>
     </div>
@@ -222,7 +222,7 @@ export function AchievementToastContainer() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed top-20 right-4 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none">
+    <div className="fixed top-20 right-4 z-40 flex flex-col gap-3 max-w-sm w-full pointer-events-none">
       {toasts.map((toast) => (
         <div key={toast.id} className="pointer-events-auto">
           <AchievementToastItem item={toast} onDismiss={removeToast} />

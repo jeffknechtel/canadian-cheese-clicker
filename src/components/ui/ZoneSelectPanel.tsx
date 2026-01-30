@@ -71,7 +71,7 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
             <p className="text-xs text-gray-500">{getProvinceDisplayName(zone.province)}</p>
             <p className="text-xs text-gray-400 mt-0.5">Recommended Lv. {zone.recommendedLevel}</p>
           </div>
-          <div className="flex-shrink-0 text-right">
+          <div className="shrink-0 text-right">
             {isUnlocked ? (
               <>
                 <div className="text-sm font-medium text-timber-600">{completion}%</div>
@@ -91,8 +91,8 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
             <div
               className={`h-full transition-all duration-500 ${
                 progress?.bossDefeated
-                  ? 'bg-gradient-to-r from-cheddar-400 to-cheddar-600'
-                  : 'bg-gradient-to-r from-maple-400 to-maple-600'
+                  ? 'bg-linear-to-r from-cheddar-400 to-cheddar-600'
+                  : 'bg-linear-to-r from-maple-400 to-maple-600'
               }`}
               style={{ width: `${completion}%` }}
             />
@@ -119,7 +119,7 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
                       ${isCleared
                         ? 'bg-cheddar-100 text-cheddar-700 border border-cheddar-300'
                         : canAttempt
-                          ? 'bg-maple-100 text-maple-700 border border-maple-300 hover:bg-maple-200 hover:shadow-sm'
+                          ? 'bg-maple-100 text-maple-700 border border-maple-300 hover:bg-maple-200 hover:shadow-xs'
                           : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
                       }
                     `}
@@ -143,7 +143,7 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
                   ${progress?.bossDefeated
                     ? 'bg-cheddar-100 text-cheddar-700 border border-cheddar-300'
                     : (progress?.highestStageCleared || 0) >= zone.stages.length
-                      ? 'bg-red-100 text-red-700 border border-red-300 hover:bg-red-200 hover:shadow-sm'
+                      ? 'bg-red-100 text-red-700 border border-red-300 hover:bg-red-200 hover:shadow-xs'
                       : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
                   }
                 `}

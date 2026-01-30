@@ -29,7 +29,7 @@ export function RennetDisplay({ showPotential = false, className = '' }: RennetD
       )}
 
       {/* Tooltip */}
-      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-rind text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 shadow-lg">
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-rind text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-30 shadow-lg">
         <div className="font-semibold mb-1">Prestige Bonuses</div>
         <div className="space-y-0.5 text-gray-200">
           <div>Production: x{multipliers.production.toFixed(2)}</div>

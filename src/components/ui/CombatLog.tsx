@@ -50,11 +50,11 @@ function CombatLogEntryItem({ entry, isNew = false }: CombatLogEntryItemProps) {
         transition-colors duration-200
       `}
     >
-      <span className="flex-shrink-0 w-4 text-center">{icon}</span>
-      <span className="text-gray-400 flex-shrink-0 tabular-nums">[{formatTime(entry.timestamp)}]</span>
+      <span className="shrink-0 w-4 text-center">{icon}</span>
+      <span className="text-gray-400 shrink-0 tabular-nums">[{formatTime(entry.timestamp)}]</span>
       <span className={`flex-1 ${colorClass}`}>{entry.message}</span>
       {entry.value !== undefined && (
-        <span className="flex-shrink-0 font-bold text-red-600">-{entry.value}</span>
+        <span className="shrink-0 font-bold text-red-600">-{entry.value}</span>
       )}
     </div>
   );

@@ -58,12 +58,12 @@ export function KeyboardHelpModal({ isOpen, onClose }: KeyboardHelpModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-backdrop-in"
+      className="fixed inset-0 z-70 flex items-center justify-center p-4 animate-backdrop-in"
       role="presentation"
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50 backdrop-blur-xs"
         onClick={onClose}
         aria-hidden="true"
       />

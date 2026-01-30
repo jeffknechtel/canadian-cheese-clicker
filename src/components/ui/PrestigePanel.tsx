@@ -96,7 +96,7 @@ function AgingUpgradeCard({ upgrade, purchaseCount, canPurchase, onPurchase }: A
         {/* Icon */}
         <div
           className={`
-            w-10 h-10 flex items-center justify-center text-2xl rounded-lg flex-shrink-0
+            w-10 h-10 flex items-center justify-center text-2xl rounded-lg shrink-0
             ${isMaxed ? 'bg-amber-500/20' : isLocked ? 'bg-gray-300/30' : 'bg-amber-100'}
           `}
         >
@@ -123,7 +123,7 @@ function AgingUpgradeCard({ upgrade, purchaseCount, canPurchase, onPurchase }: A
 
         {/* Cost */}
         {!isMaxed && !isLocked && (
-          <div className="flex-shrink-0 text-right">
+          <div className="shrink-0 text-right">
             <div className={`text-sm font-bold ${canPurchase ? 'text-amber-600' : 'text-gray-400'}`}>
               {upgrade.cost}
             </div>
@@ -289,7 +289,7 @@ export function PrestigePanel() {
       {/* Prestige Animation Overlay */}
       {showPrestigeAnimation && (
         <div className="absolute inset-0 pointer-events-none z-10">
-          <div className="absolute inset-0 bg-gradient-to-t from-amber-400/40 to-transparent animate-pulse" />
+          <div className="absolute inset-0 bg-linear-to-t from-amber-400/40 to-transparent animate-pulse" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <span className="text-6xl animate-bounce">🧀</span>
           </div>

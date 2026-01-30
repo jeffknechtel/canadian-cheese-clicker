@@ -571,7 +571,7 @@ function App() {
         {/* Desktop Layout */}
         <main id="main-content" className="hidden md:flex flex-1 min-h-0" role="main" aria-label="Game content">
           {/* Generator Panel - Left side */}
-          <aside id="generators-panel" className="w-72 lg:w-80 p-4 overflow-hidden flex-shrink-0" aria-label="Generators panel">
+          <aside id="generators-panel" className="w-72 lg:w-80 p-4 overflow-hidden shrink-0" aria-label="Generators panel">
             <GeneratorPanel />
           </aside>
 
@@ -581,7 +581,7 @@ function App() {
           </div>
 
           {/* Right side panel (Upgrades, Achievements, Heroes, or Combat) */}
-          <aside className="w-72 lg:w-80 p-4 overflow-hidden flex-shrink-0 flex flex-col gap-4">
+          <aside className="w-72 lg:w-80 p-4 overflow-hidden shrink-0 flex flex-col gap-4">
             {rightPanelView === 'upgrades' && <UpgradePanel />}
             {rightPanelView === 'achievements' && <AchievementPanel />}
             {rightPanelView === 'heroes' && (

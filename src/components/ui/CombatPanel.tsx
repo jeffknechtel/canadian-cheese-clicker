@@ -126,10 +126,10 @@ function HeroCombatCard({ heroState, isSelected = false, heroNumber }: HeroComba
             className={`
               h-full rounded-full transition-all duration-300
               ${isLowHp
-                ? 'bg-gradient-to-r from-red-400 to-red-600'
+                ? 'bg-linear-to-r from-red-400 to-red-600'
                 : isMediumHp
-                  ? 'bg-gradient-to-r from-amber-400 to-amber-600'
-                  : 'bg-gradient-to-r from-green-400 to-green-600'
+                  ? 'bg-linear-to-r from-amber-400 to-amber-600'
+                  : 'bg-linear-to-r from-green-400 to-green-600'
               }
             `}
             style={{ width: `${hpPercentage}%` }}
@@ -205,7 +205,7 @@ function SpeedControl({ currentSpeed, onSpeedChange }: SpeedControlProps) {
           className={`
             px-2 py-1 text-xs font-bold rounded transition-all
             ${currentSpeed === speed
-              ? 'bg-maple-500 text-white shadow-sm'
+              ? 'bg-maple-500 text-white shadow-xs'
               : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
             }
           `}
@@ -511,21 +511,3 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
   );
 }
 
-export function CombatContainer() {
-  const combat = useGameStore((state) => state.combat);
-  const endCombat = useGameStore((state) => state.endCombat);
-
-  const handleFlee = () => {
-    endCombat('flee');
-  };
-
-  if (!combat.isInCombat) {
-    // Show zone selection when not in combat
-    // This will be handled by the parent component
-    return null;
-  }
-
-  return (
-    <CombatPanel onFlee={handleFlee} />
-  );
-}
