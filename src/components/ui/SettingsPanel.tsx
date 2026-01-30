@@ -77,11 +77,14 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col mx-4" style={{ backgroundColor: '#FFFEF5' }}>
+      <div
+        className="rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+        style={{ backgroundColor: '#FFFEF5' }}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-linear-to-r from-cheddar-500 to-cheddar-600 text-white">
           <h2 className="text-xl font-bold flex items-center gap-2">
@@ -246,14 +249,14 @@ interface ToggleSettingProps {
 
 function ToggleSetting({ label, description, checked, onChange }: ToggleSettingProps) {
   return (
-    <div className="flex items-center justify-between py-2">
-      <div>
+    <div className="flex items-center justify-between gap-4 py-2">
+      <div className="min-w-0">
         <p className="text-sm font-medium text-rind-700">{label}</p>
         {description && <p className="text-xs text-rind-500">{description}</p>}
       </div>
       <button
         onClick={() => onChange(!checked)}
-        className={`w-12 h-6 rounded-full transition-colors ${
+        className={`shrink-0 w-12 h-6 rounded-full transition-colors ${
           checked ? 'bg-cheddar-500' : 'bg-rind-300'
         }`}
         role="switch"
