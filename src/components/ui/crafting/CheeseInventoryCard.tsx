@@ -40,7 +40,7 @@ export function CheeseInventoryCard({ cheese }: CheeseInventoryCardProps) {
     <div className="bg-white/70 rounded-lg border border-timber-200 p-3 transition-all hover:bg-white/90">
       <div className="flex items-start gap-3">
         {/* Icon and Quality */}
-        <div className="flex-shrink-0 relative">
+        <div className="shrink-0 relative">
           <div className="text-2xl w-12 h-12 flex items-center justify-center bg-timber-50 rounded-lg">
             {recipe.icon}
           </div>
@@ -80,7 +80,7 @@ export function CheeseInventoryCard({ cheese }: CheeseInventoryCardProps) {
         </div>
 
         {/* Actions */}
-        <div className="flex-shrink-0 flex flex-col gap-1">
+        <div className="shrink-0 flex flex-col gap-1">
           {hasEffects && (
             <button
               onClick={handleConsume}

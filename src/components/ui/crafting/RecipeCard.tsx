@@ -77,11 +77,20 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
       {/* Header - always visible */}
       <div
         className="p-3 cursor-pointer hover:bg-white/90 transition-colors"
+        role="button"
+        tabIndex={0}
         onClick={() => setIsExpanded(!isExpanded)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsExpanded(!isExpanded);
+          }
+        }}
+        aria-expanded={isExpanded}
       >
         <div className="flex items-start gap-3">
           {/* Icon */}
-          <div className="flex-shrink-0 text-2xl w-10 h-10 flex items-center justify-center bg-timber-50 rounded-lg">
+          <div className="shrink-0 text-2xl w-10 h-10 flex items-center justify-center bg-timber-50 rounded-lg">
             {recipe.icon}
           </div>
 
@@ -110,7 +119,7 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
           </div>
 
           {/* Expand indicator */}
-          <div className="flex-shrink-0 text-timber-400">
+          <div className="shrink-0 text-timber-400">
             {isExpanded ? '▼' : '▶'}
           </div>
         </div>

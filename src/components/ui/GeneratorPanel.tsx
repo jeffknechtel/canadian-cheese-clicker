@@ -80,7 +80,7 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
       aria-label={`${generator.name}: ${owned} owned, produces ${formatNumber(generator.baseCps)} curds per second each`}
     >
       {/* Generator Icon */}
-      <div className="flex-shrink-0 text-2xl w-10 h-10 flex items-center justify-center bg-white/50 rounded-lg" aria-hidden="true">
+      <div className="shrink-0 text-2xl w-10 h-10 flex items-center justify-center bg-white/50 rounded-lg" aria-hidden="true">
         {generator.icon}
       </div>
       <div className="flex-1 min-w-0">

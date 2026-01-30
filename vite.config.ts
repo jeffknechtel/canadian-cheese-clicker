@@ -11,8 +11,8 @@ export default defineConfig({
     },
   },
   build: {
-    // Target modern browsers for smaller bundles
-    target: 'es2020',
+    // Target modern browsers for smaller bundles (aligned with tsconfig.app.json)
+    target: 'es2022',
     // Use esbuild for minification (fast and efficient)
     minify: 'esbuild',
     // Enable CSS minification

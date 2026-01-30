@@ -172,7 +172,7 @@ function AgingJobRow({ job }: AgingJobRowProps) {
         </div>
 
         {/* Actions */}
-        <div className="flex-shrink-0 flex gap-1">
+        <div className="shrink-0 flex gap-1">
           {!isComplete && (
             <button
               onClick={handleTurn}

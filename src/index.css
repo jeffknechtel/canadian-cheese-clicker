@@ -1,29 +1,29 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer utilities {
+  :root {
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+  }
+
+  #root {
+    width: 100%;
+    height: 100vh;
+  }
+
+  /* Smooth transitions for interactive elements */
 }
-
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-#root {
-  width: 100%;
-  height: 100vh;
-}
-
-/* Smooth transitions for interactive elements */
 @layer utilities {
   .transition-smooth {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -55,47 +55,50 @@ body {
   }
 }
 
-/* Loading spinner animation */
-@keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
+@layer utilities {
+  /* Loading spinner animation */
+  @keyframes spin-slow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
-  to {
-    transform: rotate(360deg);
+
+  .animate-spin-slow {
+    animation: spin-slow 2s linear infinite;
   }
-}
 
-.animate-spin-slow {
-  animation: spin-slow 2s linear infinite;
-}
-
-/* Pulse animation for purchase feedback */
-@keyframes pulse-once {
-  0%, 100% {
-    transform: scale(1);
+  /* Pulse animation for purchase feedback */
+  @keyframes pulse-once {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
   }
-  50% {
-    transform: scale(1.05);
+
+  .animate-pulse-once {
+    animation: pulse-once 0.3s ease-out;
   }
-}
 
-.animate-pulse-once {
-  animation: pulse-once 0.3s ease-out;
-}
+  /* Number counter animation */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
 
-/* Number counter animation */
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
-}
+  /* Focus styles for accessibility */
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid #f59e0b; /* cheddar-500 */
+    outline-offset: 2px;
+  }
 
-/* Focus styles for accessibility */
-button:focus-visible,
-a:focus-visible {
-  outline: 2px solid #f59e0b; /* cheddar-500 */
-  outline-offset: 2px;
+  /* Canadian-themed Panel Styles */
 }
-
-/* Canadian-themed Panel Styles */
 @layer components {
   /* Wood panel styling - rustic Canadian cabin feel */
   .panel-wood {

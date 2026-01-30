@@ -108,7 +108,7 @@ const UpgradeCard = memo(function UpgradeCard({ upgrade, isPurchased, index }: U
           )}
         </div>
         {!isPurchased && (
-          <div className="flex-shrink-0 text-right">
+          <div className="shrink-0 text-right">
             <div
               className={`
                 text-sm font-bold tabular-nums

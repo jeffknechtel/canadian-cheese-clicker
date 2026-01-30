@@ -116,7 +116,7 @@ export function FlashOverlay({ isFlashing, color }: FlashOverlayProps) {
   return (
     <div
       className={`
-        absolute inset-0 pointer-events-none z-50
+        absolute inset-0 pointer-events-none z-10
         ${colorMap[color]}
         animate-flash
       `}
@@ -148,8 +148,8 @@ export function CombatResultBanner({ result, onAnimationComplete }: CombatResult
           px-8 py-4 rounded-lg shadow-2xl
           animate-result-banner
           ${isVictory
-            ? 'bg-gradient-to-r from-green-500 to-emerald-600'
-            : 'bg-gradient-to-r from-red-500 to-rose-600'
+            ? 'bg-linear-to-r from-green-500 to-emerald-600'
+            : 'bg-linear-to-r from-red-500 to-rose-600'
           }
         `}
       >
@@ -188,10 +188,10 @@ export function ComboCounter({ count, maxCombo }: ComboCounterProps) {
       className={`
         absolute top-2 right-2 px-3 py-1 rounded-lg font-bold
         ${intensity === 'max'
-          ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white animate-pulse'
+          ? 'bg-linear-to-r from-orange-500 to-red-500 text-white animate-pulse'
           : intensity === 'high'
-            ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white'
-            : 'bg-gradient-to-r from-blue-400 to-blue-500 text-white'
+            ? 'bg-linear-to-r from-yellow-400 to-orange-500 text-white'
+            : 'bg-linear-to-r from-blue-400 to-blue-500 text-white'
         }
       `}
     >

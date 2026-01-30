@@ -29,11 +29,11 @@ export function CombatATBBar({
 
   const gradientClasses = {
     hero: isReady
-      ? 'bg-gradient-to-r from-cheddar-400 to-cheddar-500 animate-pulse'
-      : 'bg-gradient-to-r from-maple-400 to-maple-600',
+      ? 'bg-linear-to-r from-cheddar-400 to-cheddar-500 animate-pulse'
+      : 'bg-linear-to-r from-maple-400 to-maple-600',
     enemy: isReady
-      ? 'bg-gradient-to-r from-red-400 to-red-500 animate-pulse'
-      : 'bg-gradient-to-r from-red-300 to-red-500',
+      ? 'bg-linear-to-r from-red-400 to-red-500 animate-pulse'
+      : 'bg-linear-to-r from-red-300 to-red-500',
   };
 
   return (
@@ -42,7 +42,7 @@ export function CombatATBBar({
       {icon && (
         <span
           className={`
-            flex-shrink-0 text-center
+            shrink-0 text-center
             ${size === 'sm' ? 'text-sm w-5' : size === 'md' ? 'text-base w-6' : 'text-lg w-8'}
             ${isReady ? 'animate-bounce' : ''}
           `}
@@ -105,8 +105,8 @@ export function LimitBreakGauge({
           className={`
             h-full rounded-full transition-all duration-200
             ${isReady
-              ? 'bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 animate-pulse'
-              : 'bg-gradient-to-r from-amber-300 to-amber-500'
+              ? 'bg-linear-to-r from-amber-400 via-orange-500 to-red-500 animate-pulse'
+              : 'bg-linear-to-r from-amber-300 to-amber-500'
             }
           `}
           style={{ width: `${percentage}%` }}
@@ -120,7 +120,7 @@ export function LimitBreakGauge({
         className={`
           w-full py-2 rounded font-bold text-sm transition-all duration-200
           ${isReady && !isDisabled
-            ? 'bg-gradient-to-r from-amber-500 to-red-500 text-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+            ? 'bg-linear-to-r from-amber-500 to-red-500 text-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           }
         `}

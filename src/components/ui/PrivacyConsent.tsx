@@ -54,14 +54,14 @@ export function PrivacyConsent({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-80 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="privacy-consent-title"
     >
       <div className="bg-cream rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border-2 border-cheddar-300">
         {/* Header */}
-        <div className="p-6 border-b border-cheddar-200 bg-gradient-to-r from-cheddar-100 to-maple-100">
+        <div className="p-6 border-b border-cheddar-200 bg-linear-to-r from-cheddar-100 to-maple-100">
           <h2
             id="privacy-consent-title"
             className="text-xl font-bold text-cheddar-800 flex items-center gap-2"

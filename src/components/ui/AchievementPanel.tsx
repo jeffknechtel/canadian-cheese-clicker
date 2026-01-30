@@ -63,7 +63,7 @@ function AchievementCard({ achievement, isUnlocked }: AchievementCardProps) {
               {isUnlocked ? achievement.name : '???'}
             </span>
             {isUnlocked && (
-              <span className="text-xs bg-cheddar-500 text-white px-1.5 py-0.5 rounded flex-shrink-0">
+              <span className="text-xs bg-cheddar-500 text-white px-1.5 py-0.5 rounded shrink-0">
                 Unlocked
               </span>
             )}

@@ -115,7 +115,7 @@ export function FeedbackWidget({ className = '' }: FeedbackWidgetProps) {
   }, [description, category, includeScreenshot]);
 
   return (
-    <div className={`fixed bottom-20 right-4 z-50 ${className}`}>
+    <div className={`fixed bottom-20 right-4 z-40 ${className}`}>
       {/* Floating feedback button */}
       {!isOpen && (
         <button

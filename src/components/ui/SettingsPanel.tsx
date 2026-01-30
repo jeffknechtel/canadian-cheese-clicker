@@ -83,7 +83,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
     >
       <div className="rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col mx-4" style={{ backgroundColor: '#FFFEF5' }}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-cheddar-500 to-cheddar-600 text-white">
+        <div className="flex items-center justify-between px-6 py-4 bg-linear-to-r from-cheddar-500 to-cheddar-600 text-white">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <span className="text-2xl">&#9881;</span>
             Settings

@@ -174,7 +174,7 @@ export function DebugPanel({ className = '' }: DebugPanelProps) {
   }
 
   return (
-    <div className={`fixed bottom-4 left-4 z-50 ${className}`}>
+    <div className={`fixed bottom-4 left-4 z-40 ${className}`}>
       {/* Toggle button */}
       {!isOpen && (
         <button

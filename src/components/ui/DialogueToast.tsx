@@ -67,7 +67,7 @@ function DialogueToastItem({ item, onDismiss }: DialogueToastItemProps) {
     <div
       className={`
         flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg border-2
-        bg-gradient-to-r ${getTriggerStyle()} backdrop-blur
+        bg-linear-to-r ${getTriggerStyle()} backdrop-blur
         transform transition-all duration-300 cursor-pointer
         ${isExiting ? 'opacity-0 -translate-y-2 scale-95' : 'opacity-100 translate-y-0 scale-100'}
       `}
@@ -77,7 +77,7 @@ function DialogueToastItem({ item, onDismiss }: DialogueToastItemProps) {
       }}
     >
       {/* Icon */}
-      <span className="text-xl flex-shrink-0">{getIcon()}</span>
+      <span className="text-xl shrink-0">{getIcon()}</span>
 
       {/* Speech bubble style text */}
       <p className="text-rind font-medium text-sm flex-1">{item.text}</p>

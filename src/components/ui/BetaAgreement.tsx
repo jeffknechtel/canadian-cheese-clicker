@@ -31,10 +31,10 @@ export function BetaAgreement({ onAccept, onDecline }: BetaAgreementProps) {
   }, [onAccept]);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
       <div className="w-full max-w-lg bg-white rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
         {/* Header */}
-        <div className="px-6 py-4 bg-gradient-to-r from-maple-600 to-maple-700 text-white">
+        <div className="px-6 py-4 bg-linear-to-r from-maple-600 to-maple-700 text-white">
           <div className="flex items-center gap-3">
             <span className="text-3xl">🧀</span>
             <div>

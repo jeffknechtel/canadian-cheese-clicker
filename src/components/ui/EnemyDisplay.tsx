@@ -117,10 +117,10 @@ export function EnemyCard({ enemy, showATB = true }: EnemyCardProps) {
             className={`
               h-full rounded-full transition-all duration-300
               ${isLowHp
-                ? 'bg-gradient-to-r from-red-400 to-red-600'
+                ? 'bg-linear-to-r from-red-400 to-red-600'
                 : isMediumHp
-                  ? 'bg-gradient-to-r from-amber-400 to-amber-600'
-                  : 'bg-gradient-to-r from-green-400 to-green-600'
+                  ? 'bg-linear-to-r from-amber-400 to-amber-600'
+                  : 'bg-linear-to-r from-green-400 to-green-600'
               }
             `}
             style={{ width: `${hpPercentage}%` }}

@@ -42,7 +42,7 @@ export function LoadingScreen({ progress, onComplete }: LoadingScreenProps) {
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-cream via-cheddar-50 to-cheddar-100 transition-opacity duration-500 ${
+      className={`fixed inset-0 z-90 flex flex-col items-center justify-center bg-linear-to-br from-cream via-cheddar-50 to-cheddar-100 transition-opacity duration-500 ${
         fadeOut ? 'opacity-0' : 'opacity-100'
       }`}
     >
@@ -62,7 +62,7 @@ export function LoadingScreen({ progress, onComplete }: LoadingScreenProps) {
           <div className="absolute inset-0 rounded-full bg-cheddar-400/20 blur-xl animate-pulse" />
 
           {/* Cheese wheel */}
-          <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-cheddar-300 via-cheddar-400 to-cheddar-500 shadow-lg animate-spin-slow">
+          <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-linear-to-br from-cheddar-300 via-cheddar-400 to-cheddar-500 shadow-lg animate-spin-slow">
             {/* Cheese holes pattern */}
             <div className="absolute top-4 left-6 w-4 h-4 rounded-full bg-cheddar-600/30" />
             <div className="absolute top-8 right-6 w-3 h-3 rounded-full bg-cheddar-600/30" />
@@ -71,7 +71,7 @@ export function LoadingScreen({ progress, onComplete }: LoadingScreenProps) {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-cheddar-600/20" />
 
             {/* Inner highlight */}
-            <div className="absolute inset-2 rounded-full bg-gradient-to-tl from-transparent via-white/10 to-white/20" />
+            <div className="absolute inset-2 rounded-full bg-linear-to-tl from-transparent via-white/10 to-white/20" />
           </div>
 
           {/* Maple leaf accent */}
@@ -97,11 +97,11 @@ export function LoadingScreen({ progress, onComplete }: LoadingScreenProps) {
         <div className="w-64 sm:w-80">
           <div className="h-3 bg-cheddar-200 rounded-full overflow-hidden shadow-inner">
             <div
-              className="h-full bg-gradient-to-r from-maple-500 via-maple-600 to-maple-500 rounded-full transition-all duration-300 relative"
+              className="h-full bg-linear-to-r from-maple-500 via-maple-600 to-maple-500 rounded-full transition-all duration-300 relative"
               style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
             >
               {/* Shimmer effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+              <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
             </div>
           </div>
           <p className="text-center text-sm text-cheddar-600 mt-2">
@@ -118,7 +118,7 @@ export function LoadingScreen({ progress, onComplete }: LoadingScreenProps) {
 
         {/* Loading Tip */}
         <div className="max-w-md text-center px-4">
-          <div className="bg-white/50 backdrop-blur-sm rounded-lg px-6 py-4 shadow-sm border border-cheddar-200">
+          <div className="bg-white/50 backdrop-blur-xs rounded-lg px-6 py-4 shadow-xs border border-cheddar-200">
             <p className="text-sm text-cheddar-700 italic transition-opacity duration-300">
               💡 {tip}
             </p>

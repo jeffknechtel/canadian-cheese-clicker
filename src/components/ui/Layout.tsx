@@ -6,7 +6,7 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream via-cheddar-50 to-cheddar-100 overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-cream via-cheddar-50 to-cheddar-100 overflow-hidden">
       {/* Subtle decorative background pattern */}
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.02]"

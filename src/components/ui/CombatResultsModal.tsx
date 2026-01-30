@@ -57,13 +57,13 @@ export function CombatResultsModal({
   const isBossStage = zone ? stageNumber === zone.bossStage.stageNumber : false;
 
   return (
-    <div className={`fixed inset-0 bg-black/60 flex items-center justify-center z-50 ${!reducedMotion ? 'animate-backdrop-in' : ''}`}>
+    <div className={`fixed inset-0 bg-black/60 flex items-center justify-center z-60 ${!reducedMotion ? 'animate-backdrop-in' : ''}`}>
       <div
         className={`
           mx-4 max-w-md w-full rounded-lg shadow-2xl overflow-hidden
           ${isVictory
-            ? 'bg-gradient-to-b from-cheddar-50 to-cream border-4 border-cheddar-500'
-            : 'bg-gradient-to-b from-gray-100 to-cream border-4 border-gray-400'
+            ? 'bg-linear-to-b from-cheddar-50 to-cream border-4 border-cheddar-500'
+            : 'bg-linear-to-b from-gray-100 to-cream border-4 border-gray-400'
           }
           ${!reducedMotion ? 'animate-modal-in' : ''}
         `}
@@ -73,8 +73,8 @@ export function CombatResultsModal({
           className={`
             py-4 px-6 text-center
             ${isVictory
-              ? 'bg-gradient-to-r from-cheddar-500 to-cheddar-600'
-              : 'bg-gradient-to-r from-gray-500 to-gray-600'
+              ? 'bg-linear-to-r from-cheddar-500 to-cheddar-600'
+              : 'bg-linear-to-r from-gray-500 to-gray-600'
             }
           `}
         >
@@ -189,7 +189,7 @@ export function CombatResultsModal({
           {!isVictory && onRetry && (
             <button
               onClick={onRetry}
-              className="flex-1 py-3 rounded-lg font-bold text-white bg-gradient-to-r from-maple-500 to-maple-600 hover:from-maple-600 hover:to-maple-700 shadow-md hover:shadow-lg transition-all active:scale-[0.98]"
+              className="flex-1 py-3 rounded-lg font-bold text-white bg-linear-to-r from-maple-500 to-maple-600 hover:from-maple-600 hover:to-maple-700 shadow-md hover:shadow-lg transition-all active:scale-[0.98]"
             >
               🔄 Try Again
             </button>
@@ -199,7 +199,7 @@ export function CombatResultsModal({
             className={`
               flex-1 py-3 rounded-lg font-bold transition-all active:scale-[0.98]
               ${isVictory
-                ? 'text-white bg-gradient-to-r from-cheddar-500 to-cheddar-600 hover:from-cheddar-600 hover:to-cheddar-700 shadow-md hover:shadow-lg'
+                ? 'text-white bg-linear-to-r from-cheddar-500 to-cheddar-600 hover:from-cheddar-600 hover:to-cheddar-700 shadow-md hover:shadow-lg'
                 : 'text-timber-700 bg-gray-200 hover:bg-gray-300'
               }
             `}

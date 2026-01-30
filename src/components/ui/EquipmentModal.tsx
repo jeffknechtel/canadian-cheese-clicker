@@ -73,7 +73,7 @@ function EquipmentCard({
     >
       <div className="flex items-start gap-3">
         {/* Icon */}
-        <div className="flex-shrink-0 text-2xl w-10 h-10 flex items-center justify-center bg-white rounded">
+        <div className="shrink-0 text-2xl w-10 h-10 flex items-center justify-center bg-white rounded">
           {equipment.icon}
         </div>
 
@@ -221,7 +221,7 @@ export function EquipmentModal({ heroId, slot, onClose }: EquipmentModalProps) {
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 ${!reducedMotion ? 'animate-backdrop-in' : ''}`}
+      className={`fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/50 ${!reducedMotion ? 'animate-backdrop-in' : ''}`}
       onClick={onClose}
     >
       <div

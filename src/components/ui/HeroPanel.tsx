@@ -55,7 +55,7 @@ function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, 
     }`}>
       {/* Header: Icon, Name, Level, Class */}
       <div className="flex items-start gap-3">
-        <div className="flex-shrink-0 text-3xl w-12 h-12 flex items-center justify-center bg-timber-100 rounded-lg transition-transform duration-200 hover:scale-110">
+        <div className="shrink-0 text-3xl w-12 h-12 flex items-center justify-center bg-timber-100 rounded-lg transition-transform duration-200 hover:scale-110">
           {hero.icon}
         </div>
         <div className="flex-1 min-w-0">
@@ -76,7 +76,7 @@ function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, 
           {/* XP Bar */}
           <div className="mt-1.5 h-1.5 bg-gray-200 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-cheddar-400 to-cheddar-600 transition-all duration-500 ease-out"
+              className="h-full bg-linear-to-r from-cheddar-400 to-cheddar-600 transition-all duration-500 ease-out"
               style={{ width: `${xpProgress}%` }}
             />
           </div>
@@ -121,7 +121,7 @@ function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, 
               className={`
                 flex-1 p-1.5 rounded text-xs transition-all duration-200
                 ${equipped
-                  ? 'bg-cheddar-100 border border-cheddar-300 hover:bg-cheddar-200 hover:border-cheddar-400 hover:shadow-sm'
+                  ? 'bg-cheddar-100 border border-cheddar-300 hover:bg-cheddar-200 hover:border-cheddar-400 hover:shadow-xs'
                   : 'bg-gray-100 border border-gray-200 hover:bg-gray-200 hover:border-gray-300'
                 }
                 active:scale-95
@@ -147,7 +147,7 @@ function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, 
             ? 'bg-gray-200 text-gray-500 border border-gray-300 cursor-not-allowed'
             : isInParty
               ? 'bg-maple-100 text-maple-600 border border-maple-300 cursor-default'
-              : 'bg-gradient-to-r from-maple-500 to-maple-600 hover:from-maple-600 hover:to-maple-700 text-white shadow-sm hover:shadow-md active:scale-[0.98]'
+              : 'bg-linear-to-r from-maple-500 to-maple-600 hover:from-maple-600 hover:to-maple-700 text-white shadow-xs hover:shadow-md active:scale-[0.98]'
           }
         `}
       >
@@ -185,17 +185,16 @@ function HeroRecruitCard({ hero }: HeroRecruitCardProps) {
       className={`
         p-3 rounded-lg transition-all duration-200
         ${canAfford
-          ? 'bg-white/70 border border-timber-200 hover:border-maple-400 hover:shadow-md hover:scale-[1.01] cursor-pointer'
+          ? 'bg-white/70 border border-timber-200 hover:border-maple-400 hover:shadow-md hover:scale-[1.01]'
           : 'bg-white/40 border border-gray-200 opacity-80'
         }
       `}
-      onClick={handleRecruit}
     >
       <div className="flex items-start gap-3">
         {/* Portrait - silhouette style if not affordable */}
         <div
           className={`
-            flex-shrink-0 text-3xl w-12 h-12 flex items-center justify-center rounded-lg
+            shrink-0 text-3xl w-12 h-12 flex items-center justify-center rounded-lg
             ${canAfford ? 'bg-maple-100' : 'bg-gray-200 grayscale opacity-60'}
           `}
         >
@@ -213,7 +212,7 @@ function HeroRecruitCard({ hero }: HeroRecruitCardProps) {
           <p className="text-xs text-gray-500 italic">{hero.title}</p>
           <p className="text-xs text-gray-600 mt-1">{hero.province.replace('_', ' ')}</p>
         </div>
-        <div className="flex-shrink-0 text-right">
+        <div className="shrink-0 text-right">
           <div className={`text-sm font-bold ${canAfford ? 'text-maple-600' : 'text-gray-400'}`}>
             {formatNumber(hero.recruitCost)}
           </div>
@@ -253,11 +252,12 @@ function HeroRecruitCard({ hero }: HeroRecruitCardProps) {
 
       {/* Recruit Button */}
       <button
+        onClick={handleRecruit}
         disabled={!canAfford}
         className={`
           mt-2 w-full py-2 rounded font-medium text-sm transition-all duration-200
           ${canAfford
-            ? 'bg-gradient-to-r from-maple-500 to-maple-600 hover:from-maple-600 hover:to-maple-700 text-white shadow-sm hover:shadow-md active:scale-[0.98]'
+            ? 'bg-linear-to-r from-maple-500 to-maple-600 hover:from-maple-600 hover:to-maple-700 text-white shadow-xs hover:shadow-md active:scale-[0.98]'
             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           }
         `}
