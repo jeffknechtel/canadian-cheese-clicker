@@ -43,7 +43,7 @@ export function LoadingScreen({ progress, onComplete }: LoadingScreenProps) {
   return (
     <div
       className={`fixed inset-0 z-90 flex flex-col items-center justify-center bg-linear-to-br from-cream via-cheddar-50 to-cheddar-100 transition-opacity duration-500 ${
-        fadeOut ? 'opacity-0' : 'opacity-100'
+        fadeOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
     >
       {/* Background pattern */}
