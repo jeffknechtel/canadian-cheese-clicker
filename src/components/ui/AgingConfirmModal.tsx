@@ -36,7 +36,7 @@ export function AgingConfirmModal({ onConfirm, onCancel }: AgingConfirmModalProp
 
   return (
     <div className={`fixed inset-0 bg-black/50 flex items-center justify-center z-50 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-      <div className={`bg-cream border-4 border-amber-500 rounded-lg p-6 max-w-lg mx-4 shadow-2xl transform transition-all duration-300 ${isVisible ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}>
+      <div className={`bg-white panel-wood-solid border-4 border-amber-500 rounded-lg p-6 max-w-lg mx-4 shadow-2xl transform transition-all duration-300 ${isVisible ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}>
         <h2 className="text-2xl font-bold text-amber-700 mb-2 text-center flex items-center justify-center gap-2">
           <span className="animate-pulse">🧀</span>
           Age Your Empire

@@ -428,7 +428,7 @@ export function PrestigePanel() {
                 w-full py-3 px-6 rounded-lg font-bold text-lg transition-all
                 ${canAge
                   ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-lg hover:shadow-xl'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-200 text-gray-700 cursor-not-allowed'
                 }
               `}
             >

@@ -60,7 +60,7 @@ function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, 
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-timber-700 truncate">{hero.name}</span>
+            <span className="font-semibold text-timber-700 truncate" title={hero.name}>{hero.name}</span>
             <span className="text-xs font-medium text-timber-500">Lv.{heroState.level}</span>
             <span className={`text-xs px-1.5 py-0.5 rounded border ${CLASS_COLORS[hero.class]}`}>
               {hero.class}
@@ -71,7 +71,7 @@ function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, 
               </span>
             )}
           </div>
-          <p className="text-xs text-gray-500 italic truncate">{hero.title}</p>
+          <p className="text-xs text-gray-500 italic truncate" title={hero.title}>{hero.title}</p>
 
           {/* XP Bar */}
           <div className="mt-1.5 h-1.5 bg-gray-200 rounded-full overflow-hidden">
@@ -147,7 +147,7 @@ function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, 
         className={`
           mt-2 w-full py-1.5 rounded text-sm font-medium transition-all duration-200
           ${isInCombat
-            ? 'bg-gray-200 text-gray-500 border border-gray-300 cursor-not-allowed'
+            ? 'bg-gray-200 text-gray-700 border border-gray-300 cursor-not-allowed'
             : isInParty
               ? 'bg-maple-100 text-maple-600 border border-maple-300 cursor-default'
               : 'bg-linear-to-r from-maple-500 to-maple-600 hover:from-maple-600 hover:to-maple-700 text-white shadow-xs hover:shadow-md active:scale-[0.98]'
@@ -205,7 +205,7 @@ function HeroRecruitCard({ hero }: HeroRecruitCardProps) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className={`font-semibold truncate ${canAfford ? 'text-timber-700' : 'text-gray-500'}`}>
+            <span className={`font-semibold truncate ${canAfford ? 'text-timber-700' : 'text-gray-500'}`} title={hero.name}>
               {hero.name}
             </span>
             <span className={`text-xs px-1.5 py-0.5 rounded border ${CLASS_COLORS[hero.class]}`}>
@@ -226,7 +226,7 @@ function HeroRecruitCard({ hero }: HeroRecruitCardProps) {
       {/* Special Ability */}
       <div className="mt-2 p-2 bg-timber-50 rounded text-xs">
         <div className="font-medium text-timber-700">{hero.specialAbility.name}</div>
-        <p className="text-gray-600 mt-0.5 line-clamp-2">{hero.specialAbility.description}</p>
+        <p className="text-gray-600 mt-0.5 line-clamp-2" title={hero.specialAbility.description}>{hero.specialAbility.description}</p>
       </div>
 
       {/* Base Stats Preview */}
@@ -261,7 +261,7 @@ function HeroRecruitCard({ hero }: HeroRecruitCardProps) {
           mt-2 w-full py-2 rounded font-medium text-sm transition-all duration-200
           ${canAfford
             ? 'bg-linear-to-r from-maple-500 to-maple-600 hover:from-maple-600 hover:to-maple-700 text-white shadow-xs hover:shadow-md active:scale-[0.98]'
-            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            : 'bg-gray-200 text-gray-700 cursor-not-allowed'
           }
         `}
       >

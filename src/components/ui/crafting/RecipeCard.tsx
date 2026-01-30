@@ -107,7 +107,7 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
                 </span>
               )}
             </div>
-            <p className="text-xs text-gray-600 mt-0.5 line-clamp-1">{recipe.description}</p>
+            <p className="text-xs text-gray-600 mt-0.5 line-clamp-1" title={recipe.description}>{recipe.description}</p>
             <div className="flex items-center gap-3 mt-1 text-xs">
               <span className="text-timber-600">
                 {formatAgingDuration(recipe.agingDuration)}
@@ -224,7 +224,7 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
                 px-4 py-2 rounded-lg font-medium text-sm transition-all
                 ${canCraft
                   ? 'bg-cheddar-500 hover:bg-cheddar-600 text-white shadow-md hover:shadow-lg active:scale-95'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-200 text-gray-700 cursor-not-allowed'
                 }
               `}
             >

@@ -121,7 +121,7 @@ export function LimitBreakGauge({
           w-full py-2 rounded font-bold text-sm transition-all duration-200
           ${isReady && !isDisabled
             ? 'bg-linear-to-r from-amber-500 to-red-500 text-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
-            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            : 'bg-gray-200 text-gray-700 cursor-not-allowed'
           }
         `}
       >

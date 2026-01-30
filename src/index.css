@@ -1,5 +1,25 @@
 @import 'tailwindcss';
 
+/*
+ * Z-INDEX HIERARCHY
+ * =================
+ * Use these semantic levels for consistent stacking:
+ *
+ * z-10 to z-20  : Internal element layering (decorative overlays, icons)
+ * z-30          : Tooltips (RennetDisplay, etc.)
+ * z-40          : Floating UI (toasts, debug panel, feedback widget)
+ * z-45          : Dropdowns that need to appear above toasts (AudioControls)
+ * z-50          : Standard modals (OfflineProgressModal, AgingConfirmModal)
+ * z-60          : Higher modals (EquipmentModal, CombatResultsModal)
+ * z-70          : Priority modals (ChangelogModal, KeyboardHelpModal)
+ * z-80          : Consent dialogs (PrivacyConsent)
+ * z-90          : Loading screens (LoadingScreen)
+ * z-100         : Critical overlays (BetaAgreement, SettingsPanel)
+ *
+ * NEVER use arbitrary values like z-[9999]. If you need a new level,
+ * add it to this hierarchy and document it here.
+ */
+
 @layer utilities {
   :root {
     font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
