@@ -85,12 +85,12 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
-          <span className="font-semibold text-rind truncate">{generator.name}</span>
+          <span className="font-semibold text-rind truncate" title={generator.name}>{generator.name}</span>
           <span className={`text-sm font-medium ${isCanadianTier ? 'text-maple-600' : 'text-cheddar-700'} tabular-nums`} aria-label={`${owned} owned`}>
             ×{owned}
           </span>
         </div>
-        <p className="text-xs text-gray-600 truncate">{generator.description}</p>
+        <p className="text-xs text-gray-600 truncate" title={generator.description}>{generator.description}</p>
         <p className={`text-xs ${isCanadianTier ? 'text-maple-600' : 'text-cheddar-600'}`}>
           +{formatNumber(generator.baseCps)} cps each
         </p>
@@ -106,13 +106,13 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
             ? isCanadianTier
               ? 'bg-maple-500 hover:bg-maple-600 text-white shadow-md hover:shadow-lg'
               : 'bg-cheddar-500 hover:bg-cheddar-600 text-white shadow-md hover:shadow-lg'
-            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            : 'bg-gray-200 text-gray-700 cursor-not-allowed'
           }
         `}
       >
         <div className="text-center" aria-hidden="true">
           <div>Buy {buyAmount === 'max' ? `×${effectiveAmount || 0}` : `×${buyAmount}`}</div>
-          <div className="text-xs opacity-80 tabular-nums">{formatNumber(cost)}</div>
+          <div className="text-xs tabular-nums">{formatNumber(cost)}</div>
         </div>
       </button>
     </article>

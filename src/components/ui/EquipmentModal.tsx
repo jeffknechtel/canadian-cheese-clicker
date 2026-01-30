@@ -116,7 +116,7 @@ function EquipmentCard({
             className={`
               w-full py-1.5 rounded text-sm font-medium transition-colors
               ${isEquippedByOther
-                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                ? 'bg-gray-200 text-gray-700 cursor-not-allowed'
                 : 'bg-cheddar-500 hover:bg-cheddar-600 text-white'
               }
             `}
@@ -131,7 +131,7 @@ function EquipmentCard({
               w-full py-1.5 rounded text-sm font-medium transition-colors
               ${canAfford
                 ? 'bg-maple-500 hover:bg-maple-600 text-white'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-gray-200 text-gray-700 cursor-not-allowed'
               }
             `}
           >
@@ -225,7 +225,7 @@ export function EquipmentModal({ heroId, slot, onClose }: EquipmentModalProps) {
       onClick={onClose}
     >
       <div
-        className={`bg-cream rounded-lg shadow-xl max-w-md w-full max-h-[80vh] flex flex-col panel-wood ${!reducedMotion ? 'animate-modal-in' : ''}`}
+        className={`bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] flex flex-col panel-wood-solid ${!reducedMotion ? 'animate-modal-in' : ''}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

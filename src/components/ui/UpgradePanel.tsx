@@ -108,7 +108,7 @@ const UpgradeCard = memo(function UpgradeCard({ upgrade, isPurchased, index }: U
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-timber-700 truncate">{upgrade.name}</span>
+            <span className="font-semibold text-timber-700 truncate" title={upgrade.name}>{upgrade.name}</span>
             {isPurchased && (
               <span className="text-xs bg-timber-500 text-white px-1.5 py-0.5 rounded">
                 Owned

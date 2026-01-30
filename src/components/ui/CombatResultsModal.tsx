@@ -60,10 +60,10 @@ export function CombatResultsModal({
     <div className={`fixed inset-0 bg-black/60 flex items-center justify-center z-60 ${!reducedMotion ? 'animate-backdrop-in' : ''}`}>
       <div
         className={`
-          mx-4 max-w-md w-full rounded-lg shadow-2xl overflow-hidden
+          mx-4 max-w-md w-full rounded-lg shadow-2xl overflow-hidden panel-wood-solid
           ${isVictory
-            ? 'bg-linear-to-b from-cheddar-50 to-cream border-4 border-cheddar-500'
-            : 'bg-linear-to-b from-gray-100 to-cream border-4 border-gray-400'
+            ? 'bg-linear-to-b from-cheddar-50 to-white border-4 border-cheddar-500'
+            : 'bg-linear-to-b from-gray-100 to-white border-4 border-gray-400'
           }
           ${!reducedMotion ? 'animate-modal-in' : ''}
         `}

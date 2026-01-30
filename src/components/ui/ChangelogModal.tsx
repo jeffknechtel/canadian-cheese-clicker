@@ -61,7 +61,7 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
       aria-modal="true"
       aria-labelledby="changelog-title"
     >
-      <div className="bg-cream rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-white panel-wood-solid rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-linear-to-r from-cheddar-500 to-cheddar-600 text-white">
           <h2 id="changelog-title" className="text-xl font-bold flex items-center gap-2">
