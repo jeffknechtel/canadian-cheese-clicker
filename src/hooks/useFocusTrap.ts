@@ -75,6 +75,8 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>(
   useEffect(() => {
     if (!isOpen) return;
 
+    let animationFrameId: number | undefined;
+
     // Store the currently focused element to restore later
     previousActiveElement.current = document.activeElement as HTMLElement;
 
@@ -85,7 +87,7 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>(
     const focusableElements = getFocusableElements();
     if (focusableElements.length > 0) {
       // Small delay to ensure DOM is ready
-      requestAnimationFrame(() => {
+      animationFrameId = requestAnimationFrame(() => {
         focusableElements[0].focus();
       });
     } else if (containerRef.current) {
@@ -95,6 +97,9 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>(
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
+      if (animationFrameId !== undefined) {
+        cancelAnimationFrame(animationFrameId);
+      }
     };
   }, [isOpen, handleKeyDown, getFocusableElements]);
 

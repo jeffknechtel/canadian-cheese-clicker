@@ -28,7 +28,7 @@ export function ClickEffects() {
   const totalClicks = useGameStore((state) => state.totalClicks);
   const getClickValue = useGameStore((state) => state.getClickValue);
   const lastClicks = useRef(0);
-  const animationRef = useRef<number>(undefined);
+  const animationRef = useRef<number | undefined>(undefined);
   const lastTimeRef = useRef<number>(0);
   const particleConfigRef = useRef<ParticleConfig | null>(null);
 

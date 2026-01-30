@@ -214,7 +214,7 @@ interface AttackEffectProps {
 export function AttackEffect({ type, position }: AttackEffectProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [particles, setParticles] = useState<Particle[]>([]);
-  const animationRef = useRef<number>(undefined);
+  const animationRef = useRef<number | undefined>(undefined);
   const lastTimeRef = useRef<number>(0);
   const particleConfigRef = useRef<ParticleConfig | null>(null);
 

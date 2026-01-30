@@ -16,6 +16,7 @@ import {
   getParticleStyles,
   getPresetConfig,
   getAdjustedParticleCount,
+  setGlobalParticleEmitter,
 } from '../../systems/particleSystem';
 
 interface ParticleContainerProps {
@@ -29,24 +30,10 @@ interface ParticleEmission {
   startTime: number;
 }
 
-// Global emitter for triggering particles from anywhere
-type EmitCallback = (x: number, y: number, effect: ParticleEffect) => void;
-let globalEmitter: EmitCallback | null = null;
-
-export function setGlobalParticleEmitter(emitter: EmitCallback | null): void {
-  globalEmitter = emitter;
-}
-
-export function emitParticles(x: number, y: number, effect: ParticleEffect): void {
-  if (globalEmitter) {
-    globalEmitter(x, y, effect);
-  }
-}
-
 export function ParticleContainer({ className = '' }: ParticleContainerProps) {
   const [emissions, setEmissions] = useState<ParticleEmission[]>([]);
-  const animationRef = useRef<number>(undefined);
-  const lastTimeRef = useRef<number>(0);
+  const animationRef = useRef<number | undefined>(undefined);
+  const lastTimeRef = useRef<number | undefined>(undefined);
   const particlesEnabled = useSettingsStore((state) => state.graphics.particlesEnabled);
   const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
@@ -82,12 +69,16 @@ export function ParticleContainer({ className = '' }: ParticleContainerProps) {
     return () => setGlobalParticleEmitter(null);
   }, [emit]);
 
+  // Track if we have emissions for the dependency array
+  const hasEmissions = emissions.length > 0;
+
   // Animation loop
   useEffect(() => {
-    if (emissions.length === 0) return;
+    if (!hasEmissions) return;
 
     const animate = (time: number) => {
-      const deltaMs = time - lastTimeRef.current;
+      const lastTime = lastTimeRef.current ?? time;
+      const deltaMs = time - lastTime;
       lastTimeRef.current = time;
 
       setEmissions((prev) => {
@@ -111,7 +102,7 @@ export function ParticleContainer({ className = '' }: ParticleContainerProps) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [emissions.length > 0]);
+  }, [hasEmissions]);
 
   if (!particlesEnabled || reducedMotion || emissions.length === 0) {
     return null;
@@ -139,9 +130,9 @@ interface ParticleBurstProps {
 
 export function ParticleBurst({ x, y, effect, onComplete }: ParticleBurstProps) {
   const [particles, setParticles] = useState<Particle[]>([]);
-  const animationRef = useRef<number>(undefined);
-  const lastTimeRef = useRef<number>(performance.now());
-  const configRef = useRef<ParticleConfig>(undefined);
+  const animationRef = useRef<number | undefined>(undefined);
+  const lastTimeRef = useRef<number | undefined>(undefined);
+  const configRef = useRef<ParticleConfig | undefined>(undefined);
   const particlesEnabled = useSettingsStore((state) => state.graphics.particlesEnabled);
   const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
@@ -162,12 +153,16 @@ export function ParticleBurst({ x, y, effect, onComplete }: ParticleBurstProps) 
     setParticles(newParticles);
   }, [x, y, effect, particlesEnabled, reducedMotion, onComplete]);
 
+  // Track if we have particles for the dependency array
+  const hasParticles = particles.length > 0;
+
   // Animation loop
   useEffect(() => {
-    if (particles.length === 0 || !configRef.current) return;
+    if (!hasParticles || !configRef.current) return;
 
     const animate = (time: number) => {
-      const deltaMs = time - lastTimeRef.current;
+      const lastTime = lastTimeRef.current ?? time;
+      const deltaMs = time - lastTime;
       lastTimeRef.current = time;
 
       setParticles((prev) => {
@@ -180,7 +175,7 @@ export function ParticleBurst({ x, y, effect, onComplete }: ParticleBurstProps) 
         return updated;
       });
 
-      if (particles.length > 0) {
+      if (hasParticles) {
         animationRef.current = requestAnimationFrame(animate);
       }
     };
@@ -192,7 +187,7 @@ export function ParticleBurst({ x, y, effect, onComplete }: ParticleBurstProps) 
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [particles.length > 0, onComplete]);
+  }, [hasParticles, onComplete]);
 
   if (!particlesEnabled || reducedMotion || particles.length === 0) {
     return null;

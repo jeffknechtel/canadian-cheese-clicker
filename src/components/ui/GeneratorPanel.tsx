@@ -1,4 +1,4 @@
-import { useState, memo, useCallback } from 'react';
+import { useState, memo } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { GENERATORS } from '../../data/generators';
@@ -36,8 +36,8 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
   const cost = getGeneratorCost(generator.id, effectiveAmount || 1);
   const canAfford = effectiveAmount > 0 && canAffordGenerator(generator.id, effectiveAmount);
 
-  // Memoized buy handler to prevent creating new function references
-  const handleBuy = useCallback(() => {
+  // Buy handler - React Compiler will optimize this automatically
+  const handleBuy = () => {
     if (effectiveAmount > 0) {
       const success = buyGenerator(generator.id, effectiveAmount);
       if (success) {
@@ -56,7 +56,7 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
       setPurchaseAnimation('failure');
       setTimeout(() => setPurchaseAnimation(null), 300);
     }
-  }, [effectiveAmount, buyGenerator, generator.id, generator.name, owned, reducedMotion]);
+  };
 
   // Calculate stagger delay for entrance animation
   const staggerDelay = reducedMotion ? 0 : Math.min(index * 50, 250);

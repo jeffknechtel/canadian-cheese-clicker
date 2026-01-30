@@ -65,6 +65,9 @@ function DialogueToastItem({ item, onDismiss }: DialogueToastItemProps) {
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-label={`Dismiss dialogue: ${item.text.substring(0, 30)}${item.text.length > 30 ? '...' : ''}`}
       className={`
         flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg border-2
         bg-linear-to-r ${getTriggerStyle()} backdrop-blur
@@ -74,6 +77,13 @@ function DialogueToastItem({ item, onDismiss }: DialogueToastItemProps) {
       onClick={() => {
         setIsExiting(true);
         setTimeout(() => onDismiss(item.id), 300);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setIsExiting(true);
+          setTimeout(() => onDismiss(item.id), 300);
+        }
       }}
     >
       {/* Icon */}

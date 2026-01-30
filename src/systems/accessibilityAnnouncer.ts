@@ -227,8 +227,7 @@ export function announceHeroReady(heroId: string): void {
 export function announceHPChange(
   targetName: string,
   currentHp: number,
-  maxHp: number,
-  _isHero: boolean
+  maxHp: number
 ): void {
   const percentage = Math.round((currentHp / maxHp) * 100);
   const statusText =
