@@ -26,10 +26,10 @@ const SLOT_ICONS: Record<EquipmentSlot, string> = {
 };
 
 const CLASS_COLORS: Record<string, string> = {
-  tank: 'bg-blue-100 text-blue-700 border-blue-300',
-  dps: 'bg-red-100 text-red-700 border-red-300',
-  support: 'bg-green-100 text-green-700 border-green-300',
-  healer: 'bg-purple-100 text-purple-700 border-purple-300',
+  tank: 'bg-blue-600 text-white border-blue-700',
+  dps: 'bg-red-600 text-white border-red-700',
+  support: 'bg-green-600 text-white border-green-700',
+  healer: 'bg-purple-600 text-white border-purple-700',
 };
 
 interface HeroCardProps {
@@ -346,10 +346,10 @@ export function HeroPanel({ onEquipmentClick }: HeroPanelProps) {
         <button
           onClick={() => setActiveTab('roster')}
           className={`
-            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors
+            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
             ${activeTab === 'roster'
-              ? 'bg-timber-500 text-white'
-              : 'bg-white/50 text-timber-700 hover:bg-white/70'
+              ? 'bg-timber-500 text-white border-timber-600'
+              : 'bg-timber-100 text-timber-700 border-timber-300 hover:bg-timber-200'
             }
           `}
         >
@@ -358,10 +358,10 @@ export function HeroPanel({ onEquipmentClick }: HeroPanelProps) {
         <button
           onClick={() => setActiveTab('recruit')}
           className={`
-            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors
+            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
             ${activeTab === 'recruit'
-              ? 'bg-timber-500 text-white'
-              : 'bg-white/50 text-timber-700 hover:bg-white/70'
+              ? 'bg-timber-500 text-white border-timber-600'
+              : 'bg-timber-100 text-timber-700 border-timber-300 hover:bg-timber-200'
             }
           `}
         >

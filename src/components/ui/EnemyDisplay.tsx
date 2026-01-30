@@ -22,7 +22,7 @@ function StatusEffectBadge({ effect }: StatusEffectBadgeProps) {
     <span
       className={`
         inline-flex items-center gap-0.5 px-1 py-0.5 rounded text-xs
-        ${isBuff ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}
+        ${isBuff ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}
       `}
       title={`${effect.stat}: ${effect.value > 0 ? '+' : ''}${effect.value} (${effect.duration} turns)`}
     >
@@ -86,7 +86,7 @@ export function EnemyCard({ enemy, showATB = true }: EnemyCardProps) {
               {enemyDef.name}
             </span>
             {isBoss && enemy.isAlive && (
-              <span className="text-xs bg-red-100 text-red-700 px-1 py-0.5 rounded font-bold">
+              <span className="text-xs bg-red-600 text-white px-1 py-0.5 rounded font-bold">
                 BOSS
               </span>
             )}

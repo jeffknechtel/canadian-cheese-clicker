@@ -355,10 +355,10 @@ export function PrestigePanel() {
         <button
           onClick={() => setActiveTab('aging')}
           className={`
-            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors
+            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
             ${activeTab === 'aging'
-              ? 'bg-amber-500 text-white'
-              : 'bg-white/50 text-amber-700 hover:bg-white/70'
+              ? 'bg-amber-500 text-white border-amber-600'
+              : 'bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-200'
             }
           `}
         >
@@ -367,10 +367,10 @@ export function PrestigePanel() {
         <button
           onClick={() => setActiveTab('upgrades')}
           className={`
-            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors
+            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
             ${activeTab === 'upgrades'
-              ? 'bg-amber-500 text-white'
-              : 'bg-white/50 text-amber-700 hover:bg-white/70'
+              ? 'bg-amber-500 text-white border-amber-600'
+              : 'bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-200'
             }
           `}
         >
@@ -379,10 +379,10 @@ export function PrestigePanel() {
         <button
           onClick={() => setActiveTab('stats')}
           className={`
-            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors
+            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
             ${activeTab === 'stats'
-              ? 'bg-amber-500 text-white'
-              : 'bg-white/50 text-amber-700 hover:bg-white/70'
+              ? 'bg-amber-500 text-white border-amber-600'
+              : 'bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-200'
             }
           `}
         >

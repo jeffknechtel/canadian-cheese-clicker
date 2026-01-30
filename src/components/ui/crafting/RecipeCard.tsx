@@ -12,11 +12,11 @@ interface RecipeCardProps {
 }
 
 const categoryColors: Record<string, string> = {
-  fresh: 'bg-green-100 text-green-700 border-green-200',
-  soft: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-  semi_hard: 'bg-orange-100 text-orange-700 border-orange-200',
-  hard: 'bg-red-100 text-red-700 border-red-200',
-  legendary: 'bg-purple-100 text-purple-700 border-purple-200',
+  fresh: 'bg-green-600 text-white border-green-700',
+  soft: 'bg-amber-500 text-white border-amber-600',
+  semi_hard: 'bg-orange-600 text-white border-orange-700',
+  hard: 'bg-red-600 text-white border-red-700',
+  legendary: 'bg-purple-600 text-white border-purple-700',
 };
 
 export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
@@ -98,7 +98,7 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-semibold text-timber-700">{recipe.name}</span>
-              <span className={`text-xs px-1.5 py-0.5 rounded border ${categoryColors[recipe.category]}`}>
+              <span className={`text-xs px-1.5 py-0.5 rounded border font-medium ${categoryColors[recipe.category]}`}>
                 {recipe.category.replace('_', '-')}
               </span>
               {recipe.province && (
@@ -107,12 +107,12 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
                 </span>
               )}
             </div>
-            <p className="text-xs text-gray-600 mt-0.5 line-clamp-1" title={recipe.description}>{recipe.description}</p>
-            <div className="flex items-center gap-3 mt-1 text-xs">
-              <span className="text-timber-600">
+            <p className="text-xs text-timber-600 mt-1 line-clamp-2" title={recipe.description}>{recipe.description}</p>
+            <div className="flex items-center gap-3 mt-1.5 text-xs">
+              <span className="text-timber-500 font-medium">
                 {formatAgingDuration(recipe.agingDuration)}
               </span>
-              <span className="text-cheddar-600">
+              <span className="text-cheddar-700 font-medium">
                 Base: {formatNumber(recipe.baseValue)} curds
               </span>
             </div>

@@ -165,8 +165,8 @@ function HeroCombatCard({ heroState, isSelected = false, heroNumber }: HeroComba
               key={effect.id}
               role="listitem"
               className={`
-                text-[10px] px-1 rounded
-                ${effect.type === 'buff' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}
+                text-[10px] px-1 rounded font-medium
+                ${effect.type === 'buff' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}
               `}
               title={`${effect.stat}: ${effect.value > 0 ? '+' : ''}${effect.value} (${effect.duration} turns)`}
               aria-label={`${effect.type === 'buff' ? 'Buff' : 'Debuff'}: ${effect.stat} ${effect.value > 0 ? '+' : ''}${effect.value}, ${effect.duration} turns remaining`}
@@ -423,10 +423,10 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
           className={`
             px-2 py-1 rounded text-xs font-bold
             ${combat.battleResult === 'ongoing'
-              ? 'bg-amber-100 text-amber-700'
+              ? 'bg-amber-500 text-white'
               : combat.battleResult === 'victory'
-                ? 'bg-green-100 text-green-700'
-                : 'bg-red-100 text-red-700'
+                ? 'bg-green-600 text-white'
+                : 'bg-red-600 text-white'
             }
           `}
           aria-hidden="true"
