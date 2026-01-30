@@ -174,12 +174,12 @@ export function DebugPanel({ className = '' }: DebugPanelProps) {
   }
 
   return (
-    <div className={`fixed bottom-4 left-4 z-40 ${className}`}>
-      {/* Toggle button */}
+    <div className={className}>
+      {/* Toggle button - shown in header */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="px-3 py-2 bg-gray-800/90 hover:bg-gray-700 text-white text-xs font-mono rounded-lg shadow-lg transition-colors"
+          className="px-2 py-1.5 bg-gray-800/80 hover:bg-gray-700 text-white text-xs font-mono rounded-lg transition-colors"
           title="Open Debug Panel"
           aria-label="Open debug panel"
         >
@@ -187,8 +187,9 @@ export function DebugPanel({ className = '' }: DebugPanelProps) {
         </button>
       )}
 
-      {/* Debug panel */}
+      {/* Debug panel - fixed position when open */}
       {isOpen && (
+        <div className="fixed top-16 left-4 z-50">
         <div className="w-80 sm:w-96 bg-gray-900/95 text-white rounded-lg shadow-2xl overflow-hidden font-mono text-xs">
           {/* Header */}
           <div className="flex items-center justify-between px-3 py-2 bg-gray-800 border-b border-gray-700">
@@ -341,6 +342,7 @@ export function DebugPanel({ className = '' }: DebugPanelProps) {
               ))}
             </div>
           )}
+        </div>
         </div>
       )}
 

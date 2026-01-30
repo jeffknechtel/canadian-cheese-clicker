@@ -86,7 +86,10 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-cheddar-500 to-cheddar-600 text-white">
+        <div
+          className="flex items-center justify-between px-6 py-4 text-white"
+          style={{ background: 'linear-gradient(to right, #f59e0b, #d97706)' }}
+        >
           <h2 className="text-xl font-bold flex items-center gap-2">
             <span className="text-2xl">&#9881;</span>
             Settings
