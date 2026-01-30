@@ -161,7 +161,7 @@ export function AudioControls() {
       {/* Volume panel on hover (desktop only) */}
       {showPanel && (
         <div
-          className="hidden sm:block absolute right-0 top-full mt-2 p-4 bg-cream rounded-lg shadow-lg z-30 min-w-[200px]"
+          className="hidden sm:block absolute right-0 top-full mt-2 p-4 bg-white rounded-lg shadow-lg z-30 min-w-[200px]"
         >
           {/* Master Volume */}
           <div className="mb-4">

@@ -74,7 +74,7 @@ export function KeyboardHelpModal({ isOpen, onClose }: KeyboardHelpModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="keyboard-help-title"
-        className="relative bg-cream rounded-lg shadow-xl max-w-2xl w-full max-h-[85vh] overflow-hidden animate-modal-in panel-wood"
+        className="relative bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[85vh] overflow-hidden animate-modal-in panel-wood-solid"
         tabIndex={-1}
       >
         {/* Header */}
