@@ -168,10 +168,10 @@ export function UpgradePanel() {
         <button
           onClick={() => setActiveTab('available')}
           className={`
-            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors
+            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
             ${activeTab === 'available'
-              ? 'bg-timber-500 text-white'
-              : 'bg-white/50 text-timber-700 hover:bg-white/70'
+              ? 'bg-timber-500 text-white border-timber-600'
+              : 'bg-timber-100 text-timber-700 border-timber-300 hover:bg-timber-200'
             }
           `}
         >
@@ -180,10 +180,10 @@ export function UpgradePanel() {
         <button
           onClick={() => setActiveTab('purchased')}
           className={`
-            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors
+            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
             ${activeTab === 'purchased'
-              ? 'bg-timber-500 text-white'
-              : 'bg-white/50 text-timber-700 hover:bg-white/70'
+              ? 'bg-timber-500 text-white border-timber-600'
+              : 'bg-timber-100 text-timber-700 border-timber-300 hover:bg-timber-200'
             }
           `}
         >

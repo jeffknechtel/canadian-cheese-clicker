@@ -30,6 +30,7 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
   const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
   const [purchaseAnimation, setPurchaseAnimation] = useState<'success' | 'failure' | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   const owned = getGeneratorCount(generator.id);
   const effectiveAmount = buyAmount === 'max' ? getMaxAffordable(generator.id) : buyAmount;
@@ -78,6 +79,8 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
       `}
       style={{ animationDelay: `${staggerDelay}ms` }}
       aria-label={`${generator.name}: ${owned} owned, produces ${formatNumber(generator.baseCps)} curds per second each`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Generator Icon */}
       <div className="shrink-0 text-2xl w-10 h-10 flex items-center justify-center bg-white/50 rounded-lg" aria-hidden="true">
@@ -85,16 +88,28 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
-          <span className="font-semibold truncate" style={{ color: '#8b7355' }} title={generator.name}>{generator.name}</span>
           <span
-            className="text-sm font-medium tabular-nums"
+            className={`font-semibold transition-all duration-200 ${isHovered ? 'whitespace-normal' : 'truncate'}`}
+            style={{ color: '#8b7355' }}
+            title={generator.name}
+          >
+            {generator.name}
+          </span>
+          <span
+            className="text-sm font-medium tabular-nums shrink-0"
             style={{ color: isCanadianTier ? '#dc2626' : '#b45309' }}
             aria-label={`${owned} owned`}
           >
             ×{owned}
           </span>
         </div>
-        <p className="text-xs truncate" style={{ color: '#4b5563' }} title={generator.description}>{generator.description}</p>
+        <p
+          className={`text-xs transition-all duration-200 ${isHovered ? 'whitespace-normal' : 'truncate'}`}
+          style={{ color: '#4b5563' }}
+          title={generator.description}
+        >
+          {generator.description}
+        </p>
         <p className="text-xs" style={{ color: isCanadianTier ? '#dc2626' : '#d97706' }}>
           +{formatNumber(generator.baseCps)} cps each
         </p>
