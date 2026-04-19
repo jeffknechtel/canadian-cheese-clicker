@@ -15,9 +15,10 @@ import type {
   HeroAbilityDefinition,
   AbilityEffect,
 } from '../types/game';
-import { getEnemyById, getBossById, scaleEnemyStats } from '../data/enemies';
-import { getZoneById, getStage } from '../data/zones';
-import { getHeroById, getHeroAbility, getHeroLimitBreak, heroHasLimitBreak } from '../data/heroes';
+import { scaleEnemyStats } from '../data/enemies';
+import { getStage } from '../data/zones';
+import { getHeroAbility, getHeroLimitBreak, heroHasLimitBreak } from '../data/heroes';
+import { heroRegistry, zoneRegistry, getAnyEnemy, enemyRegistry, bossRegistry } from '../domain';
 import { calculateHeroStats } from './productionEngine';
 
 // ===== Constants =====
@@ -357,7 +358,8 @@ export interface BossMechanicResult {
 export function processBossSpecialMechanics(
   boss: CombatEnemy,
   bossDef: BossDefinition,
-  combatTime: number // Time in combat (seconds)
+  combatTime: number, // Time in combat (seconds)
+  deltaSeconds: number // Time since last tick (seconds)
 ): BossMechanicResult {
   const result: BossMechanicResult = {
     minionsToSpawn: [],
@@ -369,11 +371,14 @@ export function processBossSpecialMechanics(
 
   // Process mechanics based on boss ID
   switch (bossDef.id) {
-    case 'bland_baron':
+    case 'bland_baron': {
       // "Removes all flavor buffs at 50% HP" - handled by phase transition
       // "Summons Processed Slimes every 30 seconds"
-      if (combatTime > 0 && Math.floor(combatTime) % 30 === 0 && Math.floor(combatTime) !== 0) {
-        const slime = getEnemyById('processed_slime');
+      // Fix: Only spawn once when crossing the 30s boundary, not every frame during that second
+      const prevSecond = Math.floor(combatTime - deltaSeconds);
+      const currSecond = Math.floor(combatTime);
+      if (currSecond > 0 && currSecond % 30 === 0 && prevSecond % 30 !== 0) {
+        const slime = enemyRegistry.get('processed_slime');
         if (slime) {
           const minion = createCombatEnemy(slime, Date.now());
           result.minionsToSpawn.push(minion);
@@ -387,6 +392,7 @@ export function processBossSpecialMechanics(
         }
       }
       break;
+    }
 
     case 'wheat_witch':
       // "Summons grain minion swarm every phase"
@@ -427,7 +433,7 @@ export function removeFlavourBuffs(
         statusEffects: heroState.statusEffects.filter(e => e.type !== 'buff'),
       };
 
-      const heroDef = getHeroById(heroId);
+      const heroDef = heroRegistry.get(heroId);
       logEntries.push({
         timestamp: Date.now(),
         type: 'status',
@@ -497,7 +503,7 @@ export function initializeCombat(
   heroes: Record<string, HeroState>,
   party: PartyFormation
 ): CombatState | null {
-  const zone = getZoneById(zoneId);
+  const zone = zoneRegistry.get(zoneId);
   if (!zone) return null;
 
   const stageInfo = getStage(zoneId, stageNumber);
@@ -523,14 +529,14 @@ export function initializeCombat(
   const enemies: CombatEnemy[] = [];
 
   if (stageInfo.type === 'boss') {
-    const boss = getBossById(stageInfo.bossStage.bossId);
+    const boss = bossRegistry.get(stageInfo.bossStage.bossId);
     if (boss) {
       enemies.push(createCombatEnemy(boss, 0));
     }
   } else {
     const stage = stageInfo.stage;
     stage.enemies.forEach((enemyId, index) => {
-      const enemyDef = getEnemyById(enemyId);
+      const enemyDef = enemyRegistry.get(enemyId);
       if (enemyDef) {
         const scaledEnemy = scaleEnemyStats(enemyDef, stage.enemyLevelModifier);
         enemies.push(createCombatEnemy(scaledEnemy, index));
@@ -582,9 +588,20 @@ export function tickCombat(
   let totalDamageDealt = 0;
   let totalDamageTaken = 0;
 
-  // Create mutable copies
-  const updatedHeroStates = { ...state.heroStates };
-  const updatedEnemies = state.enemies.map((e) => ({ ...e }));
+  // Create deep mutable copies to avoid mutating original state
+  const updatedHeroStates: Record<string, HeroCombatState> = {};
+  for (const [id, heroState] of Object.entries(state.heroStates)) {
+    updatedHeroStates[id] = {
+      ...heroState,
+      statusEffects: [...heroState.statusEffects],
+      skillCooldowns: { ...heroState.skillCooldowns },
+    };
+  }
+  const updatedEnemies = state.enemies.map((e) => ({
+    ...e,
+    statusEffects: [...e.statusEffects],
+    skillCooldowns: { ...e.skillCooldowns },
+  }));
   let updatedLimitBreakGauge = state.limitBreakGauge;
 
   // 1. Update ATB gauges for all alive heroes
@@ -610,13 +627,13 @@ export function tickCombat(
   for (const enemy of updatedEnemies) {
     if (!enemy.isAlive) continue;
 
-    const enemyDef = getEnemyById(enemy.id) || getBossById(enemy.id);
+    const enemyDef = getAnyEnemy(enemy.id);
     if (!enemyDef) continue;
 
     // Get effective stats (handles boss phase modifiers)
     let baseSpeed = enemyDef.stats.speed;
     if (enemy.isBoss) {
-      const bossDef = getBossById(enemy.id);
+      const bossDef = bossRegistry.get(enemy.id);
       if (bossDef) {
         baseSpeed = getBossEffectiveStats(enemy, bossDef).speed;
       }
@@ -641,7 +658,7 @@ export function tickCombat(
     const heroStats = partyStats[heroId];
     if (!heroStats) continue;
 
-    const heroDef = getHeroById(heroId);
+    const heroDef = heroRegistry.get(heroId);
     if (!heroDef) continue;
 
     // Find a target
@@ -652,12 +669,12 @@ export function tickCombat(
     const attackModifier = getStatModifierFromEffects(heroState.statusEffects, 'attack');
     const effectiveAttack = Math.max(1, heroStats.attack + attackModifier);
 
-    const enemyDef = getEnemyById(target.id) || getBossById(target.id);
+    const enemyDef = getAnyEnemy(target.id);
 
     // Get effective defense (handles boss phase modifiers)
     let baseDefense = enemyDef?.stats.defense || 10;
     if (target.isBoss) {
-      const bossDef = getBossById(target.id);
+      const bossDef = bossRegistry.get(target.id);
       if (bossDef) {
         baseDefense = getBossEffectiveStats(target, bossDef).defense;
       }
@@ -692,7 +709,7 @@ export function tickCombat(
       });
     } else if (target.isBoss) {
       // Check for boss phase transition
-      const bossDef = getBossById(target.id);
+      const bossDef = bossRegistry.get(target.id);
       if (bossDef) {
         const phaseResult = checkBossPhaseTransition(target, bossDef);
         if (phaseResult.phaseChanged && phaseResult.newPhase) {
@@ -726,7 +743,7 @@ export function tickCombat(
   for (const enemy of updatedEnemies) {
     if (!enemy.isAlive || enemy.atbGauge < ATB_MAX) continue;
 
-    const enemyDef = getEnemyById(enemy.id) || getBossById(enemy.id);
+    const enemyDef = getAnyEnemy(enemy.id);
     if (!enemyDef) continue;
 
     // Find a target
@@ -738,7 +755,7 @@ export function tickCombat(
     let availableSkills = enemyDef.skills;
 
     if (enemy.isBoss) {
-      const bossDef = getBossById(enemy.id);
+      const bossDef = bossRegistry.get(enemy.id);
       if (bossDef) {
         effectiveEnemyStats = getBossEffectiveStats(enemy, bossDef);
         availableSkills = getBossCurrentSkills(enemy, bossDef);
@@ -762,7 +779,7 @@ export function tickCombat(
     target.currentHp = applyDamage(target.currentHp, damage);
     totalDamageTaken += damage;
 
-    const heroDef = getHeroById(target.heroId);
+    const heroDef = heroRegistry.get(target.heroId);
 
     // Log the attack
     newLogEntries.push({
@@ -810,7 +827,7 @@ export function tickCombat(
 
     if (heroState.currentHp <= 0) {
       heroState.isAlive = false;
-      const heroDef = getHeroById(heroId);
+      const heroDef = heroRegistry.get(heroId);
       newLogEntries.push({
         timestamp: Date.now(),
         type: 'defeat',
@@ -825,7 +842,7 @@ export function tickCombat(
   for (const enemy of updatedEnemies) {
     if (!enemy.isAlive || enemy.statusEffects.length === 0) continue;
 
-    const enemyDef = getEnemyById(enemy.id) || getBossById(enemy.id);
+    const enemyDef = getAnyEnemy(enemy.id);
     const maxHp = enemyDef?.stats.hp || enemy.maxHp;
 
     const result = processStatusEffects(
@@ -943,7 +960,7 @@ export function calculateCombatRewards(
   let bossMultiplier = { curds: 1.0, xp: 1.0, wheyPercent: 0.1 };
 
   for (const enemy of enemies) {
-    const enemyDef = getEnemyById(enemy.id) || getBossById(enemy.id);
+    const enemyDef = getAnyEnemy(enemy.id);
     if (!enemyDef) continue;
 
     // Check if this enemy is a boss and get their multiplier
@@ -1025,7 +1042,7 @@ export function createEmptyCombatState(): CombatState {
  * Check if the stage is a boss stage
  */
 export function isBossStage(zoneId: string, stageNumber: number): boolean {
-  const zone = getZoneById(zoneId);
+  const zone = zoneRegistry.get(zoneId);
   if (!zone) return false;
   return stageNumber === zone.bossStage.stageNumber;
 }
@@ -1084,7 +1101,7 @@ function applyAbilityEffect(
   const logEntries: CombatLogEntry[] = [];
   let damageDealt = 0;
   let healingDone = 0;
-  const heroDef = getHeroById(source.heroId);
+  const heroDef = heroRegistry.get(source.heroId);
   const heroName = heroDef?.name || source.heroId;
 
   switch (effect.type) {
@@ -1097,7 +1114,7 @@ function applyAbilityEffect(
           : [selectEnemyTarget(targetEnemies)].filter((e): e is CombatEnemy => e !== null);
 
       for (const enemy of targets) {
-        const enemyDef = getEnemyById(enemy.id) || getBossById(enemy.id);
+        const enemyDef = getAnyEnemy(enemy.id);
         const damage = calculateDamage(source.attack, enemyDef?.stats.defense || 10, effect.multiplier);
         enemy.currentHp = applyDamage(enemy.currentHp, damage);
         damageDealt += damage;
@@ -1143,7 +1160,7 @@ function applyAbilityEffect(
         ally.currentHp = Math.min(ally.maxHp, ally.currentHp + healAmount);
         healingDone += actualHeal;
 
-        const allyDef = getHeroById(ally.heroId);
+        const allyDef = heroRegistry.get(ally.heroId);
         logEntries.push({
           timestamp: Date.now(),
           type: 'heal',
@@ -1175,7 +1192,7 @@ function applyAbilityEffect(
         };
         ally.statusEffects.push(statusEffect);
 
-        const allyDef = getHeroById(ally.heroId);
+        const allyDef = heroRegistry.get(ally.heroId);
         logEntries.push({
           timestamp: Date.now(),
           type: 'status',
@@ -1206,7 +1223,7 @@ function applyAbilityEffect(
         };
         enemy.statusEffects.push(statusEffect);
 
-        const enemyDef = getEnemyById(enemy.id) || getBossById(enemy.id);
+        const enemyDef = getAnyEnemy(enemy.id);
         logEntries.push({
           timestamp: Date.now(),
           type: 'status',
@@ -1262,7 +1279,7 @@ function applyAbilityEffect(
         };
         ally.statusEffects.push(statusEffect);
 
-        const allyDef = getHeroById(ally.heroId);
+        const allyDef = heroRegistry.get(ally.heroId);
         logEntries.push({
           timestamp: Date.now(),
           type: 'status',
@@ -1300,7 +1317,7 @@ function applyAbilityEffect(
         ally.statusEffects = ally.statusEffects.filter((e) => e.type !== 'debuff');
 
         if (debuffCount > 0) {
-          const allyDef = getHeroById(ally.heroId);
+          const allyDef = heroRegistry.get(ally.heroId);
           logEntries.push({
             timestamp: Date.now(),
             type: 'heal',
@@ -1339,7 +1356,7 @@ export function executeHeroAbility(
 
   const ability = getHeroAbility(heroId)!;
   const heroStats = partyStats[heroId];
-  const heroDef = getHeroById(heroId);
+  const heroDef = heroRegistry.get(heroId);
   const heroName = heroDef?.name || heroId;
 
   // Create mutable copies
@@ -1442,7 +1459,7 @@ export function executeHeroLimitBreak(
 
   const limitBreak = getHeroLimitBreak(heroId)!;
   const heroStats = partyStats[heroId];
-  const heroDef = getHeroById(heroId);
+  const heroDef = heroRegistry.get(heroId);
   const heroName = heroDef?.name || heroId;
 
   // Create mutable copies

@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import type { CombatRewards } from '../../types/game';
 import { formatNumber } from '../../utils/formatNumber';
-import { getHeroById } from '../../data/heroes';
-import { getZoneById } from '../../data/zones';
+import { heroRegistry, zoneRegistry } from '../../domain';
 import { useSettingsStore } from '../../stores/settingsStore';
 
 // Canadian victory/defeat phrases
@@ -53,7 +52,7 @@ export function CombatResultsModal({
   const [phrase] = useState(() => getRandomPhrase(isVictory));
 
   // Get zone info
-  const zone = zoneId ? getZoneById(zoneId) : null;
+  const zone = zoneId ? zoneRegistry.get(zoneId) : null;
   const isBossStage = zone ? stageNumber === zone.bossStage.stageNumber : false;
 
   return (
@@ -136,7 +135,7 @@ export function CombatResultsModal({
                 <h4 className="text-xs font-semibold text-gray-500 mb-2">Experience Gained</h4>
                 <div className="space-y-1">
                   {Object.entries(rewards.xp).map(([heroId, xp]) => {
-                    const hero = getHeroById(heroId);
+                    const hero = heroRegistry.get(heroId);
                     if (!hero) return null;
                     return (
                       <div

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useGameStore } from '../../stores/gameStore';
-import { HEROES, getHeroById } from '../../data/heroes';
+import { HEROES } from '../../data/heroes';
+import { heroRegistry } from '../../domain';
 import { formatNumber } from '../../utils/formatNumber';
 import { playPurchaseSound, playMilestoneChime } from '../../systems/audioSystem';
 import { calculateHeroStats } from '../../systems/productionEngine';
@@ -42,7 +43,11 @@ interface HeroCardProps {
 }
 
 function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, isInCombat }: HeroCardProps) {
-  const stats = calculateHeroStats(hero.id, heroState);
+  // Memoize stats calculation to prevent recalculating on every render
+  const stats = useMemo(
+    () => calculateHeroStats(hero.id, heroState),
+    [hero.id, heroState]
+  );
   const xpProgress = heroState.xpToNextLevel > 0
     ? (heroState.xp / heroState.xpToNextLevel) * 100
     : 100;
@@ -150,7 +155,7 @@ function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, 
             ? 'bg-gray-200 text-gray-700 border border-gray-300 cursor-not-allowed'
             : isInParty
               ? 'bg-maple-100 text-maple-600 border border-maple-300 cursor-default'
-              : 'bg-linear-to-r from-maple-500 to-maple-600 hover:from-maple-600 hover:to-maple-700 text-white shadow-xs hover:shadow-md active:scale-[0.98]'
+              : 'bg-linear-to-r from-maple-600 to-maple-700 hover:from-maple-700 hover:to-maple-800 text-white shadow-xs hover:shadow-md active:scale-[0.98]'
           }
         `}
       >
@@ -175,7 +180,7 @@ function HeroRecruitCard({ hero }: HeroRecruitCardProps) {
         playPurchaseSound();
         playMilestoneChime();
         // Show hero-specific recruitment dialogue
-        const heroDef = getHeroById(hero.id);
+        const heroDef = heroRegistry.get(hero.id);
         if (heroDef) {
           showHeroRecruitDialogue(heroDef);
         }
@@ -288,15 +293,15 @@ export function HeroPanel({ onEquipmentClick }: HeroPanelProps) {
   const availableHeroes = HEROES.filter((h) => heroes[h.id] === undefined);
   const heroMultiplier = getHeroMultiplier();
 
-  // Check if hero is in party
-  const isHeroInParty = (heroId: string): boolean => {
+  // Check if hero is in party (memoized to prevent recreation on each render)
+  const isHeroInParty = useCallback((heroId: string): boolean => {
     return (
       party.frontLeft === heroId ||
       party.frontRight === heroId ||
       party.backLeft === heroId ||
       party.backRight === heroId
     );
-  };
+  }, [party.frontLeft, party.frontRight, party.backLeft, party.backRight]);
 
   // Find next empty party slot
   const getNextEmptySlot = (): 'frontLeft' | 'frontRight' | 'backLeft' | 'backRight' | null => {

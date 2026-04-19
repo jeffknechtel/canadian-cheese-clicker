@@ -53,7 +53,13 @@ import {
   canUseAbility,
   canUseLimitBreak,
 } from '../systems/combatEngine';
-import { UPGRADES, getUpgradeById } from '../data/upgrades';
+import { UPGRADES } from '../data/upgrades';
+import {
+  upgradeRegistry,
+  heroRegistry,
+  equipmentRegistry,
+  recipeRegistry,
+} from '../domain';
 import {
   getAgingUpgradeById,
   getAgingUpgradePurchaseCount as getAgingUpgradePurchaseCountHelper,
@@ -61,8 +67,7 @@ import {
 } from '../data/agingUpgrades';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { GENERATORS } from '../data/generators';
-import { HEROES, getHeroById, getXpForLevel, HERO_MAX_LEVEL } from '../data/heroes';
-import { getEquipmentById } from '../data/equipment';
+import { HEROES, getXpForLevel, HERO_MAX_LEVEL } from '../data/heroes';
 import {
   saveGame,
   loadGame,
@@ -70,7 +75,7 @@ import {
   type OfflineProgress,
 } from '../systems/saveSystem';
 import { MILESTONE_THRESHOLDS } from '../data/canadianDialogue';
-import { getRecipeById, CHEESE_RECIPES } from '../data/cheeseRecipes';
+import { CHEESE_RECIPES } from '../data/cheeseRecipes';
 import { getCaveById, CAVES } from '../data/caves';
 import { getIngredientById, getMilkByType, getCultureByType, getRennetByType } from '../data/ingredients';
 import { getEventById, calculateEventBonusMultiplier } from '../data/events';
@@ -86,6 +91,14 @@ import {
   trackCraftingStart,
   trackCraftingComplete,
 } from '../systems/analyticsService';
+import {
+  startCombatMusic,
+  endCombatMusic,
+  playVictoryFanfare,
+  playDefeatJingle,
+  playAbilitySound,
+  playLimitBreakSound,
+} from '../systems/audioSystem';
 import type { EventBonus } from '../types/game';
 
 // Callback for achievement unlock notifications
@@ -439,7 +452,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   buyUpgrade: (id: string) => {
     const state = get();
-    const upgrade = getUpgradeById(id);
+    const upgrade = upgradeRegistry.get(id);
 
     if (!upgrade) return false;
     if (state.upgrades.includes(id)) return false;
@@ -492,7 +505,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   canAffordUpgrade: (id: string) => {
     const { curds, whey, upgrades } = get();
-    const upgrade = getUpgradeById(id);
+    const upgrade = upgradeRegistry.get(id);
 
     if (!upgrade) return false;
     if (upgrades.includes(id)) return false;
@@ -503,7 +516,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   isUpgradeVisible: (id: string) => {
     const { generators, upgrades } = get();
-    const upgrade = getUpgradeById(id);
+    const upgrade = upgradeRegistry.get(id);
 
     if (!upgrade) return false;
     if (upgrades.includes(id)) return false; // Already purchased
@@ -623,7 +636,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   recruitHero: (heroId: string) => {
     const state = get();
-    const heroDef = getHeroById(heroId);
+    const heroDef = heroRegistry.get(heroId);
 
     if (!heroDef) return false;
     if (state.heroes[heroId]) return false; // Already recruited
@@ -667,7 +680,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   canAffordHero: (heroId: string) => {
     const { curds, heroes } = get();
-    const heroDef = getHeroById(heroId);
+    const heroDef = heroRegistry.get(heroId);
 
     if (!heroDef) return false;
     if (heroes[heroId]) return false; // Already recruited
@@ -789,7 +802,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const positions: FormationPosition[] = ['frontLeft', 'frontRight', 'backLeft', 'backRight'];
     return positions.map((pos) => {
       const heroId = party[pos];
-      return heroId ? getHeroById(heroId) ?? null : null;
+      return heroId ? heroRegistry.get(heroId) ?? null : null;
     });
   },
 
@@ -797,7 +810,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   buyEquipment: (equipmentId: string) => {
     const state = get();
-    const equipment = getEquipmentById(equipmentId);
+    const equipment = equipmentRegistry.get(equipmentId);
 
     if (!equipment) return false;
     if (state.equipmentInventory.includes(equipmentId)) return false; // Already owned
@@ -813,7 +826,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   canAffordEquipment: (equipmentId: string) => {
     const { curds, equipmentInventory } = get();
-    const equipment = getEquipmentById(equipmentId);
+    const equipment = equipmentRegistry.get(equipmentId);
 
     if (!equipment) return false;
     if (equipmentInventory.includes(equipmentId)) return false; // Already owned
@@ -823,7 +836,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   equipItem: (heroId: string, equipmentId: string) => {
     const state = get();
     const heroState = state.heroes[heroId];
-    const equipment = getEquipmentById(equipmentId);
+    const equipment = equipmentRegistry.get(equipmentId);
 
     if (!heroState) return false;
     if (!equipment) return false;
@@ -910,7 +923,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const equipment: Equipment[] = [];
     for (const equipmentId of Object.values(heroState.equipment)) {
       if (equipmentId) {
-        const eq = getEquipmentById(equipmentId);
+        const eq = equipmentRegistry.get(equipmentId);
         if (eq) equipment.push(eq);
       }
     }
@@ -926,6 +939,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (!heroState) return;
     if (heroState.level >= HERO_MAX_LEVEL) return;
 
+    // Collect level-ups for side effects after state update
+    const levelUps: Array<{ level: number }> = [];
+
     set((s) => {
       const currentHero = s.heroes[heroId];
       let xp = currentHero.xp + amount;
@@ -938,14 +954,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         level += 1;
         xpToNextLevel = getXpForLevel(level);
 
-        // Notify about level up
-        const heroDef = getHeroById(heroId);
-        if (heroDef && heroLevelUpCallback) {
-          heroLevelUpCallback(heroDef, level);
-        }
-
-        // Track analytics
-        trackHeroLevelUp(heroId, level);
+        // Collect level-up info for side effects (don't execute inside set())
+        levelUps.push({ level });
       }
 
       // Cap XP at max level
@@ -979,6 +989,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
         curdPerSecond: newCps,
       };
     });
+
+    // Execute side effects AFTER state update
+    if (levelUps.length > 0) {
+      const heroDef = heroRegistry.get(heroId);
+      for (const { level } of levelUps) {
+        if (heroDef && heroLevelUpCallback) {
+          heroLevelUpCallback(heroDef, level);
+        }
+        trackHeroLevelUp(heroId, level);
+      }
+    }
   },
 
   tickHeroXp: (deltaMs: number) => {
@@ -1022,11 +1043,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   checkMilestone: () => {
     const { totalCurdsEarned, lastMilestone } = get();
-    const totalNum = totalCurdsEarned.toNumber();
 
     // Find the next milestone we haven't triggered yet
+    // Use Decimal.gte() to avoid precision loss with large curd counts
     for (const threshold of MILESTONE_THRESHOLDS) {
-      if (threshold > lastMilestone && totalNum >= threshold) {
+      if (threshold > lastMilestone && totalCurdsEarned.gte(threshold)) {
         // We've crossed a new milestone
         set({ lastMilestone: threshold });
         return threshold;
@@ -1118,6 +1139,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const isBoss = isBossStage(zoneId, stageNumber);
     trackCombatStart(zoneId, stageNumber, isBoss);
 
+    // Start combat music
+    startCombatMusic(isBoss);
+
     return true;
   },
 
@@ -1183,6 +1207,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
       trackCombatEnd(zoneIdForTracking, stageNumberForTracking, result, durationMs);
     }
 
+    // Play end-of-combat audio
+    if (result === 'victory') {
+      playVictoryFanfare();
+    } else if (result === 'defeat' || result === 'flee') {
+      playDefeatJingle();
+    }
+    // Transition music
+    endCombatMusic(result === 'victory');
+
     // Combat ends but we keep the state for rewards claiming
     set((s) => ({
       combat: {
@@ -1213,6 +1246,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (!result.success) {
       return false;
     }
+
+    // Play ability activation sound
+    playAbilitySound();
 
     // Apply state updates
     set((s) => {
@@ -1245,6 +1281,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (!result.success) {
       return false;
     }
+
+    // Play limit break sound
+    playLimitBreakSound();
 
     // Apply state updates
     set((s) => {
@@ -1594,7 +1633,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   unlockRecipe: (recipeId: string) => {
     const state = get();
-    const recipe = getRecipeById(recipeId);
+    const recipe = recipeRegistry.get(recipeId);
 
     if (!recipe) return false;
     if (state.crafting.unlockedRecipes.includes(recipeId)) return false;
@@ -1716,7 +1755,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const canStart = state.canStartCrafting(recipeId, caveId);
     if (!canStart.canStart) return false;
 
-    const recipe = getRecipeById(recipeId);
+    const recipe = recipeRegistry.get(recipeId);
     const cave = getCaveById(caveId);
     if (!recipe || !cave) return false;
 
@@ -1756,7 +1795,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     const now = Date.now();
     const job: CraftingJob = {
-      id: `job_${now}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `job_${now}_${Math.random().toString(36).substring(2, 11)}`,
       recipeId,
       caveId,
       startTime: now,
@@ -1826,15 +1865,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const state = get();
     const now = Date.now();
 
-    const jobIndex = state.crafting.activeJobs.findIndex((j) => j.id === jobId);
-    if (jobIndex === -1) return null;
-
-    const job = state.crafting.activeJobs[jobIndex];
+    // Find job by ID (not index) to avoid stale closure bug
+    const job = state.crafting.activeJobs.find((j) => j.id === jobId);
+    if (!job) return null;
 
     // Check if job is complete
     if (now < job.endTime) return null;
 
-    const recipe = getRecipeById(job.recipeId);
+    const recipe = recipeRegistry.get(job.recipeId);
     if (!recipe) return null;
 
     // Calculate final quality
@@ -1849,7 +1887,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     finalQuality = Math.max(1, Math.min(100, finalQuality));
 
     const cheese: CraftedCheese = {
-      id: `cheese_${now}_${Math.random().toString(36).substr(2, 9)}`,
+      id: `cheese_${now}_${Math.random().toString(36).substring(2, 11)}`,
       recipeId: job.recipeId,
       quality: finalQuality,
       craftedAt: now,
@@ -1857,8 +1895,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     };
 
     set((s) => {
+      // Re-find the job index inside set() to get fresh state
+      const currentJobIndex = s.crafting.activeJobs.findIndex((j) => j.id === jobId);
+      if (currentJobIndex === -1) return s; // Job already collected
+
       const newActiveJobs = [...s.crafting.activeJobs];
-      newActiveJobs.splice(jobIndex, 1);
+      newActiveJobs.splice(currentJobIndex, 1);
 
       return {
         crafting: {
@@ -1891,11 +1933,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const state = get();
     const now = Date.now();
 
-    const cheeseIndex = state.crafting.cheeseInventory.findIndex((c) => c.id === cheeseId);
-    if (cheeseIndex === -1) return false;
+    // Find cheese by ID (not index) to avoid stale closure bug
+    const cheese = state.crafting.cheeseInventory.find((c) => c.id === cheeseId);
+    if (!cheese) return false;
 
-    const cheese = state.crafting.cheeseInventory[cheeseIndex];
-    const recipe = getRecipeById(cheese.recipeId);
+    const recipe = recipeRegistry.get(cheese.recipeId);
     if (!recipe || !recipe.effects || recipe.effects.length === 0) return false;
 
     // Create buffs from cheese effects
@@ -1914,7 +1956,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
 
       return {
-        id: `buff_${now}_${Math.random().toString(36).substr(2, 9)}`,
+        id: `buff_${now}_${Math.random().toString(36).substring(2, 11)}`,
         effect: scaledEffect,
         startTime: now,
         endTime: now + effect.duration,
@@ -1923,8 +1965,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     });
 
     set((s) => {
+      // Re-find the cheese index inside set() to get fresh state
+      const currentIndex = s.crafting.cheeseInventory.findIndex((c) => c.id === cheeseId);
+      if (currentIndex === -1) return s; // Already consumed
+
       const newInventory = [...s.crafting.cheeseInventory];
-      newInventory.splice(cheeseIndex, 1);
+      newInventory.splice(currentIndex, 1);
 
       return {
         crafting: {
@@ -1946,11 +1992,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
   sellCheese: (cheeseId: string) => {
     const state = get();
 
-    const cheeseIndex = state.crafting.cheeseInventory.findIndex((c) => c.id === cheeseId);
-    if (cheeseIndex === -1) return new Decimal(0);
+    // Find cheese by ID (not index) to avoid stale closure bug
+    const cheese = state.crafting.cheeseInventory.find((c) => c.id === cheeseId);
+    if (!cheese) return new Decimal(0);
 
-    const cheese = state.crafting.cheeseInventory[cheeseIndex];
-    const recipe = getRecipeById(cheese.recipeId);
+    const recipe = recipeRegistry.get(cheese.recipeId);
     if (!recipe) return new Decimal(0);
 
     // Calculate value based on quality
@@ -1959,8 +2005,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const value = recipe.baseValue.mul(qualityMultiplier);
 
     set((s) => {
+      // Re-find the cheese index inside set() to get fresh state
+      const currentIndex = s.crafting.cheeseInventory.findIndex((c) => c.id === cheeseId);
+      if (currentIndex === -1) return s; // Already sold
+
       const newInventory = [...s.crafting.cheeseInventory];
-      newInventory.splice(cheeseIndex, 1);
+      newInventory.splice(currentIndex, 1);
 
       return {
         curds: s.curds.plus(value),
@@ -1977,12 +2027,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   addInteraction: (jobId: string, interaction: Omit<CraftingInteraction, 'timestamp'>) => {
     const state = get();
-
-    const jobIndex = state.crafting.activeJobs.findIndex((j) => j.id === jobId);
-    if (jobIndex === -1) return false;
-
-    const job = state.crafting.activeJobs[jobIndex];
     const now = Date.now();
+
+    // Find job by ID (not index) to avoid stale closure bug
+    const job = state.crafting.activeJobs.find((j) => j.id === jobId);
+    if (!job) return false;
 
     // Can't interact with completed jobs
     if (now >= job.endTime) return false;
@@ -1993,10 +2042,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
     };
 
     set((s) => {
+      // Re-find the job index inside set() to get fresh state
+      const currentIndex = s.crafting.activeJobs.findIndex((j) => j.id === jobId);
+      if (currentIndex === -1) return s; // Job no longer exists
+
       const newJobs = [...s.crafting.activeJobs];
-      newJobs[jobIndex] = {
-        ...newJobs[jobIndex],
-        interactions: [...newJobs[jobIndex].interactions, fullInteraction],
+      newJobs[currentIndex] = {
+        ...newJobs[currentIndex],
+        interactions: [...newJobs[currentIndex].interactions, fullInteraction],
       };
 
       return {

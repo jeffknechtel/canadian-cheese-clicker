@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useGameStore } from '../../../stores/gameStore';
-import { getRecipeById, formatAgingDuration } from '../../../data/cheeseRecipes';
+import { formatAgingDuration } from '../../../data/cheeseRecipes';
+import { recipeRegistry } from '../../../domain';
 import { playPurchaseSound } from '../../../systems/audioSystem';
 import type { AffinageCave, CraftingJob } from '../../../types/game';
 
@@ -71,7 +72,7 @@ function AgingJobRow({ job }: AgingJobRowProps) {
   const { getJobProgress, collectCheese, addInteraction } = useGameStore();
   const [progress, setProgress] = useState(getJobProgress(job.id));
 
-  const recipe = getRecipeById(job.recipeId);
+  const recipe = recipeRegistry.get(job.recipeId);
   const isComplete = progress >= 100;
 
   // Update progress periodically

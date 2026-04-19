@@ -3545,14 +3545,14 @@ export const BOSSES: BossDefinition[] = [
 // ===== Helper Functions =====
 
 /**
- * Get an enemy definition by ID
+ * @deprecated Use enemyRegistry.get() from '../domain' instead
  */
 export function getEnemyById(id: string): EnemyDefinition | undefined {
   return ENEMIES.find((e) => e.id === id);
 }
 
 /**
- * Get a boss definition by ID
+ * @deprecated Use bossRegistry.get() from '../domain' instead
  */
 export function getBossById(id: string): BossDefinition | undefined {
   return BOSSES.find((b) => b.id === id);

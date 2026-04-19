@@ -8,7 +8,8 @@ import type {
   CheeseEffect,
   Ingredient,
 } from '../types/game';
-import { getRecipeById, CHEESE_RECIPES } from '../data/cheeseRecipes';
+import { CHEESE_RECIPES } from '../data/cheeseRecipes';
+import { recipeRegistry } from '../domain';
 import { getCaveById, CAVES } from '../data/caves';
 import {
   getIngredientById,
@@ -215,7 +216,7 @@ export function calculateCheeseValueById(
   recipeId: string,
   quality: number
 ): Decimal {
-  const recipe = getRecipeById(recipeId);
+  const recipe = recipeRegistry.get(recipeId);
   if (!recipe) return new Decimal(0);
   return calculateCheeseValue(recipe, quality);
 }

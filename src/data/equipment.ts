@@ -550,7 +550,7 @@ export const EQUIPMENT: Equipment[] = [
 ];
 
 /**
- * Get an equipment item by its ID
+ * @deprecated Use equipmentRegistry.get() from '../domain' instead
  */
 export function getEquipmentById(id: string): Equipment | undefined {
   return EQUIPMENT.find((e) => e.id === id);

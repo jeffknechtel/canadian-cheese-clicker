@@ -1091,7 +1091,7 @@ export const ZONES: ZoneDefinition[] = [
 // ===== Helper Functions =====
 
 /**
- * Get a zone definition by ID
+ * @deprecated Use zoneRegistry.get() from '../domain' instead
  */
 export function getZoneById(id: string): ZoneDefinition | undefined {
   return ZONES.find((z) => z.id === id);
