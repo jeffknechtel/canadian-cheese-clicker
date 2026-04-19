@@ -1,10 +1,10 @@
-import { useState, memo, useCallback } from 'react';
+import { useState, memo, useCallback, useRef, useEffect } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { formatNumber } from '../../utils/formatNumber';
 import { playPurchaseSound } from '../../systems/audioSystem';
 import type { Upgrade } from '../../types/game';
-import { getGeneratorById } from '../../data/generators';
+import { generatorRegistry } from '../../domain';
 
 type TabType = 'available' | 'purchased';
 
@@ -20,7 +20,7 @@ function getEffectDescription(upgrade: Upgrade): string {
     case 'clickMultiplier':
       return `×${effect.value} click power`;
     case 'generatorMultiplier': {
-      const generator = getGeneratorById(effect.generatorId);
+      const generator = generatorRegistry.get(effect.generatorId);
       return `×${effect.value} ${generator?.name ?? 'Unknown'} production`;
     }
     case 'globalMultiplier':
@@ -35,7 +35,7 @@ function getRequirementText(upgrade: Upgrade): string | null {
 
   const { requirement } = upgrade;
   if (requirement.type === 'generatorOwned') {
-    const generator = getGeneratorById(requirement.generatorId);
+    const generator = generatorRegistry.get(requirement.generatorId);
     return `Requires ${requirement.count} ${generator?.name ?? 'Unknown'}`;
   }
   return null;
@@ -49,6 +49,18 @@ const UpgradeCard = memo(function UpgradeCard({ upgrade, isPurchased, index }: U
 
   const [purchaseAnimation, setPurchaseAnimation] = useState<'success' | 'failure' | null>(null);
 
+  // Ref for animation timeout cleanup to prevent memory leaks
+  const animationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const canAfford = canAffordUpgrade(upgrade.id);
   const requirementText = getRequirementText(upgrade);
 
@@ -60,12 +72,12 @@ const UpgradeCard = memo(function UpgradeCard({ upgrade, isPurchased, index }: U
         playPurchaseSound();
         if (!reducedMotion) {
           setPurchaseAnimation('success');
-          setTimeout(() => setPurchaseAnimation(null), 400);
+          animationTimeoutRef.current = setTimeout(() => setPurchaseAnimation(null), 400);
         }
       }
     } else if (!isPurchased && !reducedMotion) {
       setPurchaseAnimation('failure');
-      setTimeout(() => setPurchaseAnimation(null), 300);
+      animationTimeoutRef.current = setTimeout(() => setPurchaseAnimation(null), 300);
     }
   }, [isPurchased, canAfford, buyUpgrade, upgrade.id, reducedMotion]);
 

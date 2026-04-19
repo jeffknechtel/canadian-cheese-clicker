@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { useSettingsStore } from '../../stores/settingsStore';
-import { getHeroById } from '../../data/heroes';
-import { getEquipmentById, getEquipmentBySlot } from '../../data/equipment';
+import { getEquipmentBySlot } from '../../data/equipment';
+import { heroRegistry, equipmentRegistry } from '../../domain';
 import { formatNumber } from '../../utils/formatNumber';
 import { playPurchaseSound } from '../../systems/audioSystem';
 import type { EquipmentSlot, Equipment } from '../../types/game';
@@ -159,10 +159,10 @@ export function EquipmentModal({ heroId, slot, onClose }: EquipmentModalProps) {
   const unequipItem = useGameStore((state) => state.unequipItem);
   const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
-  const hero = getHeroById(heroId);
+  const hero = heroRegistry.get(heroId);
   const heroState = heroes[heroId];
   const currentEquipmentId = heroState?.equipment[slot];
-  const currentEquipment = currentEquipmentId ? getEquipmentById(currentEquipmentId) : null;
+  const currentEquipment = currentEquipmentId ? equipmentRegistry.get(currentEquipmentId) : null;
 
   // Get all equipment for this slot
   const slotEquipment = getEquipmentBySlot(slot);

@@ -1,6 +1,6 @@
 import { useGameStore } from '../../../stores/gameStore';
 import { formatNumber } from '../../../utils/formatNumber';
-import { getRecipeById } from '../../../data/cheeseRecipes';
+import { recipeRegistry } from '../../../domain';
 import { playPurchaseSound } from '../../../systems/audioSystem';
 import type { CraftedCheese, CheeseEffect } from '../../../types/game';
 
@@ -10,7 +10,7 @@ interface CheeseInventoryCardProps {
 
 export function CheeseInventoryCard({ cheese }: CheeseInventoryCardProps) {
   const { consumeCheese, sellCheese } = useGameStore();
-  const recipe = getRecipeById(cheese.recipeId);
+  const recipe = recipeRegistry.get(cheese.recipeId);
 
   if (!recipe) return null;
 
@@ -84,7 +84,7 @@ export function CheeseInventoryCard({ cheese }: CheeseInventoryCardProps) {
           {hasEffects && (
             <button
               onClick={handleConsume}
-              className="px-3 py-1.5 text-xs bg-cheddar-500 hover:bg-cheddar-600 text-white rounded font-medium transition-colors"
+              className="px-3 py-1.5 text-xs bg-cheddar-600 hover:bg-cheddar-700 text-white rounded font-medium transition-colors"
             >
               Consume
             </button>

@@ -1,9 +1,6 @@
 import Decimal from 'decimal.js';
-import { GENERATORS, getGeneratorById } from '../data/generators';
-import { getUpgradeById } from '../data/upgrades';
+import { generatorRegistry, upgradeRegistry, heroRegistry } from '../domain';
 import { getAchievementById } from '../data/achievements';
-import { getHeroById } from '../data/heroes';
-import { getEquipmentById } from '../data/equipment';
 import { getAgingUpgradeById } from '../data/agingUpgrades';
 import type { HeroState, HeroStats, PartyFormation, PrestigeState } from '../types/game';
 
@@ -17,12 +14,11 @@ export function calculateCps(
 ): Decimal {
   let totalCps = new Decimal(0);
 
-  for (const generator of GENERATORS) {
+  for (const generator of generatorRegistry.getAll()) {
     const owned = ownedGenerators[generator.id] ?? 0;
     if (owned > 0) {
       const multiplier = generatorMultipliers[generator.id] ?? 1;
-      const generatorCps = generator.baseCps.mul(owned).mul(multiplier);
-      totalCps = totalCps.plus(generatorCps);
+      totalCps = totalCps.plus(generator.getCps(owned, multiplier));
     }
   }
 
@@ -38,20 +34,9 @@ export function calculateGeneratorCost(
   owned: number,
   count: number
 ): Decimal {
-  const generator = getGeneratorById(generatorId);
+  const generator = generatorRegistry.get(generatorId);
   if (!generator) return new Decimal(Infinity);
-
-  const { baseCost, costMultiplier } = generator;
-
-  // Cost of buying `count` generators when you already own `owned`
-  // Sum of geometric series: baseCost * m^owned * (1 + m + m^2 + ... + m^(count-1))
-  // = baseCost * m^owned * (m^count - 1) / (m - 1)
-  const multiplierPowOwned = new Decimal(costMultiplier).pow(owned);
-  const multiplierPowCount = new Decimal(costMultiplier).pow(count);
-  const numerator = multiplierPowCount.minus(1);
-  const denominator = new Decimal(costMultiplier).minus(1);
-
-  return baseCost.mul(multiplierPowOwned).mul(numerator.div(denominator)).floor();
+  return generator.getCost(owned, count);
 }
 
 /**
@@ -62,24 +47,9 @@ export function calculateMaxAffordable(
   owned: number,
   curds: Decimal
 ): number {
-  const generator = getGeneratorById(generatorId);
+  const generator = generatorRegistry.get(generatorId);
   if (!generator) return 0;
-
-  // Binary search for max affordable
-  let low = 0;
-  let high = 1000; // Reasonable upper bound
-
-  while (low < high) {
-    const mid = Math.floor((low + high + 1) / 2);
-    const cost = calculateGeneratorCost(generatorId, owned, mid);
-    if (curds.gte(cost)) {
-      low = mid;
-    } else {
-      high = mid - 1;
-    }
-  }
-
-  return low;
+  return generator.getMaxAffordable(owned, curds);
 }
 
 /**
@@ -89,9 +59,9 @@ export function calculateClickMultiplier(purchasedUpgradeIds: string[]): number 
   let multiplier = 1;
 
   for (const upgradeId of purchasedUpgradeIds) {
-    const upgrade = getUpgradeById(upgradeId);
-    if (upgrade && upgrade.effect.type === 'clickMultiplier') {
-      multiplier *= upgrade.effect.value;
+    const upgrade = upgradeRegistry.get(upgradeId);
+    if (upgrade?.effect.type === 'clickMultiplier') {
+      multiplier *= upgrade.getMultiplierValue();
     }
   }
 
@@ -108,8 +78,8 @@ export function calculateGeneratorMultipliers(
   const multipliers: Record<string, number> = {};
 
   for (const upgradeId of purchasedUpgradeIds) {
-    const upgrade = getUpgradeById(upgradeId);
-    if (upgrade && upgrade.effect.type === 'generatorMultiplier') {
+    const upgrade = upgradeRegistry.get(upgradeId);
+    if (upgrade?.effect.type === 'generatorMultiplier') {
       const { generatorId, value } = upgrade.effect;
       multipliers[generatorId] = (multipliers[generatorId] ?? 1) * value;
     }
@@ -125,9 +95,9 @@ export function calculateGlobalMultiplier(purchasedUpgradeIds: string[]): number
   let multiplier = 1;
 
   for (const upgradeId of purchasedUpgradeIds) {
-    const upgrade = getUpgradeById(upgradeId);
-    if (upgrade && upgrade.effect.type === 'globalMultiplier') {
-      multiplier *= upgrade.effect.value;
+    const upgrade = upgradeRegistry.get(upgradeId);
+    if (upgrade?.effect.type === 'globalMultiplier') {
+      multiplier *= upgrade.getMultiplierValue();
     }
   }
 
@@ -179,37 +149,11 @@ export function calculateHeroStats(
   heroId: string,
   heroState: HeroState
 ): HeroStats {
-  const heroDef = getHeroById(heroId);
-  if (!heroDef) {
+  const hero = heroRegistry.get(heroId);
+  if (!hero) {
     return { hp: 0, attack: 0, defense: 0, speed: 0, cheeseAffinity: 0 };
   }
-
-  // Start with base stats
-  const stats: HeroStats = { ...heroDef.baseStats };
-
-  // Add stat growth * (level - 1)
-  const levelBonus = heroState.level - 1;
-  stats.hp += heroDef.statGrowth.hp * levelBonus;
-  stats.attack += heroDef.statGrowth.attack * levelBonus;
-  stats.defense += heroDef.statGrowth.defense * levelBonus;
-  stats.speed += heroDef.statGrowth.speed * levelBonus;
-  stats.cheeseAffinity += heroDef.statGrowth.cheeseAffinity * levelBonus;
-
-  // Add equipment bonuses
-  for (const equipmentId of Object.values(heroState.equipment)) {
-    if (equipmentId) {
-      const equipment = getEquipmentById(equipmentId);
-      if (equipment?.stats) {
-        stats.hp += equipment.stats.hp ?? 0;
-        stats.attack += equipment.stats.attack ?? 0;
-        stats.defense += equipment.stats.defense ?? 0;
-        stats.speed += equipment.stats.speed ?? 0;
-        stats.cheeseAffinity += equipment.stats.cheeseAffinity ?? 0;
-      }
-    }
-  }
-
-  return stats;
+  return hero.getFullStats(heroState);
 }
 
 /**
@@ -269,8 +213,8 @@ export function calculateFormationBonus(
     (id): id is string => id !== null
   );
   for (const heroId of frontHeroes) {
-    const heroDef = getHeroById(heroId);
-    if (heroDef?.class === 'tank') {
+    const hero = heroRegistry.get(heroId);
+    if (hero?.class === 'tank') {
       bonus += 0.05; // +5% for tank in front
       break; // Only count once
     }
@@ -281,8 +225,8 @@ export function calculateFormationBonus(
     (id): id is string => id !== null
   );
   for (const heroId of backHeroes) {
-    const heroDef = getHeroById(heroId);
-    if (heroDef?.class === 'healer') {
+    const hero = heroRegistry.get(heroId);
+    if (hero?.class === 'healer') {
       bonus += 0.05; // +5% for healer in back
       break; // Only count once
     }
@@ -332,7 +276,8 @@ export function calculatePotentialRennet(totalCurdsEarned: Decimal): number {
   if (totalCurdsEarned.lt(threshold)) return 0;
 
   const ratio = totalCurdsEarned.div(threshold);
-  return Math.floor(Math.sqrt(ratio.toNumber()));
+  // Use Decimal.sqrt() and floor() for arbitrary precision
+  return Decimal.sqrt(ratio).floor().toNumber();
 }
 
 /**
@@ -469,4 +414,37 @@ export function calculateStartingGenerators(prestige: PrestigeState): Record<str
   }
 
   return starting;
+}
+
+// ===== CPS Recalculation Utility =====
+
+/**
+ * Recalculate CPS from game state components.
+ * Centralizes the repeated pattern of:
+ * 1. Calculate generator multipliers
+ * 2. Calculate global multiplier from upgrades
+ * 3. Calculate achievement multiplier
+ * 4. Calculate hero CPS bonus
+ * 5. Calculate formation bonus
+ * 6. Calculate prestige multiplier
+ * 7. Combine and calculate final CPS
+ */
+export function recalculateCpsFromState(
+  generators: Record<string, number>,
+  upgrades: string[],
+  achievements: string[],
+  heroes: Record<string, HeroState>,
+  party: PartyFormation,
+  prestige: PrestigeState
+): Decimal {
+  const generatorMultipliers = calculateGeneratorMultipliers(upgrades);
+  const upgradeGlobalMultiplier = calculateGlobalMultiplier(upgrades);
+  const achievementGlobalMultiplier = calculateAchievementGlobalMultiplier(achievements);
+  const heroBonus = calculateHeroCpsBonus(heroes, party);
+  const formationBonus = calculateFormationBonus(party, heroes);
+  const prestigeMultiplier = calculatePrestigeProductionMultiplier(prestige);
+  const totalGlobalMultiplier =
+    upgradeGlobalMultiplier * achievementGlobalMultiplier * heroBonus * formationBonus * prestigeMultiplier;
+
+  return calculateCps(generators, generatorMultipliers, totalGlobalMultiplier);
 }

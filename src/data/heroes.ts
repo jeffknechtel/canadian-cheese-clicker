@@ -994,7 +994,7 @@ export const HEROES: HeroDefinition[] = [
 ];
 
 /**
- * Get a hero definition by its ID
+ * @deprecated Use heroRegistry.get() from '../domain' instead
  */
 export function getHeroById(id: string): HeroDefinition | undefined {
   return HEROES.find((h) => h.id === id);

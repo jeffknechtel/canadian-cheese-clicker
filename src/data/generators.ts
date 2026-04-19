@@ -141,6 +141,9 @@ export const GENERATORS: Generator[] = [
   },
 ];
 
+/**
+ * @deprecated Use generatorRegistry.get() from '../domain' instead
+ */
 export function getGeneratorById(id: string): Generator | undefined {
   return GENERATORS.find((g) => g.id === id);
 }

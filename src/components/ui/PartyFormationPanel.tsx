@@ -1,5 +1,6 @@
+import { useMemo } from 'react';
 import { useGameStore } from '../../stores/gameStore';
-import { getHeroById } from '../../data/heroes';
+import { heroRegistry } from '../../domain';
 import { calculateHeroStats } from '../../systems/productionEngine';
 import type { FormationPosition } from '../../types/game';
 
@@ -22,9 +23,14 @@ interface PartySlotProps {
 function PartySlot({ position, heroId, onClick, onRemove }: PartySlotProps) {
   const heroes = useGameStore((state) => state.heroes);
 
-  const hero = heroId ? getHeroById(heroId) : null;
+  const hero = heroId ? heroRegistry.get(heroId) : null;
   const heroState = heroId ? heroes[heroId] : null;
-  const stats = hero && heroState ? calculateHeroStats(hero.id, heroState) : null;
+
+  // Memoize stats calculation to prevent recalculating on every render
+  const stats = useMemo(
+    () => hero && heroState ? calculateHeroStats(hero.id, heroState) : null,
+    [hero, heroState]
+  );
 
   const isFrontRow = position === 'frontLeft' || position === 'frontRight';
 
@@ -112,15 +118,18 @@ export function PartyFormationPanel({ onSlotClick, compact = false }: PartyForma
   // Count party members
   const partyCount = POSITIONS.filter((pos) => party[pos] !== null).length;
 
-  // Calculate total cheese affinity
-  let totalAffinity = 0;
-  for (const pos of POSITIONS) {
-    const heroId = party[pos];
-    if (heroId && heroes[heroId]) {
-      const stats = calculateHeroStats(heroId, heroes[heroId]);
-      totalAffinity += stats.cheeseAffinity;
+  // Calculate total cheese affinity (memoized to prevent recalculation on every render)
+  const totalAffinity = useMemo(() => {
+    let affinity = 0;
+    for (const pos of POSITIONS) {
+      const heroId = party[pos];
+      if (heroId && heroes[heroId]) {
+        const stats = calculateHeroStats(heroId, heroes[heroId]);
+        affinity += stats.cheeseAffinity;
+      }
     }
-  }
+    return affinity;
+  }, [party, heroes]);
 
   const handleSlotClick = (position: FormationPosition) => {
     if (onSlotClick) {
@@ -142,7 +151,7 @@ export function PartyFormationPanel({ onSlotClick, compact = false }: PartyForma
         <div className="grid grid-cols-4 gap-1">
           {POSITIONS.map((pos) => {
             const heroId = party[pos];
-            const hero = heroId ? getHeroById(heroId) : null;
+            const hero = heroId ? heroRegistry.get(heroId) : null;
             return (
               <div
                 key={pos}

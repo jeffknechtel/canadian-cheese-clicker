@@ -1,5 +1,5 @@
 import type { CombatEnemy, StatusEffect } from '../../types/game';
-import { getEnemyById, getBossById } from '../../data/enemies';
+import { getAnyEnemy } from '../../domain';
 import { CombatATBBar } from './CombatATBBar';
 
 interface StatusEffectBadgeProps {
@@ -38,7 +38,7 @@ interface EnemyCardProps {
 }
 
 export function EnemyCard({ enemy, showATB = true }: EnemyCardProps) {
-  const enemyDef = getEnemyById(enemy.id) || getBossById(enemy.id);
+  const enemyDef = getAnyEnemy(enemy.id);
   if (!enemyDef) return null;
 
   const isBoss = enemyDef.type === 'boss';
@@ -181,7 +181,7 @@ export function EnemyDisplay({ enemies }: EnemyDisplayProps) {
           <div className="text-xs text-gray-400 mb-1">Defeated ({defeatedEnemies.length})</div>
           <div className="grid grid-cols-2 gap-1">
             {defeatedEnemies.map((enemy) => {
-              const enemyDef = getEnemyById(enemy.id) || getBossById(enemy.id);
+              const enemyDef = getAnyEnemy(enemy.id);
               return (
                 <div
                   key={enemy.instanceId}

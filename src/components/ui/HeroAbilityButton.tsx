@@ -1,5 +1,6 @@
 import { useGameStore } from '../../stores/gameStore';
-import { getHeroById, getHeroAbility, getHeroLimitBreak, heroHasLimitBreak } from '../../data/heroes';
+import { getHeroAbility, getHeroLimitBreak, heroHasLimitBreak } from '../../data/heroes';
+import { heroRegistry } from '../../domain';
 import { getAbilityCooldown, isAbilityReady } from '../../systems/combatEngine';
 import type { HeroCombatState } from '../../types/game';
 
@@ -12,7 +13,7 @@ export function HeroAbilityButton({ heroState, size = 'md' }: HeroAbilityButtonP
   const canUseHeroSkill = useGameStore((state) => state.canUseHeroSkill);
   const combat = useGameStore((state) => state.combat);
 
-  const hero = getHeroById(heroState.heroId);
+  const hero = heroRegistry.get(heroState.heroId);
   const ability = getHeroAbility(heroState.heroId);
 
   if (!hero || !ability) return null;
@@ -80,7 +81,7 @@ export function LimitBreakButton({ heroId, size = 'md' }: LimitBreakButtonProps)
   const canUseLimitBreakAction = useGameStore((state) => state.canUseLimitBreakAction);
   const combat = useGameStore((state) => state.combat);
 
-  const hero = getHeroById(heroId);
+  const hero = heroRegistry.get(heroId);
   const limitBreak = getHeroLimitBreak(heroId);
 
   if (!hero || !limitBreak) return null;
@@ -147,7 +148,7 @@ export function HeroAbilityPanel({ compact = false }: HeroAbilityPanelProps) {
           <div key={heroState.heroId} className="flex items-center gap-1">
             {!compact && (
               <span className="text-xs text-gray-500 w-20 truncate">
-                {getHeroById(heroState.heroId)?.name}:
+                {heroRegistry.get(heroState.heroId)?.name}:
               </span>
             )}
             <div className="flex-1">

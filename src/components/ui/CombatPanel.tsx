@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect } from 'react';
 import { useGameStore } from '../../stores/gameStore';
-import { getHeroById, getHeroAbility, heroHasLimitBreak } from '../../data/heroes';
-import { getZoneById } from '../../data/zones';
+import { getHeroAbility, heroHasLimitBreak } from '../../data/heroes';
+import { heroRegistry, zoneRegistry } from '../../domain';
 import { CombatATBBar, LimitBreakGauge } from './CombatATBBar';
 import { EnemyDisplay } from './EnemyDisplay';
 import { CompactCombatLog } from './CombatLog';
@@ -16,7 +16,7 @@ interface HeroCombatCardProps {
 }
 
 function HeroCombatCard({ heroState, isSelected = false, heroNumber }: HeroCombatCardProps) {
-  const hero = getHeroById(heroState.heroId);
+  const hero = heroRegistry.get(heroState.heroId);
   const ability = getHeroAbility(heroState.heroId);
   const combat = useGameStore((state) => state.combat);
 
@@ -64,7 +64,7 @@ function HeroCombatCard({ heroState, isSelected = false, heroNumber }: HeroComba
             className={`
               w-5 h-5 flex items-center justify-center rounded text-xs font-bold
               ${isSelected
-                ? 'bg-maple-500 text-white'
+                ? 'bg-maple-600 text-white'
                 : 'bg-gray-200 text-gray-600'
               }
             `}
@@ -205,7 +205,7 @@ function SpeedControl({ currentSpeed, onSpeedChange }: SpeedControlProps) {
           className={`
             px-2 py-1 text-xs font-bold rounded transition-all
             ${currentSpeed === speed
-              ? 'bg-maple-500 text-white shadow-xs'
+              ? 'bg-maple-600 text-white shadow-xs'
               : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
             }
           `}
@@ -229,33 +229,32 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
   // Track selected hero for keyboard navigation
   const [selectedHeroIndex, setSelectedHeroIndex] = useState(0);
 
-  // Get zone info
-  const zone = combat.currentZone ? getZoneById(combat.currentZone) : null;
-  const isBossStage = zone ? combat.currentStage === zone.bossStage.stageNumber : false;
-
-  // Get party heroes as array
-  const heroStates = Object.values(combat.heroStates);
+  // Derive values safely (these are needed for hooks below)
+  // Must be computed before hooks to ensure consistent hook call order
+  const isInitialized = !!(combat && combat.heroStates && combat.enemies);
+  const heroStates = isInitialized ? Object.values(combat.heroStates) : [];
   const aliveHeroes = heroStates.filter((h) => h.isAlive);
-  const aliveEnemies = combat.enemies.filter((e) => e.isAlive);
 
   // Reset selected hero index when heroes change
+  // Hook must be called unconditionally (React rules of hooks)
   useEffect(() => {
-    if (selectedHeroIndex >= aliveHeroes.length) {
+    if (isInitialized && selectedHeroIndex >= aliveHeroes.length) {
       setSelectedHeroIndex(Math.max(0, aliveHeroes.length - 1));
     }
-  }, [aliveHeroes.length, selectedHeroIndex]);
+  }, [isInitialized, aliveHeroes.length, selectedHeroIndex]);
 
   const handleLimitBreak = useCallback(() => {
+    if (!isInitialized) return;
     // Find the first alive hero with a limit break
     const heroWithLimitBreak = aliveHeroes.find((h) => heroHasLimitBreak(h.heroId));
     if (heroWithLimitBreak) {
       useGameStore.getState().useLimitBreak(heroWithLimitBreak.heroId);
     }
-  }, [aliveHeroes]);
+  }, [isInitialized, aliveHeroes]);
 
   // Use selected hero's ability
   const handleUseSelectedAbility = useCallback(() => {
-    if (combat.battleResult !== 'ongoing') return;
+    if (!isInitialized || combat.battleResult !== 'ongoing') return;
     const selectedHero = aliveHeroes[selectedHeroIndex];
     if (!selectedHero) return;
 
@@ -264,17 +263,17 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
 
     if (ability && canUse) {
       useGameStore.getState().useHeroSkill(selectedHero.heroId, ability.id);
-      const hero = getHeroById(selectedHero.heroId);
+      const hero = heroRegistry.get(selectedHero.heroId);
       announce(`${hero?.name || 'Hero'} used ${ability.name}`, 'polite');
     } else if (reason) {
       announce(reason, 'polite');
     }
-  }, [combat.battleResult, aliveHeroes, selectedHeroIndex, canUseHeroSkill]);
+  }, [isInitialized, combat.battleResult, aliveHeroes, selectedHeroIndex, canUseHeroSkill]);
 
   // Combat keyboard navigation handler
   const handleCombatKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
-      if (combat.battleResult !== 'ongoing') return;
+      if (!isInitialized || combat.battleResult !== 'ongoing') return;
 
       switch (event.key) {
         // Navigate between heroes with arrow keys
@@ -283,7 +282,7 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
           event.preventDefault();
           setSelectedHeroIndex((prev) => {
             const newIndex = prev > 0 ? prev - 1 : aliveHeroes.length - 1;
-            const hero = getHeroById(aliveHeroes[newIndex]?.heroId);
+            const hero = heroRegistry.get(aliveHeroes[newIndex]?.heroId);
             announce(`Selected ${hero?.name || 'hero'}`, 'polite');
             return newIndex;
           });
@@ -294,7 +293,7 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
           event.preventDefault();
           setSelectedHeroIndex((prev) => {
             const newIndex = prev < aliveHeroes.length - 1 ? prev + 1 : 0;
-            const hero = getHeroById(aliveHeroes[newIndex]?.heroId);
+            const hero = heroRegistry.get(aliveHeroes[newIndex]?.heroId);
             announce(`Selected ${hero?.name || 'hero'}`, 'polite');
             return newIndex;
           });
@@ -316,7 +315,7 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
           if (index < aliveHeroes.length) {
             event.preventDefault();
             setSelectedHeroIndex(index);
-            const hero = getHeroById(aliveHeroes[index]?.heroId);
+            const hero = heroRegistry.get(aliveHeroes[index]?.heroId);
             announce(`Selected ${hero?.name || 'hero'}`, 'polite');
           }
           break;
@@ -362,8 +361,27 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
           break;
       }
     },
-    [combat.battleResult, combat.limitBreakGauge, aliveHeroes, handleUseSelectedAbility, onFlee, setCombatSpeed, handleLimitBreak]
+    [isInitialized, combat.battleResult, combat.limitBreakGauge, aliveHeroes, handleUseSelectedAbility, onFlee, setCombatSpeed, handleLimitBreak]
   );
+
+  // Early return AFTER all hooks (React rules of hooks)
+  // This prevents white screen errors when combat data is missing
+  if (!isInitialized) {
+    return (
+      <section className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col items-center justify-center panel-wood wood-grain">
+        <div className="text-center">
+          <div className="text-4xl mb-4">⚔️</div>
+          <p className="text-timber-700 font-medium">Initializing combat...</p>
+          <p className="text-sm text-gray-500 mt-2">If this persists, try selecting a zone again.</p>
+        </div>
+      </section>
+    );
+  }
+
+  // Get zone info (safe to access now that we know combat is initialized)
+  const zone = combat.currentZone ? zoneRegistry.get(combat.currentZone) : null;
+  const isBossStage = zone ? combat.currentStage === zone.bossStage.stageNumber : false;
+  const aliveEnemies = combat.enemies.filter((e) => e.isAlive);
 
   // Build battle status description for screen readers
   const battleStatusText = combat.battleResult === 'ongoing'

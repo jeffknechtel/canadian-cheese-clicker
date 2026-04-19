@@ -506,6 +506,9 @@ export const UPGRADES: Upgrade[] = [
   },
 ];
 
+/**
+ * @deprecated Use upgradeRegistry.get() from '../domain' instead
+ */
 export function getUpgradeById(id: string): Upgrade | undefined {
   return UPGRADES.find((u) => u.id === id);
 }
