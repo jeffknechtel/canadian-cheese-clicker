@@ -1,4 +1,4 @@
-import { useGameStore } from '../../../stores/gameStore';
+import { useGameStore } from '../../../stores';
 import { CHEESE_RECIPES, formatAgingDuration } from '../../../data/cheeseRecipes';
 import type { CheeseRecipe, CheeseCategory } from '../../../types/game';
 

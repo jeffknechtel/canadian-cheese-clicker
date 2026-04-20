@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback, useMemo } from 'react';
 import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore } from '../../stores';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { playClickSound, resumeAudioContext } from '../../systems/audioSystem';
 import { isMobile } from '../../systems/gameLoop';

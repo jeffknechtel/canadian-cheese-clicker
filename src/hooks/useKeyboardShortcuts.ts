@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { useGameStore } from '../stores/gameStore';
+import { useGameStore } from '../stores';
 import { playClickSound, resumeAudioContext } from '../systems/audioSystem';
 import { announce } from '../systems/accessibilityAnnouncer';
 

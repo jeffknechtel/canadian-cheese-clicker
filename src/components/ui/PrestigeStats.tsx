@@ -1,4 +1,4 @@
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore } from '../../stores';
 import { AGING_UPGRADES, getAgingUpgradePurchaseCount } from '../../data/agingUpgrades';
 
 interface StatRowProps {

@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { CheeseWheel } from './CheeseWheel';
 import { ClickEffects } from './ClickEffects';
 import { useSettingsStore } from '../../stores/settingsStore';
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore } from '../../stores';
 import { isMobile } from '../../systems/gameLoop';
 import { playClickSound, resumeAudioContext } from '../../systems/audioSystem';
 import { announce } from '../../systems/accessibilityAnnouncer';
@@ -248,9 +248,9 @@ export function GameScene() {
         }}
         onKeyDown={handleKeyboardClick}
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10
-                   w-32 h-32 rounded-full opacity-0 focus:opacity-100 focus:ring-4
-                   focus:ring-cheddar-400 focus:ring-opacity-50 focus:bg-cheddar-500/10
-                   transition-opacity cursor-pointer"
+                   w-32 h-32 rounded-full opacity-0 focus-visible:opacity-100 focus-visible:ring-4
+                   focus-visible:ring-cheddar-400 focus-visible:ring-opacity-50 focus-visible:bg-cheddar-500/10
+                   transition-opacity cursor-pointer outline-none"
         aria-label="Click the cheese wheel to earn curds. Press Space or Enter to click."
         title="Cheese Wheel - Click or press Space/Enter"
       >

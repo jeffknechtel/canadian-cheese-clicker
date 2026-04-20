@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGameStore } from '../../../stores/gameStore';
+import { useGameStore } from '../../../stores';
 import { formatNumber } from '../../../utils/formatNumber';
 import { formatAgingDuration } from '../../../data/cheeseRecipes';
 import { getMilkByType, getCultureByType, getRennetByType } from '../../../data/ingredients';
@@ -223,7 +223,7 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
               className={`
                 px-4 py-2 rounded-lg font-medium text-sm transition-all
                 ${canCraft
-                  ? 'bg-cheddar-500 hover:bg-cheddar-600 text-white shadow-md hover:shadow-lg active:scale-95'
+                  ? 'bg-cheddar-600 hover:bg-cheddar-700 text-white shadow-md hover:shadow-lg active:scale-95'
                   : 'bg-gray-200 text-gray-700 cursor-not-allowed'
                 }
               `}

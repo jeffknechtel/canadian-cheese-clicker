@@ -7,7 +7,7 @@
  */
 
 import { useShallow } from 'zustand/react/shallow';
-import { useGameStore } from '../stores/gameStore';
+import { useGameStore } from '../stores';
 
 // ===== Optimized Selectors =====
 

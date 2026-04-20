@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore } from '../../stores';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { formatNumber } from '../../utils/formatNumber';
 import {
@@ -357,7 +357,7 @@ export function PrestigePanel() {
           className={`
             flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
             ${activeTab === 'aging'
-              ? 'bg-amber-500 text-white border-amber-600'
+              ? 'bg-amber-600 text-white border-amber-700'
               : 'bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-200'
             }
           `}
@@ -369,7 +369,7 @@ export function PrestigePanel() {
           className={`
             flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
             ${activeTab === 'upgrades'
-              ? 'bg-amber-500 text-white border-amber-600'
+              ? 'bg-amber-600 text-white border-amber-700'
               : 'bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-200'
             }
           `}
@@ -381,7 +381,7 @@ export function PrestigePanel() {
           className={`
             flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
             ${activeTab === 'stats'
-              ? 'bg-amber-500 text-white border-amber-600'
+              ? 'bg-amber-600 text-white border-amber-700'
               : 'bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-200'
             }
           `}

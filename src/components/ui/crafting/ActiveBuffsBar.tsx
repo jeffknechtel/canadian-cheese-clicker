@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useGameStore } from '../../../stores/gameStore';
+import { useGameStore } from '../../../stores';
 import type { CheeseActiveBuff } from '../../../types/game';
 
 export function ActiveBuffsBar() {

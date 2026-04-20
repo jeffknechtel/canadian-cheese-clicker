@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore } from '../../stores';
 import { RecipeCard } from './crafting/RecipeCard';
 import { CaveCard } from './crafting/CaveCard';
 import { CheeseInventoryCard } from './crafting/CheeseInventoryCard';

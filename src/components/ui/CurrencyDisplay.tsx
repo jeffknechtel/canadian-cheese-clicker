@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore } from '../../stores';
 import { useGameStoreShallow } from '../../utils/zustandOptimization';
 import { formatNumber } from '../../utils/formatNumber';
 import { RennetDisplay } from './RennetDisplay';
