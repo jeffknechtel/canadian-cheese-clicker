@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore } from '../../stores';
 import { heroRegistry } from '../../domain';
 import { calculateHeroStats } from '../../systems/productionEngine';
 import type { FormationPosition } from '../../types/game';

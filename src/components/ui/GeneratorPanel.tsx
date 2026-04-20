@@ -1,5 +1,5 @@
-import { useState, memo } from 'react';
-import { useGameStore } from '../../stores/gameStore';
+import { useState, memo, useRef, useEffect } from 'react';
+import { useGameStore } from '../../stores';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { GENERATORS } from '../../data/generators';
 import { formatNumber } from '../../utils/formatNumber';
@@ -32,6 +32,18 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
   const [purchaseAnimation, setPurchaseAnimation] = useState<'success' | 'failure' | null>(null);
   const [isHovered, setIsHovered] = useState(false);
 
+  // Ref for animation timeout cleanup to prevent memory leaks
+  const animationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const owned = getGeneratorCount(generator.id);
   const effectiveAmount = buyAmount === 'max' ? getMaxAffordable(generator.id) : buyAmount;
   const cost = getGeneratorCost(generator.id, effectiveAmount || 1);
@@ -47,15 +59,15 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
         announceGeneratorPurchase(generator.name, effectiveAmount, owned + effectiveAmount);
         if (!reducedMotion) {
           setPurchaseAnimation('success');
-          setTimeout(() => setPurchaseAnimation(null), 400);
+          animationTimeoutRef.current = setTimeout(() => setPurchaseAnimation(null), 400);
         }
       } else if (!reducedMotion) {
         setPurchaseAnimation('failure');
-        setTimeout(() => setPurchaseAnimation(null), 300);
+        animationTimeoutRef.current = setTimeout(() => setPurchaseAnimation(null), 300);
       }
     } else if (!reducedMotion) {
       setPurchaseAnimation('failure');
-      setTimeout(() => setPurchaseAnimation(null), 300);
+      animationTimeoutRef.current = setTimeout(() => setPurchaseAnimation(null), 300);
     }
   };
 
@@ -122,7 +134,7 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
         className="px-4 py-2 rounded-lg font-medium text-sm transition-all btn-ripple btn-scale shadow-md hover:shadow-lg"
         style={{
           backgroundColor: canAfford
-            ? isCanadianTier ? '#ef4444' : '#f59e0b'
+            ? isCanadianTier ? '#dc2626' : '#d97706'  // maple-600 and cheddar-600 for WCAG AA contrast
             : '#e5e7eb',
           color: canAfford ? '#ffffff' : '#374151',
           cursor: canAfford ? 'pointer' : 'not-allowed',

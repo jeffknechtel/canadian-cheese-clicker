@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useSettingsStore } from '../../stores/settingsStore';
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore } from '../../stores';
 import { deleteSave } from '../../systems/saveSystem';
 import { PrivacyToggle } from './PrivacyConsent';
 import type { SettingsState } from '../../types/settings';
@@ -190,7 +190,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
           </button>
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-cheddar-500 hover:bg-cheddar-600 text-white font-medium rounded-lg transition-colors"
+            className="px-6 py-2 bg-cheddar-600 hover:bg-cheddar-700 text-white font-medium rounded-lg transition-colors"
           >
             Done
           </button>
@@ -557,7 +557,7 @@ function DataSettings({
         <div className="flex gap-3">
           <button
             onClick={onSave}
-            className="flex-1 px-4 py-2 bg-cheddar-500 hover:bg-cheddar-600 text-white rounded-lg transition-colors"
+            className="flex-1 px-4 py-2 bg-cheddar-600 hover:bg-cheddar-700 text-white rounded-lg transition-colors"
           >
             Save Now
           </button>

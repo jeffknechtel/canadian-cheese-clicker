@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import type { Achievement } from '../../types/game';
-import { setAchievementUnlockCallback } from '../../stores/gameStore';
+import { setAchievementUnlockCallback } from '../../stores';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { playAchievementFanfare } from '../../systems/audioSystem';
 import {

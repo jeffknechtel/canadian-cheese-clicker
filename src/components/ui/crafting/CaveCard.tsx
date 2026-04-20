@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useGameStore } from '../../../stores/gameStore';
+import { useGameStore } from '../../../stores';
 import { formatAgingDuration } from '../../../data/cheeseRecipes';
 import { recipeRegistry } from '../../../domain';
 import { playPurchaseSound } from '../../../systems/audioSystem';

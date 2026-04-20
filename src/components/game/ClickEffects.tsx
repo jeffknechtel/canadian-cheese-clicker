@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore } from '../../stores';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { formatNumber } from '../../utils/formatNumber';
 import {

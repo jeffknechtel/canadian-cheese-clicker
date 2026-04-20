@@ -1,4 +1,4 @@
-import { useGameStore } from '../stores/gameStore';
+import { useGameStore } from '../stores';
 
 let lastTime: number | null = null;
 let animationFrameId: number | null = null;

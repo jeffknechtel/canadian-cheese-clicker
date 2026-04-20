@@ -1,4 +1,4 @@
-import { useGameStore } from '../../../stores/gameStore';
+import { useGameStore } from '../../../stores';
 import { formatNumber } from '../../../utils/formatNumber';
 import { recipeRegistry } from '../../../domain';
 import { playPurchaseSound } from '../../../systems/audioSystem';

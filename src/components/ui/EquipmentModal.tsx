@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore } from '../../stores';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { getEquipmentBySlot } from '../../data/equipment';
 import { heroRegistry, equipmentRegistry } from '../../domain';

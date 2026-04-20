@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect } from 'react';
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore } from '../../stores';
 import { getHeroAbility, heroHasLimitBreak } from '../../data/heroes';
 import { heroRegistry, zoneRegistry } from '../../domain';
 import { CombatATBBar, LimitBreakGauge } from './CombatATBBar';

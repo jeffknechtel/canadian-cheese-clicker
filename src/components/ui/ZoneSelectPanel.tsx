@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore } from '../../stores';
 import { ZONES, getProvinceDisplayName, isZoneUnlocked, getTotalStages, getZoneCompletionPercent } from '../../data/zones';
 import type { ZoneDefinition, Province } from '../../types/game';
 

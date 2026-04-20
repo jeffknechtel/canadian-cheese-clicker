@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore } from '../../stores';
 import { HEROES } from '../../data/heroes';
 import { heroRegistry } from '../../domain';
 import { formatNumber } from '../../utils/formatNumber';

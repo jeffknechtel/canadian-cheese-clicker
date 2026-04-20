@@ -7,7 +7,7 @@
 
 import { useState, useCallback } from 'react';
 import Decimal from 'decimal.js';
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore } from '../../stores';
 import { IS_BETA, GAME_VERSION } from '../../config/version';
 import { ZONES } from '../../data/zones';
 import { ACHIEVEMENTS } from '../../data/achievements';

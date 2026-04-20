@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore } from '../../stores';
 import { ACHIEVEMENTS } from '../../data/achievements';
 import type { Achievement } from '../../types/game';
 

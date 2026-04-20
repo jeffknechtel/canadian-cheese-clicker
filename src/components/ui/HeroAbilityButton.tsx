@@ -1,4 +1,4 @@
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore } from '../../stores';
 import { getHeroAbility, getHeroLimitBreak, heroHasLimitBreak } from '../../data/heroes';
 import { heroRegistry } from '../../domain';
 import { getAbilityCooldown, isAbilityReady } from '../../systems/combatEngine';

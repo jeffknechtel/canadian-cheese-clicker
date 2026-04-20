@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore } from '../../stores';
 import { formatNumber } from '../../utils/formatNumber';
 import { getPrestigeDialogue } from '../../data/canadianDialogue';
 import Decimal from 'decimal.js';

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef, lazy, Suspense } from 'react';
+import { useEffect, useState, useCallback, useRef, lazy, Suspense, useMemo } from 'react';
 import { Layout } from './components/ui/Layout';
 import { GameScene } from './components/game/GameScene';
 import { CurrencyDisplay } from './components/ui/CurrencyDisplay';
@@ -37,7 +37,7 @@ import { showRandomDialogue, showHeroLevelUpDialogue } from './systems/dialogueS
 import { AudioControls } from './components/ui/AudioControls';
 import { playMilestoneChime } from './systems/audioSystem';
 import { startGameLoop, stopGameLoop, setupVisibilityHandler } from './systems/gameLoop';
-import { useGameStore, setHeroLevelUpCallback } from './stores/gameStore';
+import { useGameStore, setHeroLevelUpCallback } from './stores';
 import { useSettingsStore, initializeSettingsAudio } from './stores/settingsStore';
 import { ACHIEVEMENTS } from './data/achievements';
 import type { EquipmentSlot, CombatRewards } from './types/game';
@@ -413,6 +413,15 @@ function App() {
     }
   }, [combat.battleResult, combat.currentZone, combat.currentStage, combatResults]);
 
+  // Build accessibility classes (memoized to prevent re-computation on every render)
+  // This must be before any early returns to satisfy React hooks rules
+  const accessibilityClasses = useMemo(() => [
+    accessibility.colorblindMode !== 'none' ? `colorblind-${accessibility.colorblindMode}` : '',
+    accessibility.reducedMotion ? 'reduced-motion' : '',
+    accessibility.highContrast ? 'high-contrast' : '',
+    `font-size-${accessibility.fontSize}`,
+  ].filter(Boolean).join(' '), [accessibility]);
+
   // Show loading state while initializing
   if (!isLoaded) {
     return (
@@ -421,16 +430,6 @@ function App() {
       </div>
     );
   }
-
-  // Build accessibility classes
-  const accessibilityClasses = [
-    accessibility.colorblindMode !== 'none' ? `colorblind-${accessibility.colorblindMode}` : '',
-    accessibility.reducedMotion ? 'reduced-motion' : '',
-    accessibility.highContrast ? 'high-contrast' : '',
-    `font-size-${accessibility.fontSize}`,
-  ]
-    .filter(Boolean)
-    .join(' ');
 
   return (
     <>
