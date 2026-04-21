@@ -171,7 +171,7 @@ function HeroCombatCard({ heroState, isSelected = false, heroNumber }: HeroComba
               title={`${effect.stat}: ${effect.value > 0 ? '+' : ''}${effect.value} (${effect.duration} turns)`}
               aria-label={`${effect.type === 'buff' ? 'Buff' : 'Debuff'}: ${effect.stat} ${effect.value > 0 ? '+' : ''}${effect.value}, ${effect.duration} turns remaining`}
             >
-              <span aria-hidden="true">{effect.stat === 'damage_over_time' ? '🔥' : effect.stat === 'heal_over_time' ? '💚' : '✨'}</span>
+              <span aria-hidden="true">{effect.stat === 'damageOverTime' ? '🔥' : effect.stat === 'healOverTime' ? '💚' : '✨'}</span>
             </span>
           ))}
         </div>
@@ -224,7 +224,7 @@ interface CombatPanelProps {
 export function CombatPanel({ onFlee }: CombatPanelProps) {
   const combat = useGameStore((state) => state.combat);
   const setCombatSpeed = useGameStore((state) => state.setCombatSpeed);
-  const canUseHeroSkill = useGameStore((state) => state.canUseHeroSkill);
+  const canUseHeroAbility = useGameStore((state) => state.canUseHeroAbility);
 
   // Track selected hero for keyboard navigation
   const [selectedHeroIndex, setSelectedHeroIndex] = useState(0);
@@ -259,16 +259,16 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
     if (!selectedHero) return;
 
     const ability = getHeroAbility(selectedHero.heroId);
-    const { canUse, reason } = canUseHeroSkill(selectedHero.heroId);
+    const { canUse, reason } = canUseHeroAbility(selectedHero.heroId);
 
     if (ability && canUse) {
-      useGameStore.getState().useHeroSkill(selectedHero.heroId, ability.id);
+      useGameStore.getState().useHeroAbility(selectedHero.heroId, ability.id);
       const hero = heroRegistry.get(selectedHero.heroId);
       announce(`${hero?.name || 'Hero'} used ${ability.name}`, 'polite');
     } else if (reason) {
       announce(reason, 'polite');
     }
-  }, [isInitialized, combat.battleResult, aliveHeroes, selectedHeroIndex, canUseHeroSkill]);
+  }, [isInitialized, combat.battleResult, aliveHeroes, selectedHeroIndex, canUseHeroAbility]);
 
   // Combat keyboard navigation handler
   const handleCombatKeyDown = useCallback(

@@ -141,7 +141,7 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     }));
   },
 
-  useHeroSkill: (heroId: string, _skillId: string, targetId?: string) => {
+  useHeroAbility: (heroId: string, _abilityId: string, targetId?: string) => {
     const state = get();
     if (!state.combat.isInCombat || state.combat.battleResult !== 'ongoing') {
       return false;
@@ -201,7 +201,7 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     return true;
   },
 
-  canUseHeroSkill: (heroId: string) => {
+  canUseHeroAbility: (heroId: string) => {
     const state = get();
     if (!state.combat.isInCombat || state.combat.battleResult !== 'ongoing') {
       return { canUse: false, reason: 'Not in active combat' };

@@ -7,8 +7,8 @@ import {
   calculateGlobalMultiplier,
   calculateAchievementGlobalMultiplier,
   calculateAchievementClickMultiplier,
-  calculateHeroCpsBonus,
-  calculateFormationBonus,
+  calculateHeroCpsMultiplier,
+  calculateFormationMultiplier,
   calculatePrestigeProductionMultiplier,
   calculatePrestigeClickMultiplier,
 } from './productionEngine';
@@ -143,11 +143,11 @@ function deserializeState(serialized: SerializedGameState): GameState {
   const generatorMultipliers = calculateGeneratorMultipliers(upgrades);
   const upgradeGlobalMultiplier = calculateGlobalMultiplier(upgrades);
   const achievementGlobalMultiplier = calculateAchievementGlobalMultiplier(achievements);
-  const heroBonus = calculateHeroCpsBonus(heroes, party);
-  const formationBonus = calculateFormationBonus(party, heroes);
+  const heroMultiplier = calculateHeroCpsMultiplier(heroes, party);
+  const formationMultiplier = calculateFormationMultiplier(party, heroes);
   const prestigeMultiplier = calculatePrestigeProductionMultiplier(prestige);
   const totalGlobalMultiplier =
-    upgradeGlobalMultiplier * achievementGlobalMultiplier * heroBonus * formationBonus * prestigeMultiplier;
+    upgradeGlobalMultiplier * achievementGlobalMultiplier * heroMultiplier * formationMultiplier * prestigeMultiplier;
   const curdPerSecond = calculateCps(generators, generatorMultipliers, totalGlobalMultiplier);
 
   const upgradeClickMultiplier = calculateClickMultiplier(upgrades);
@@ -212,6 +212,31 @@ export function saveGame(state: GameState): void {
   }
 }
 
+function migrateEffectTypes(crafting: CraftingState): CraftingState {
+  const effectTypeMap: Record<string, string> = {
+    'production_boost': 'productionBoost',
+    'click_boost': 'clickBoost',
+    'xp_boost': 'xpBoost',
+    'hero_buff': 'heroBuff',
+  };
+
+  if (!crafting.activeBuffs?.length) return crafting;
+
+  const migratedBuffs = crafting.activeBuffs.map(buff => {
+    const oldType = buff.effect.type as string;
+    const newType = effectTypeMap[oldType];
+    if (newType) {
+      return {
+        ...buff,
+        effect: { ...buff.effect, type: newType } as typeof buff.effect,
+      };
+    }
+    return buff;
+  });
+
+  return { ...crafting, activeBuffs: migratedBuffs };
+}
+
 export function loadGame(): GameState | null {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
@@ -223,6 +248,11 @@ export function loadGame(): GameState | null {
     if (data.version !== SAVE_VERSION) {
       console.warn(`Save version mismatch: ${data.version} vs ${SAVE_VERSION}`);
       // For now, try to load anyway - add migrations later if needed
+    }
+
+    // Migrate effect types from snake_case to camelCase
+    if (data.state.crafting) {
+      data.state.crafting = migrateEffectTypes(data.state.crafting);
     }
 
     return deserializeState(data.state);

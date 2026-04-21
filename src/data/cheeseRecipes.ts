@@ -43,7 +43,7 @@ export const FRESH_CHEESES: CheeseRecipe[] = [
     icon: '🥄',
     unlockRequirement: { type: 'none' },
     effects: [
-      { type: 'hero_buff', stat: 'speed', value: 5, duration: 90000 },
+      { type: 'heroBuff', stat: 'speed', value: 5, duration: 90000 },
     ],
   },
   {
@@ -61,7 +61,7 @@ export const FRESH_CHEESES: CheeseRecipe[] = [
     icon: '🍰',
     unlockRequirement: { type: 'prestige_rennet', amount: 10 },
     effects: [
-      { type: 'production_boost', multiplier: 1.08, duration: 90000 },
+      { type: 'productionBoost', multiplier: 1.08, duration: 90000 },
     ],
   },
   {
@@ -79,7 +79,7 @@ export const FRESH_CHEESES: CheeseRecipe[] = [
     icon: '🥚',
     unlockRequirement: { type: 'prestige_rennet', amount: 25 },
     effects: [
-      { type: 'click_boost', multiplier: 1.12, duration: 120000 },
+      { type: 'clickBoost', multiplier: 1.12, duration: 120000 },
     ],
   },
   {
@@ -97,7 +97,7 @@ export const FRESH_CHEESES: CheeseRecipe[] = [
     icon: '🥣',
     unlockRequirement: { type: 'none' },
     effects: [
-      { type: 'production_boost', multiplier: 1.05, duration: 60000 },
+      { type: 'productionBoost', multiplier: 1.05, duration: 60000 },
     ],
   },
   {
@@ -115,7 +115,7 @@ export const FRESH_CHEESES: CheeseRecipe[] = [
     icon: '🧁',
     unlockRequirement: { type: 'none' },
     effects: [
-      { type: 'hero_buff', stat: 'hp', value: 10, duration: 120000 },
+      { type: 'heroBuff', stat: 'hp', value: 10, duration: 120000 },
     ],
   },
   {
@@ -133,7 +133,7 @@ export const FRESH_CHEESES: CheeseRecipe[] = [
     icon: '🍶',
     unlockRequirement: { type: 'none' },
     effects: [
-      { type: 'click_boost', multiplier: 1.1, duration: 60000 },
+      { type: 'clickBoost', multiplier: 1.1, duration: 60000 },
     ],
   },
   {
@@ -151,7 +151,7 @@ export const FRESH_CHEESES: CheeseRecipe[] = [
     icon: '🥛',
     unlockRequirement: { type: 'prestige_rennet', amount: 5 },
     effects: [
-      { type: 'xp_boost', multiplier: 1.1, duration: 120000 },
+      { type: 'xpBoost', multiplier: 1.1, duration: 120000 },
     ],
   },
   {
@@ -170,7 +170,7 @@ export const FRESH_CHEESES: CheeseRecipe[] = [
     icon: '🍟',
     unlockRequirement: { type: 'none' },
     effects: [
-      { type: 'production_boost', multiplier: 1.1, duration: 90000 },
+      { type: 'productionBoost', multiplier: 1.1, duration: 90000 },
     ],
   },
 ];
@@ -194,7 +194,7 @@ export const SOFT_CHEESES: CheeseRecipe[] = [
     icon: '🏔️',
     unlockRequirement: { type: 'prestige_rennet', amount: 40 },
     effects: [
-      { type: 'hero_buff', stat: 'defense', value: 18, duration: 180000 },
+      { type: 'heroBuff', stat: 'defense', value: 18, duration: 180000 },
     ],
   },
   {
@@ -213,7 +213,7 @@ export const SOFT_CHEESES: CheeseRecipe[] = [
     icon: '🧱',
     unlockRequirement: { type: 'prestige_rennet', amount: 45 },
     effects: [
-      { type: 'production_boost', multiplier: 1.12, duration: 180000 },
+      { type: 'productionBoost', multiplier: 1.12, duration: 180000 },
     ],
   },
   {
@@ -232,7 +232,7 @@ export const SOFT_CHEESES: CheeseRecipe[] = [
     icon: '💨',
     unlockRequirement: { type: 'prestige_rennet', amount: 60 },
     effects: [
-      { type: 'hero_buff', stat: 'attack', value: 20, duration: 240000 },
+      { type: 'heroBuff', stat: 'attack', value: 20, duration: 240000 },
     ],
   },
   {
@@ -252,7 +252,7 @@ export const SOFT_CHEESES: CheeseRecipe[] = [
     icon: '🏝️',
     unlockRequirement: { type: 'province_complete', provinceId: 'quebec' },
     effects: [
-      { type: 'click_boost', multiplier: 1.18, duration: 200000 },
+      { type: 'clickBoost', multiplier: 1.18, duration: 200000 },
     ],
   },
   {
@@ -272,7 +272,7 @@ export const SOFT_CHEESES: CheeseRecipe[] = [
     icon: '🔴',
     unlockRequirement: { type: 'province_complete', provinceId: 'new_brunswick' },
     effects: [
-      { type: 'xp_boost', multiplier: 1.15, duration: 180000 },
+      { type: 'xpBoost', multiplier: 1.15, duration: 180000 },
     ],
   },
   {
@@ -291,7 +291,7 @@ export const SOFT_CHEESES: CheeseRecipe[] = [
     icon: '🏝️',
     unlockRequirement: { type: 'province_complete', provinceId: 'bc' },
     effects: [
-      { type: 'hero_buff', stat: 'speed', value: 12, duration: 180000 },
+      { type: 'heroBuff', stat: 'speed', value: 12, duration: 180000 },
     ],
   },
   {
@@ -310,7 +310,7 @@ export const SOFT_CHEESES: CheeseRecipe[] = [
     icon: '🧀',
     unlockRequirement: { type: 'prestige_rennet', amount: 20 },
     effects: [
-      { type: 'hero_buff', stat: 'defense', value: 15, duration: 180000 },
+      { type: 'heroBuff', stat: 'defense', value: 15, duration: 180000 },
     ],
   },
   {
@@ -329,7 +329,7 @@ export const SOFT_CHEESES: CheeseRecipe[] = [
     icon: '🌕',
     unlockRequirement: { type: 'prestige_rennet', amount: 35 },
     effects: [
-      { type: 'hero_buff', stat: 'attack', value: 12, duration: 180000 },
+      { type: 'heroBuff', stat: 'attack', value: 12, duration: 180000 },
     ],
   },
   {
@@ -349,7 +349,7 @@ export const SOFT_CHEESES: CheeseRecipe[] = [
     icon: '🏛️',
     unlockRequirement: { type: 'province_complete', provinceId: 'quebec' },
     effects: [
-      { type: 'production_boost', multiplier: 1.15, duration: 180000 },
+      { type: 'productionBoost', multiplier: 1.15, duration: 180000 },
     ],
   },
   {
@@ -368,7 +368,7 @@ export const SOFT_CHEESES: CheeseRecipe[] = [
     icon: '🥗',
     unlockRequirement: { type: 'prestige_rennet', amount: 30 },
     effects: [
-      { type: 'click_boost', multiplier: 1.15, duration: 120000 },
+      { type: 'clickBoost', multiplier: 1.15, duration: 120000 },
     ],
   },
   {
@@ -386,7 +386,7 @@ export const SOFT_CHEESES: CheeseRecipe[] = [
     icon: '🐐',
     unlockRequirement: { type: 'prestige_rennet', amount: 15 },
     effects: [
-      { type: 'hero_buff', stat: 'speed', value: 8, duration: 150000 },
+      { type: 'heroBuff', stat: 'speed', value: 8, duration: 150000 },
     ],
   },
 ];
@@ -410,7 +410,7 @@ export const SEMI_HARD_CHEESES: CheeseRecipe[] = [
     icon: '🧀',
     unlockRequirement: { type: 'prestige_rennet', amount: 60 },
     effects: [
-      { type: 'hero_buff', stat: 'hp', value: 30, duration: 300000 },
+      { type: 'heroBuff', stat: 'hp', value: 30, duration: 300000 },
     ],
   },
   {
@@ -429,7 +429,7 @@ export const SEMI_HARD_CHEESES: CheeseRecipe[] = [
     icon: '⛰️',
     unlockRequirement: { type: 'prestige_rennet', amount: 55 },
     effects: [
-      { type: 'xp_boost', multiplier: 1.22, duration: 300000 },
+      { type: 'xpBoost', multiplier: 1.22, duration: 300000 },
     ],
   },
   {
@@ -448,7 +448,7 @@ export const SEMI_HARD_CHEESES: CheeseRecipe[] = [
     icon: '🫕',
     unlockRequirement: { type: 'prestige_rennet', amount: 65 },
     effects: [
-      { type: 'production_boost', multiplier: 1.25, duration: 300000 },
+      { type: 'productionBoost', multiplier: 1.25, duration: 300000 },
     ],
   },
   {
@@ -468,7 +468,7 @@ export const SEMI_HARD_CHEESES: CheeseRecipe[] = [
     icon: '⭐',
     unlockRequirement: { type: 'province_complete', provinceId: 'alberta' },
     effects: [
-      { type: 'hero_buff', stat: 'defense', value: 25, duration: 360000 },
+      { type: 'heroBuff', stat: 'defense', value: 25, duration: 360000 },
     ],
   },
   {
@@ -488,7 +488,7 @@ export const SEMI_HARD_CHEESES: CheeseRecipe[] = [
     icon: '🌾',
     unlockRequirement: { type: 'province_complete', provinceId: 'saskatchewan' },
     effects: [
-      { type: 'click_boost', multiplier: 1.22, duration: 300000 },
+      { type: 'clickBoost', multiplier: 1.22, duration: 300000 },
     ],
   },
   {
@@ -508,7 +508,7 @@ export const SEMI_HARD_CHEESES: CheeseRecipe[] = [
     icon: '🔥',
     unlockRequirement: { type: 'province_complete', provinceId: 'manitoba' },
     effects: [
-      { type: 'hero_buff', stat: 'attack', value: 18, duration: 300000 },
+      { type: 'heroBuff', stat: 'attack', value: 18, duration: 300000 },
     ],
   },
   {
@@ -528,7 +528,7 @@ export const SEMI_HARD_CHEESES: CheeseRecipe[] = [
     icon: '🧀',
     unlockRequirement: { type: 'prestige_rennet', amount: 40 },
     effects: [
-      { type: 'production_boost', multiplier: 1.2, duration: 300000 },
+      { type: 'productionBoost', multiplier: 1.2, duration: 300000 },
     ],
   },
   {
@@ -547,7 +547,7 @@ export const SEMI_HARD_CHEESES: CheeseRecipe[] = [
     icon: '🔶',
     unlockRequirement: { type: 'prestige_rennet', amount: 50 },
     effects: [
-      { type: 'hero_buff', stat: 'defense', value: 20, duration: 300000 },
+      { type: 'heroBuff', stat: 'defense', value: 20, duration: 300000 },
     ],
   },
   {
@@ -566,7 +566,7 @@ export const SEMI_HARD_CHEESES: CheeseRecipe[] = [
     icon: '🟡',
     unlockRequirement: { type: 'prestige_rennet', amount: 45 },
     effects: [
-      { type: 'xp_boost', multiplier: 1.2, duration: 300000 },
+      { type: 'xpBoost', multiplier: 1.2, duration: 300000 },
     ],
   },
   {
@@ -585,7 +585,7 @@ export const SEMI_HARD_CHEESES: CheeseRecipe[] = [
     icon: '🟠',
     unlockRequirement: { type: 'prestige_rennet', amount: 35 },
     effects: [
-      { type: 'click_boost', multiplier: 1.2, duration: 240000 },
+      { type: 'clickBoost', multiplier: 1.2, duration: 240000 },
     ],
   },
   {
@@ -604,7 +604,7 @@ export const SEMI_HARD_CHEESES: CheeseRecipe[] = [
     icon: '🫕',
     unlockRequirement: { type: 'prestige_rennet', amount: 38 },
     effects: [
-      { type: 'hero_buff', stat: 'hp', value: 25, duration: 300000 },
+      { type: 'heroBuff', stat: 'hp', value: 25, duration: 300000 },
     ],
   },
   {
@@ -623,7 +623,7 @@ export const SEMI_HARD_CHEESES: CheeseRecipe[] = [
     icon: '🔴',
     unlockRequirement: { type: 'prestige_rennet', amount: 55 },
     effects: [
-      { type: 'production_boost', multiplier: 1.18, duration: 300000 },
+      { type: 'productionBoost', multiplier: 1.18, duration: 300000 },
     ],
   },
 ];
@@ -647,8 +647,8 @@ export const HARD_CHEESES: CheeseRecipe[] = [
     icon: '🏔️',
     unlockRequirement: { type: 'prestige_rennet', amount: 180 },
     effects: [
-      { type: 'production_boost', multiplier: 1.28, duration: 600000 },
-      { type: 'xp_boost', multiplier: 1.2, duration: 600000 },
+      { type: 'productionBoost', multiplier: 1.28, duration: 600000 },
+      { type: 'xpBoost', multiplier: 1.2, duration: 600000 },
     ],
   },
   {
@@ -667,8 +667,8 @@ export const HARD_CHEESES: CheeseRecipe[] = [
     icon: '👑',
     unlockRequirement: { type: 'prestige_rennet', amount: 190 },
     effects: [
-      { type: 'hero_buff', stat: 'hp', value: 35, duration: 600000 },
-      { type: 'hero_buff', stat: 'defense', value: 25, duration: 600000 },
+      { type: 'heroBuff', stat: 'hp', value: 35, duration: 600000 },
+      { type: 'heroBuff', stat: 'defense', value: 25, duration: 600000 },
     ],
   },
   {
@@ -687,7 +687,7 @@ export const HARD_CHEESES: CheeseRecipe[] = [
     icon: '💎',
     unlockRequirement: { type: 'prestige_rennet', amount: 210 },
     effects: [
-      { type: 'click_boost', multiplier: 1.35, duration: 600000 },
+      { type: 'clickBoost', multiplier: 1.35, duration: 600000 },
     ],
   },
   {
@@ -707,7 +707,7 @@ export const HARD_CHEESES: CheeseRecipe[] = [
     icon: '🖤',
     unlockRequirement: { type: 'province_complete', provinceId: 'ontario' },
     effects: [
-      { type: 'production_boost', multiplier: 1.25, duration: 600000 },
+      { type: 'productionBoost', multiplier: 1.25, duration: 600000 },
     ],
   },
   {
@@ -727,7 +727,7 @@ export const HARD_CHEESES: CheeseRecipe[] = [
     icon: '📖',
     unlockRequirement: { type: 'province_complete', provinceId: 'pei' },
     effects: [
-      { type: 'hero_buff', stat: 'cheeseAffinity', value: 20, duration: 720000 },
+      { type: 'heroBuff', stat: 'cheeseAffinity', value: 20, duration: 720000 },
     ],
   },
   {
@@ -747,7 +747,7 @@ export const HARD_CHEESES: CheeseRecipe[] = [
     icon: '🤝',
     unlockRequirement: { type: 'province_complete', provinceId: 'newfoundland' },
     effects: [
-      { type: 'hero_buff', stat: 'attack', value: 28, duration: 600000 },
+      { type: 'heroBuff', stat: 'attack', value: 28, duration: 600000 },
     ],
   },
   {
@@ -766,8 +766,8 @@ export const HARD_CHEESES: CheeseRecipe[] = [
     icon: '👑',
     unlockRequirement: { type: 'prestige_rennet', amount: 150 },
     effects: [
-      { type: 'production_boost', multiplier: 1.3, duration: 600000 },
-      { type: 'hero_buff', stat: 'attack', value: 25, duration: 600000 },
+      { type: 'productionBoost', multiplier: 1.3, duration: 600000 },
+      { type: 'heroBuff', stat: 'attack', value: 25, duration: 600000 },
     ],
   },
   {
@@ -786,7 +786,7 @@ export const HARD_CHEESES: CheeseRecipe[] = [
     icon: '🥇',
     unlockRequirement: { type: 'prestige_rennet', amount: 200 },
     effects: [
-      { type: 'xp_boost', multiplier: 1.35, duration: 600000 },
+      { type: 'xpBoost', multiplier: 1.35, duration: 600000 },
     ],
   },
   {
@@ -805,7 +805,7 @@ export const HARD_CHEESES: CheeseRecipe[] = [
     icon: '🏔️',
     unlockRequirement: { type: 'prestige_rennet', amount: 175 },
     effects: [
-      { type: 'hero_buff', stat: 'defense', value: 30, duration: 600000 },
+      { type: 'heroBuff', stat: 'defense', value: 30, duration: 600000 },
     ],
   },
   {
@@ -824,7 +824,7 @@ export const HARD_CHEESES: CheeseRecipe[] = [
     icon: '🐑',
     unlockRequirement: { type: 'prestige_rennet', amount: 125 },
     effects: [
-      { type: 'click_boost', multiplier: 1.3, duration: 480000 },
+      { type: 'clickBoost', multiplier: 1.3, duration: 480000 },
     ],
   },
   {
@@ -843,7 +843,7 @@ export const HARD_CHEESES: CheeseRecipe[] = [
     icon: '🏛️',
     unlockRequirement: { type: 'prestige_rennet', amount: 140 },
     effects: [
-      { type: 'hero_buff', stat: 'cheeseAffinity', value: 15, duration: 600000 },
+      { type: 'heroBuff', stat: 'cheeseAffinity', value: 15, duration: 600000 },
     ],
   },
 ];
@@ -868,8 +868,8 @@ export const LEGENDARY_CHEESES: CheeseRecipe[] = [
     icon: '🥇',
     unlockRequirement: { type: 'province_complete', provinceId: 'yukon' },
     effects: [
-      { type: 'production_boost', multiplier: 1.6, duration: 1800000 },
-      { type: 'click_boost', multiplier: 1.5, duration: 1800000 },
+      { type: 'productionBoost', multiplier: 1.6, duration: 1800000 },
+      { type: 'clickBoost', multiplier: 1.5, duration: 1800000 },
     ],
   },
   {
@@ -889,8 +889,8 @@ export const LEGENDARY_CHEESES: CheeseRecipe[] = [
     icon: '🌌',
     unlockRequirement: { type: 'province_complete', provinceId: 'nwt' },
     effects: [
-      { type: 'xp_boost', multiplier: 1.8, duration: 2400000 },
-      { type: 'hero_buff', stat: 'speed', value: 30, duration: 2400000 },
+      { type: 'xpBoost', multiplier: 1.8, duration: 2400000 },
+      { type: 'heroBuff', stat: 'speed', value: 30, duration: 2400000 },
     ],
   },
   {
@@ -910,9 +910,9 @@ export const LEGENDARY_CHEESES: CheeseRecipe[] = [
     icon: '🏔️',
     unlockRequirement: { type: 'province_complete', provinceId: 'nunavut' },
     effects: [
-      { type: 'production_boost', multiplier: 2.5, duration: 3600000 },
-      { type: 'hero_buff', stat: 'attack', value: 100, duration: 3600000 },
-      { type: 'hero_buff', stat: 'defense', value: 50, duration: 3600000 },
+      { type: 'productionBoost', multiplier: 2.5, duration: 3600000 },
+      { type: 'heroBuff', stat: 'attack', value: 100, duration: 3600000 },
+      { type: 'heroBuff', stat: 'defense', value: 50, duration: 3600000 },
     ],
   },
   {
@@ -932,8 +932,8 @@ export const LEGENDARY_CHEESES: CheeseRecipe[] = [
     icon: '🏆',
     unlockRequirement: { type: 'prestige_vintage', amount: 1 },
     effects: [
-      { type: 'production_boost', multiplier: 1.5, duration: 1200000 },
-      { type: 'hero_buff', stat: 'attack', value: 40, duration: 1200000 },
+      { type: 'productionBoost', multiplier: 1.5, duration: 1200000 },
+      { type: 'heroBuff', stat: 'attack', value: 40, duration: 1200000 },
     ],
   },
   {
@@ -953,8 +953,8 @@ export const LEGENDARY_CHEESES: CheeseRecipe[] = [
     icon: '🫎',
     unlockRequirement: { type: 'prestige_vintage', amount: 3 },
     effects: [
-      { type: 'xp_boost', multiplier: 2.0, duration: 1800000 },
-      { type: 'hero_buff', stat: 'hp', value: 100, duration: 1800000 },
+      { type: 'xpBoost', multiplier: 2.0, duration: 1800000 },
+      { type: 'heroBuff', stat: 'hp', value: 100, duration: 1800000 },
     ],
   },
   {
@@ -973,8 +973,8 @@ export const LEGENDARY_CHEESES: CheeseRecipe[] = [
     icon: '💎',
     unlockRequirement: { type: 'prestige_vintage', amount: 5 },
     effects: [
-      { type: 'production_boost', multiplier: 2.0, duration: 3600000 },
-      { type: 'click_boost', multiplier: 2.0, duration: 3600000 },
+      { type: 'productionBoost', multiplier: 2.0, duration: 3600000 },
+      { type: 'clickBoost', multiplier: 2.0, duration: 3600000 },
     ],
   },
   {
@@ -995,8 +995,8 @@ export const LEGENDARY_CHEESES: CheeseRecipe[] = [
     icon: '🐉',
     unlockRequirement: { type: 'province_complete', provinceId: 'nova_scotia' },
     effects: [
-      { type: 'hero_buff', stat: 'attack', value: 75, duration: 2400000 },
-      { type: 'hero_buff', stat: 'speed', value: 25, duration: 2400000 },
+      { type: 'heroBuff', stat: 'attack', value: 75, duration: 2400000 },
+      { type: 'heroBuff', stat: 'speed', value: 25, duration: 2400000 },
     ],
   },
 ];

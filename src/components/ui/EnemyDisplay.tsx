@@ -14,8 +14,8 @@ function StatusEffectBadge({ effect }: StatusEffectBadgeProps) {
     speed: '💨',
     hp: '❤️',
     cheeseAffinity: '🧀',
-    damage_over_time: '🔥',
-    heal_over_time: '💚',
+    damageOverTime: '🔥',
+    healOverTime: '💚',
   };
 
   return (

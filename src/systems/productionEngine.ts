@@ -157,10 +157,10 @@ export function calculateHeroStats(
 }
 
 /**
- * Calculate total CPS bonus multiplier from all party heroes
+ * Calculate total CPS multiplier from all party heroes
  * Returns a multiplier where 1.0 = no bonus
  */
-export function calculateHeroCpsBonus(
+export function calculateHeroCpsMultiplier(
   heroes: Record<string, HeroState>,
   party: PartyFormation
 ): number {
@@ -193,7 +193,7 @@ export function calculateHeroCpsBonus(
 }
 
 /**
- * Calculate formation bonus multiplier based on party composition
+ * Calculate formation multiplier based on party composition
  * Returns a multiplier where 1.0 = no bonus
  *
  * Bonuses:
@@ -202,7 +202,7 @@ export function calculateHeroCpsBonus(
  * - Full party (4 heroes): +10%
  * Maximum possible bonus: +20%
  */
-export function calculateFormationBonus(
+export function calculateFormationMultiplier(
   party: PartyFormation,
   heroes: Record<string, HeroState>
 ): number {
@@ -440,11 +440,11 @@ export function recalculateCpsFromState(
   const generatorMultipliers = calculateGeneratorMultipliers(upgrades);
   const upgradeGlobalMultiplier = calculateGlobalMultiplier(upgrades);
   const achievementGlobalMultiplier = calculateAchievementGlobalMultiplier(achievements);
-  const heroBonus = calculateHeroCpsBonus(heroes, party);
-  const formationBonus = calculateFormationBonus(party, heroes);
+  const heroMultiplier = calculateHeroCpsMultiplier(heroes, party);
+  const formationMultiplier = calculateFormationMultiplier(party, heroes);
   const prestigeMultiplier = calculatePrestigeProductionMultiplier(prestige);
   const totalGlobalMultiplier =
-    upgradeGlobalMultiplier * achievementGlobalMultiplier * heroBonus * formationBonus * prestigeMultiplier;
+    upgradeGlobalMultiplier * achievementGlobalMultiplier * heroMultiplier * formationMultiplier * prestigeMultiplier;
 
   return calculateCps(generators, generatorMultipliers, totalGlobalMultiplier);
 }

@@ -9,8 +9,8 @@ import {
   calculateGeneratorMultipliers,
   calculateGlobalMultiplier,
   calculateAchievementGlobalMultiplier,
-  calculateHeroCpsBonus,
-  calculateFormationBonus,
+  calculateHeroCpsMultiplier,
+  calculateFormationMultiplier,
   calculatePrestigeProductionMultiplier,
   calculatePrestigeClickMultiplier,
   calculateAchievementClickMultiplier,
@@ -217,7 +217,7 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
     set((state) => ({ ehCount: state.ehCount + 1 }));
   },
 
-  getEhBonus: () => {
+  getEhMultiplier: () => {
     const { ehCount } = get();
     return 1 + Math.floor(ehCount / 100) * 0.01;
   },
@@ -261,10 +261,10 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
     const { upgrades, achievements, heroes, party, prestige } = get();
     const upgradeMultiplier = calculateGlobalMultiplier(upgrades);
     const achievementMultiplier = calculateAchievementGlobalMultiplier(achievements);
-    const heroBonus = calculateHeroCpsBonus(heroes, party);
-    const formationBonus = calculateFormationBonus(party, heroes);
+    const heroMultiplier = calculateHeroCpsMultiplier(heroes, party);
+    const formationMultiplier = calculateFormationMultiplier(party, heroes);
     const prestigeMultiplier = calculatePrestigeProductionMultiplier(prestige);
-    return upgradeMultiplier * achievementMultiplier * heroBonus * formationBonus * prestigeMultiplier;
+    return upgradeMultiplier * achievementMultiplier * heroMultiplier * formationMultiplier * prestigeMultiplier;
   },
 
   recalculateCps: () => {

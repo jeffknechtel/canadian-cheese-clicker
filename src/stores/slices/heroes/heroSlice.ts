@@ -4,8 +4,8 @@ import { computeCps } from '../production/cpsCalculator';
 import {
   calculateXpPerSecond,
   calculateHeroStats,
-  calculateHeroCpsBonus,
-  calculateFormationBonus,
+  calculateHeroCpsMultiplier,
+  calculateFormationMultiplier,
 } from '../../../systems/productionEngine';
 import { heroRegistry, equipmentRegistry } from '../../../domain';
 import { HEROES, getXpForLevel, HERO_MAX_LEVEL } from '../../../data/heroes';
@@ -307,9 +307,9 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
 
   getHeroMultiplier: () => {
     const { heroes, party } = get();
-    const heroBonus = calculateHeroCpsBonus(heroes, party);
-    const formationBonus = calculateFormationBonus(party, heroes);
-    return heroBonus * formationBonus;
+    const heroMultiplier = calculateHeroCpsMultiplier(heroes, party);
+    const formationMultiplier = calculateFormationMultiplier(party, heroes);
+    return heroMultiplier * formationMultiplier;
   },
 
   getPartyStats: () => {

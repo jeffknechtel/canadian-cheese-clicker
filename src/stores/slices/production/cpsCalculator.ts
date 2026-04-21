@@ -4,8 +4,8 @@ import {
   calculateGeneratorMultipliers,
   calculateGlobalMultiplier,
   calculateAchievementGlobalMultiplier,
-  calculateHeroCpsBonus,
-  calculateFormationBonus,
+  calculateHeroCpsMultiplier,
+  calculateFormationMultiplier,
   calculatePrestigeProductionMultiplier,
 } from '../../../systems/productionEngine';
 import type { GameStore } from '../../types';
@@ -13,24 +13,24 @@ import type { GameStore } from '../../types';
 /**
  * Single source of truth for CPS calculation.
  * Replaces 10+ copy-pasted blocks throughout the store.
- * NOW WIRES IN the Eh bonus (fixes the bug where getEhBonus() was calculated but never used).
+ * NOW WIRES IN the Eh multiplier (fixes the bug where getEhMultiplier() was calculated but never used).
  */
 export function computeCps(state: GameStore): Decimal {
   const generatorMultipliers = calculateGeneratorMultipliers(state.upgrades);
   const upgradeGlobalMultiplier = calculateGlobalMultiplier(state.upgrades);
   const achievementGlobalMultiplier = calculateAchievementGlobalMultiplier(state.achievements);
-  const heroBonus = calculateHeroCpsBonus(state.heroes, state.party);
-  const formationBonus = calculateFormationBonus(state.party, state.heroes);
+  const heroMultiplier = calculateHeroCpsMultiplier(state.heroes, state.party);
+  const formationMultiplier = calculateFormationMultiplier(state.party, state.heroes);
   const prestigeMultiplier = calculatePrestigeProductionMultiplier(state.prestige);
-  const ehBonus = state.getEhBonus();
+  const ehMultiplier = state.getEhMultiplier();
 
   const totalGlobalMultiplier =
     upgradeGlobalMultiplier *
     achievementGlobalMultiplier *
-    heroBonus *
-    formationBonus *
+    heroMultiplier *
+    formationMultiplier *
     prestigeMultiplier *
-    ehBonus;
+    ehMultiplier;
 
   return calculateCps(state.generators, generatorMultipliers, totalGlobalMultiplier);
 }

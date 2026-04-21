@@ -129,19 +129,19 @@ function formatEffect(effect: CheeseEffect, quality: number): string {
   const durationStr = durationSec >= 60 ? `${Math.round(durationSec / 60)}m` : `${durationSec}s`;
 
   switch (effect.type) {
-    case 'production_boost': {
+    case 'productionBoost': {
       const bonus = Math.round((effect.multiplier - 1) * qualityMultiplier * 100);
       return `+${bonus}% Prod (${durationStr})`;
     }
-    case 'click_boost': {
+    case 'clickBoost': {
       const bonus = Math.round((effect.multiplier - 1) * qualityMultiplier * 100);
       return `+${bonus}% Click (${durationStr})`;
     }
-    case 'xp_boost': {
+    case 'xpBoost': {
       const bonus = Math.round((effect.multiplier - 1) * qualityMultiplier * 100);
       return `+${bonus}% XP (${durationStr})`;
     }
-    case 'hero_buff': {
+    case 'heroBuff': {
       const value = Math.round(effect.value * qualityMultiplier);
       return `+${value} ${effect.stat} (${durationStr})`;
     }

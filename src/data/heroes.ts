@@ -35,7 +35,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'ontario',
     description:
       'A chivalrous defender from Ontario who apologizes profusely while blocking attacks. His maple leaf shield has never been breached.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Sorry Shield',
       description:
         'Absorbs damage for the party while apologizing, reducing incoming damage by 50% for 5 seconds.',
@@ -67,7 +67,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'quebec',
     description:
       "A mystical spellcaster from Quebec who channels the power of la belle province's most beloved dish. Speaks exclusively in franglais during battle.",
-    specialAbility: {
+    abilityFlavor: {
       name: 'Gravy Blast',
       description:
         'Launches a torrent of hot gravy that deals AoE damage and slows all enemies by 30% for 4 seconds.',
@@ -99,7 +99,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'alberta',
     description:
       'A tracking specialist from the Alberta prairies. Her keen senses and trusty horse can find cheese anywhere in the Dominion.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Always Get My Cheese',
       description:
         'Marks enemies, increasing drop rates by 25% and critical hit chance by 15% for 6 seconds.',
@@ -131,7 +131,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'manitoba',
     description:
       'A bruising power forward from Winnipeg who traded his skates for adventure. His slap shot has been clocked at over 100 mph.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Slapshot',
       description:
         'Winds up and delivers a devastating single-target attack dealing 300% weapon damage with a chance to stun.',
@@ -163,7 +163,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'saskatchewan',
     description:
       'A traveling musician who sings the old songs of the fur trade era. His melodies carry across the endless prairies.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Paddle Song',
       description:
         'Sings an inspiring paddling rhythm that increases party attack speed by 20% and regenerates 2% HP per second for 8 seconds.',
@@ -195,7 +195,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'yukon',
     description:
       'A hermit who meditated for decades in the Yukon wilderness, achieving enlightenment through extreme cold exposure. His toque is said to be blessed.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Cold Resistance',
       description:
         'Enters a meditative state, becoming immune to freeze and slow effects while gaining 40% damage reduction for 5 seconds.',
@@ -227,7 +227,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'bc',
     description:
       "A nature-connected healer from BC's ancient rainforests. She communes with the old growth cedars and channels their restorative energy.",
-    specialAbility: {
+    abilityFlavor: {
       name: 'Cedar Healing',
       description:
         'Summons the spirit of the great cedars to heal all party members for 30% of their max HP over 6 seconds.',
@@ -259,7 +259,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'nova_scotia',
     description:
       'A grizzled fisher from the Nova Scotia coast who traded lobster traps for monster hunting. His patience and trapping skills are legendary.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Lobster Trap',
       description:
         'Sets a trap that snares an enemy, dealing damage over time (150% weapon damage over 8 seconds) and preventing movement.',
@@ -293,7 +293,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'ontario',
     description:
       'A startup founder from downtown Toronto who traded code for curds. Her algorithms optimize cheese production across the network.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Cloud Computing',
       description:
         'Extends all active buff durations by 50% and increases party speed by 15% for 8 seconds.',
@@ -325,7 +325,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'quebec',
     description:
       'A stalwart farmer from rural Quebec whose family has worked the same land for generations. His connection to the soil makes him unmovable.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Maple Fortress',
       description:
         'Roots himself in place, gaining 60% damage reduction and regenerating 3% HP per second for 6 seconds.',
@@ -357,7 +357,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'alberta',
     description:
       'An eight-second champion rodeo rider from the Calgary Stampede. He brings the same wild energy to cheese hunting.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Bull Rush',
       description:
         'Charges at an enemy dealing 250% damage and stunning them for 2 seconds. Gains 25% crit chance for 5 seconds.',
@@ -389,7 +389,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'manitoba',
     description:
       'A precision curling skip from Winnipeg who calculates every angle. Her strategic mind turns the battle into a controlled slide to victory.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Perfect Draw',
       description:
         'Increases party accuracy by 30% and critical hit damage by 40% for 6 seconds. Also cleanses one debuff.',
@@ -421,7 +421,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'saskatchewan',
     description:
       'A spiritual healer who communes with the endless wheat fields. The prairie winds carry her blessings to all who need them.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Wheat Blessing',
       description:
         'Heals all allies for 25% max HP and cleanses all debuffs. Also provides a 10% healing over time for 8 seconds.',
@@ -453,7 +453,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'yukon',
     description:
       'A grizzled prospector who survived the Klondike Gold Rush. His pickaxe strikes true, and his sourdough starter is over 100 years old.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Gold Strike',
       description:
         'Strikes a critical blow dealing 350% damage with guaranteed crit. Has a 25% chance to drop bonus curds.',
@@ -485,7 +485,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'bc',
     description:
       'A cryptozoologist who found the Sasquatch and became its protector. The forest giant taught her the ways of the ancient shields.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Cryptid Shield',
       description:
         'Creates a mystical barrier that absorbs up to 40% of the party\'s max HP in damage for 5 seconds.',
@@ -517,7 +517,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'nova_scotia',
     description:
       'A descendant of the Bluenose crew who sails the fastest schooner in the Atlantic. His cutlass is as swift as the wind.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Schooner Slash',
       description:
         'Delivers 4 rapid slashes each dealing 80% damage. Has increased chance to hit for bonus damage.',
@@ -551,7 +551,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'new_brunswick',
     description:
       'A spectral guardian who haunts the covered bridges of New Brunswick. He protects travelers from worse things in the night.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Haunted Bulwark',
       description:
         'Becomes ethereal, gaining 50% evasion and 30% damage reduction for 5 seconds. Taunts all enemies.',
@@ -583,7 +583,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'new_brunswick',
     description:
       'A fisher who harnesses the power of the Bay of Fundy\'s legendary tides. Her attacks ebb and flow with devastating force.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Tidal Strike',
       description:
         'Unleashes a wave of tidal energy dealing 200% damage that increases to 300% if the target is debuffed.',
@@ -615,7 +615,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'pei',
     description:
       'The spirit of imagination itself, inspired by Avonlea\'s most famous dreamer. Her optimism is contagious and empowering.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Kindred Inspiration',
       description:
         'Inspires all allies, increasing attack by 25% and healing for 15% max HP. Also grants immunity to fear.',
@@ -647,7 +647,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'pei',
     description:
       'The legendary ruler of PEI\'s potato fields. His starchy constitution makes him nearly impossible to move.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Spud Shield',
       description:
         'Transforms into a massive potato, gaining 70% damage reduction but unable to move for 4 seconds. Reflects 20% damage.',
@@ -679,7 +679,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'newfoundland',
     description:
       'A legendary sea captain who survived countless storms fueled by screech rum. His battle cry can shatter icebergs.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Screech Storm',
       description:
         'Lets out a mighty screech dealing 180% AoE damage and reducing enemy defense by 25% for 5 seconds.',
@@ -711,7 +711,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'newfoundland',
     description:
       'A descendant of the first Europeans to reach North America. The blood of Leif Erikson runs through his veins.',
-    specialAbility: {
+    abilityFlavor: {
       name: "Valhalla's Resolve",
       description:
         'Channels ancestral fury. If HP drops below 30%, heals for 40% and gains berserker rage (+50% attack) for 6 seconds.',
@@ -743,7 +743,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'nwt',
     description:
       'A mystic who spent decades watching the Northern Lights until they revealed their healing secrets. Her touch glows with auroral energy.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Northern Lights Blessing',
       description:
         'Channels the aurora to heal all allies for 35% max HP and grants a shield equal to 15% max HP for 6 seconds.',
@@ -775,7 +775,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'nwt',
     description:
       'A miner from the Ekati diamond mine who worked in temperatures that would freeze steel. His strikes are as hard as diamonds.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Pressure Point',
       description:
         'Strikes with diamond-hard precision dealing 280% damage. Ignores 50% of enemy defense.',
@@ -807,7 +807,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'nunavut',
     description:
       'A master hunter who tracks prey across the frozen tundra using skills passed down for thousands of years. No target escapes.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Arctic Precision',
       description:
         'Throws a harpoon dealing 320% damage to a single target. If the target survives, they bleed for 100% damage over 6 seconds.',
@@ -839,7 +839,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'nunavut',
     description:
       'A chosen vessel of Sedna, the Inuit goddess of the sea. She channels the deep ocean\'s power to protect and heal.',
-    specialAbility: {
+    abilityFlavor: {
       name: "Ocean Mother's Embrace",
       description:
         'Calls upon Sedna to heal all allies for 40% max HP and resurrect any fallen party member at 25% HP.',
@@ -873,7 +873,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'ontario',
     description:
       'A hockey legend whose name echoes through eternity. He holds every record worth holding and makes the impossible look routine.',
-    specialAbility: {
+    abilityFlavor: {
       name: '99 Goals',
       description:
         'Channels legendary prowess to deal 400% damage to all enemies. Guaranteed to crit. Cannot be blocked or dodged.',
@@ -905,7 +905,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'ontario',
     description:
       'An inspirational spirit who ran across the nation to bring hope. His determination inspires others to push beyond their limits.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Marathon of Hope',
       description:
         'Inspires the entire party with unbreakable determination. Increases all stats by 20% and prevents death for 5 seconds.',
@@ -937,7 +937,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'quebec',
     description:
       'A spirit forged from the sacrifice at Vimy Ridge where Canada truly became a nation. He stands guard eternally.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'Ridge of Sacrifice',
       description:
         'Channels the spirits of the fallen, becoming invulnerable for 4 seconds and reflecting 50% of damage taken.',
@@ -969,7 +969,7 @@ export const HEROES: HeroDefinition[] = [
     province: 'ontario',
     description:
       'The collective spirit of Confederation who brought the provinces together in 1867. His unifying presence strengthens all bonds.',
-    specialAbility: {
+    abilityFlavor: {
       name: 'United Dominion',
       description:
         'Unites the party, causing all abilities to have 30% reduced cooldown and sharing 15% of healing between all members for 8 seconds.',
@@ -1527,7 +1527,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     targetType: 'single_enemy',
     effects: [
       { type: 'damage', multiplier: 0.5 }, // Initial hit
-      { type: 'debuff', stat: 'damage_over_time', value: 12, duration: 8 }, // DoT over 8 seconds
+      { type: 'debuff', stat: 'damageOverTime', value: 12, duration: 8 }, // DoT over 8 seconds
       { type: 'debuff', stat: 'speed', value: -50, duration: 8 }, // Movement reduction
     ],
   },
@@ -1753,7 +1753,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     targetType: 'single_enemy',
     effects: [
       { type: 'damage', multiplier: 3.2 },
-      { type: 'debuff', stat: 'damage_over_time', value: 16, duration: 6 },
+      { type: 'debuff', stat: 'damageOverTime', value: 16, duration: 6 },
     ],
   },
 
@@ -1992,7 +1992,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     targetType: 'single_enemy',
     effects: [
       { type: 'damage', multiplier: 7.0 },
-      { type: 'debuff', stat: 'damage_over_time', value: 30, duration: 8 },
+      { type: 'debuff', stat: 'damageOverTime', value: 30, duration: 8 },
     ],
     animation: 'spirit_hunt',
   },

@@ -2,7 +2,7 @@ import Decimal from 'decimal.js';
 import type {
   EnemyDefinition,
   EnemyType,
-  EnemySkill,
+  EnemyAbility,
   EnemyDrop,
   HeroStats,
   DamageType,
@@ -32,8 +32,8 @@ export class Enemy extends BaseEntity<EnemyDefinition> implements EnemyDefinitio
   get resistance(): DamageType | undefined {
     return this.data.resistance;
   }
-  get skills(): EnemySkill[] {
-    return this.data.skills;
+  get abilities(): EnemyAbility[] {
+    return this.data.abilities;
   }
   get drops(): EnemyDrop[] {
     return this.data.drops;
@@ -67,14 +67,14 @@ export class Enemy extends BaseEntity<EnemyDefinition> implements EnemyDefinitio
   }
 
   /**
-   * Select a skill to use based on AI logic.
-   * Returns the first available skill (can be extended for smarter AI).
+   * Select an ability to use based on AI logic.
+   * Returns the first available ability (can be extended for smarter AI).
    */
-  selectSkill(cooldowns: Record<string, number>): EnemySkill | null {
-    for (const skill of this.skills) {
-      const cooldown = cooldowns[skill.id] ?? 0;
+  selectAbility(cooldowns: Record<string, number>): EnemyAbility | null {
+    for (const ability of this.abilities) {
+      const cooldown = cooldowns[ability.id] ?? 0;
       if (cooldown <= 0) {
-        return skill;
+        return ability;
       }
     }
     return null;

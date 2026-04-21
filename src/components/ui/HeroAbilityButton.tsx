@@ -10,7 +10,7 @@ interface HeroAbilityButtonProps {
 }
 
 export function HeroAbilityButton({ heroState, size = 'md' }: HeroAbilityButtonProps) {
-  const canUseHeroSkill = useGameStore((state) => state.canUseHeroSkill);
+  const canUseHeroAbility = useGameStore((state) => state.canUseHeroAbility);
   const combat = useGameStore((state) => state.combat);
 
   const hero = heroRegistry.get(heroState.heroId);
@@ -18,14 +18,14 @@ export function HeroAbilityButton({ heroState, size = 'md' }: HeroAbilityButtonP
 
   if (!hero || !ability) return null;
 
-  const { canUse, reason } = canUseHeroSkill(heroState.heroId);
+  const { canUse, reason } = canUseHeroAbility(heroState.heroId);
   const cooldown = getAbilityCooldown(heroState, heroState.heroId);
   const abilityIsReady = isAbilityReady(heroState, heroState.heroId);
   const isDisabled = !canUse || combat.battleResult !== 'ongoing';
 
   const handleClick = () => {
     if (!isDisabled) {
-      useGameStore.getState().useHeroSkill(heroState.heroId, ability.id);
+      useGameStore.getState().useHeroAbility(heroState.heroId, ability.id);
     }
   };
 
