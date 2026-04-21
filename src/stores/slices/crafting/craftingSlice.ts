@@ -515,13 +515,13 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
 
       const effect = buff.effect;
       switch (effect.type) {
-        case 'production_boost':
+        case 'productionBoost':
           production *= effect.multiplier;
           break;
-        case 'click_boost':
+        case 'clickBoost':
           click *= effect.multiplier;
           break;
-        case 'xp_boost':
+        case 'xpBoost':
           xp *= effect.multiplier;
           break;
       }

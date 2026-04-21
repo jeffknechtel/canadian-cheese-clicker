@@ -218,7 +218,7 @@ export interface HeroDefinition {
   class: HeroClass;
   province: Province;
   description: string;
-  specialAbility: {
+  abilityFlavor: {
     name: string;
     description: string;
   };
@@ -282,7 +282,7 @@ export interface HeroCombatState {
   atbGauge: number; // 0-100
   isAlive: boolean;
   statusEffects: StatusEffect[];
-  skillCooldowns: Record<string, number>; // Skill ID -> remaining ticks
+  abilityCooldowns: Record<string, number>; // Ability ID -> remaining ticks
 }
 
 export interface CombatEnemy {
@@ -293,7 +293,7 @@ export interface CombatEnemy {
   atbGauge: number;
   isAlive: boolean;
   statusEffects: StatusEffect[];
-  skillCooldowns: Record<string, number>;
+  abilityCooldowns: Record<string, number>;
   // Boss-specific fields
   isBoss?: boolean;
   currentPhase?: number;
@@ -303,7 +303,7 @@ export interface CombatEnemy {
 export interface StatusEffect {
   id: string;
   type: 'buff' | 'debuff';
-  stat: keyof HeroStats | 'damage_over_time' | 'heal_over_time';
+  stat: keyof HeroStats | 'damageOverTime' | 'healOverTime';
   value: number;
   duration: number; // Remaining ticks
   source: string; // Hero or enemy ID that applied this
@@ -330,7 +330,7 @@ export interface EnemyDefinition {
   stats: HeroStats;
   weakness?: DamageType;
   resistance?: DamageType;
-  skills: EnemySkill[];
+  abilities: EnemyAbility[];
   drops: EnemyDrop[];
   xpReward: number;
   curdReward: Decimal;
@@ -338,7 +338,7 @@ export interface EnemyDefinition {
   description: string;
 }
 
-export interface EnemySkill {
+export interface EnemyAbility {
   id: string;
   name: string;
   damage: number; // Multiplier of base attack
@@ -366,7 +366,7 @@ export interface BossPhase {
   phaseNumber: number;
   hpThreshold: number; // Percentage of max HP to trigger (e.g., 66 for 66%)
   statModifiers: Partial<HeroStats>; // Additive stat changes
-  newSkills?: EnemySkill[]; // Skills added in this phase
+  newAbilities?: EnemyAbility[]; // Abilities added in this phase
   onEnterMessage: string;
 }
 
@@ -387,7 +387,7 @@ export interface ZoneDefinition {
 export interface StageDefinition {
   stageNumber: number;
   enemies: string[]; // Enemy IDs
-  enemyLevelModifier: number; // Multiplier for enemy stats (e.g., 1.1 for 10% stronger)
+  enemyLevelScale: number; // Multiplier for enemy stats (e.g., 1.1 for 10% stronger)
 }
 
 export interface BossStageDefinition {
@@ -444,7 +444,7 @@ export type AbilityEffect =
   | { type: 'damage'; multiplier: number; damageType?: DamageType }
   | { type: 'heal'; amount: number; isPercentage: boolean }
   | { type: 'buff'; stat: keyof HeroStats | 'damage_reduction'; value: number; duration: number }
-  | { type: 'debuff'; stat: keyof HeroStats | 'damage_over_time'; value: number; duration: number }
+  | { type: 'debuff'; stat: keyof HeroStats | 'damageOverTime'; value: number; duration: number }
   | { type: 'taunt'; duration: number }
   | { type: 'cleanse' } // Remove debuffs
   | { type: 'immunity'; immunityType: 'freeze' | 'slow' | 'all_debuffs'; duration: number }
@@ -521,10 +521,10 @@ export type RecipeUnlockRequirement =
   | { type: 'province_complete'; provinceId: Province };
 
 export type CheeseEffect =
-  | { type: 'hero_buff'; stat: keyof HeroStats; value: number; duration: number }
-  | { type: 'production_boost'; multiplier: number; duration: number }
-  | { type: 'click_boost'; multiplier: number; duration: number }
-  | { type: 'xp_boost'; multiplier: number; duration: number };
+  | { type: 'heroBuff'; stat: keyof HeroStats; value: number; duration: number }
+  | { type: 'productionBoost'; multiplier: number; duration: number }
+  | { type: 'clickBoost'; multiplier: number; duration: number }
+  | { type: 'xpBoost'; multiplier: number; duration: number };
 
 export interface CraftingJob {
   id: string; // Unique job ID

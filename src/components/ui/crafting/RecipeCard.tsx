@@ -249,13 +249,13 @@ function formatEffect(effect: CheeseEffect): string {
   const durationStr = durationSec >= 60 ? `${Math.round(durationSec / 60)}m` : `${durationSec}s`;
 
   switch (effect.type) {
-    case 'production_boost':
+    case 'productionBoost':
       return `+${Math.round((effect.multiplier - 1) * 100)}% Production (${durationStr})`;
-    case 'click_boost':
+    case 'clickBoost':
       return `+${Math.round((effect.multiplier - 1) * 100)}% Click (${durationStr})`;
-    case 'xp_boost':
+    case 'xpBoost':
       return `+${Math.round((effect.multiplier - 1) * 100)}% XP (${durationStr})`;
-    case 'hero_buff':
+    case 'heroBuff':
       return `+${effect.value} ${effect.stat} (${durationStr})`;
     default:
       return 'Unknown effect';

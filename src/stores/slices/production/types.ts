@@ -30,7 +30,7 @@ export interface ProductionActions {
   getAvailableUpgrades: () => Upgrade[];
   getPurchasedUpgrades: () => Upgrade[];
   incrementEh: () => void;
-  getEhBonus: () => number;
+  getEhMultiplier: () => number;
   checkMilestone: () => number | null;
   setLastMilestone: (milestone: number) => void;
   getClickValue: () => Decimal;

@@ -35,7 +35,7 @@ export const ENEMIES: EnemyDefinition[] = [
       cheeseAffinity: 5,
     },
     weakness: 'fire',
-    skills: [
+    abilities: [
       {
         id: 'spore_puff',
         name: 'Spore Puff',
@@ -65,7 +65,7 @@ export const ENEMIES: EnemyDefinition[] = [
       cheeseAffinity: 8,
     },
     weakness: 'fire',
-    skills: [
+    abilities: [
       {
         id: 'toxic_cloud',
         name: 'Toxic Cloud',
@@ -74,7 +74,7 @@ export const ENEMIES: EnemyDefinition[] = [
         targetType: 'all',
         effect: {
           type: 'debuff',
-          stat: 'damage_over_time',
+          stat: 'damageOverTime',
           value: 5,
           duration: 3,
         },
@@ -102,7 +102,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'nature',
-    skills: [
+    abilities: [
       {
         id: 'slam',
         name: 'Mushroom Slam',
@@ -118,7 +118,7 @@ export const ENEMIES: EnemyDefinition[] = [
         targetType: 'self',
         effect: {
           type: 'buff',
-          stat: 'heal_over_time',
+          stat: 'healOverTime',
           value: 10,
           duration: 3,
         },
@@ -147,7 +147,7 @@ export const ENEMIES: EnemyDefinition[] = [
       cheeseAffinity: 0,
     },
     weakness: 'nature',
-    skills: [
+    abilities: [
       {
         id: 'goop_splash',
         name: 'Goop Splash',
@@ -178,7 +178,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'nature',
     resistance: 'physical',
-    skills: [
+    abilities: [
       {
         id: 'engulf',
         name: 'Engulf',
@@ -217,7 +217,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'lightning',
     resistance: 'physical',
-    skills: [
+    abilities: [
       {
         id: 'shred',
         name: 'Shred',
@@ -247,7 +247,7 @@ export const ENEMIES: EnemyDefinition[] = [
       cheeseAffinity: 0,
     },
     weakness: 'lightning',
-    skills: [
+    abilities: [
       {
         id: 'precision_cut',
         name: 'Precision Cut',
@@ -285,7 +285,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'lightning',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'production_boost',
         name: 'Production Boost',
@@ -331,7 +331,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'envious_strike',
         name: 'Envious Strike',
@@ -375,7 +375,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'hellfire_splash',
         name: 'Hellfire Splash',
@@ -415,7 +415,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'spectral_touch',
         name: 'Spectral Touch',
@@ -446,7 +446,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'physical',
-    skills: [
+    abilities: [
       {
         id: 'hardened_strike',
         name: 'Hardened Strike',
@@ -490,7 +490,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'physical',
-    skills: [
+    abilities: [
       {
         id: 'phantom_wail',
         name: 'Phantom Wail',
@@ -535,7 +535,7 @@ export const ENEMIES: EnemyDefinition[] = [
       cheeseAffinity: 10,
     },
     weakness: 'nature',
-    skills: [
+    abilities: [
       {
         id: 'nibble',
         name: 'Nibble',
@@ -565,7 +565,7 @@ export const ENEMIES: EnemyDefinition[] = [
       cheeseAffinity: 8,
     },
     weakness: 'fire',
-    skills: [
+    abilities: [
       {
         id: 'savage_bite',
         name: 'Savage Bite',
@@ -611,7 +611,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'ice_resurface',
         name: 'Ice Resurface',
@@ -648,7 +648,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'physical',
-    skills: [
+    abilities: [
       {
         id: 'slap_shot',
         name: 'Spectral Slap Shot',
@@ -679,7 +679,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'freeze_spray',
         name: 'Freeze Spray',
@@ -718,7 +718,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'lightning',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'claw_crush',
         name: 'Claw Crush',
@@ -749,7 +749,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'physical',
-    skills: [
+    abilities: [
       {
         id: 'fog_embrace',
         name: 'Fog Embrace',
@@ -786,7 +786,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'physical',
-    skills: [
+    abilities: [
       {
         id: 'barnacle_bash',
         name: 'Barnacle Bash',
@@ -818,7 +818,7 @@ export const ENEMIES: EnemyDefinition[] = [
       cheeseAffinity: 0,
     },
     weakness: 'lightning',
-    skills: [
+    abilities: [
       {
         id: 'saw_slash',
         name: 'Saw Slash',
@@ -849,7 +849,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'axe_swing',
         name: 'Spectral Axe Swing',
@@ -887,7 +887,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'nature',
-    skills: [
+    abilities: [
       {
         id: 'sticky_splash',
         name: 'Sticky Splash',
@@ -926,7 +926,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'physical',
-    skills: [
+    abilities: [
       {
         id: 'straw_strike',
         name: 'Straw Strike',
@@ -964,7 +964,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'nature',
-    skills: [
+    abilities: [
       {
         id: 'blight_spread',
         name: 'Blight Spread',
@@ -973,7 +973,7 @@ export const ENEMIES: EnemyDefinition[] = [
         targetType: 'all',
         effect: {
           type: 'debuff',
-          stat: 'damage_over_time',
+          stat: 'damageOverTime',
           value: 8,
           duration: 4,
         },
@@ -1001,7 +1001,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'ice',
     resistance: 'lightning',
-    skills: [
+    abilities: [
       {
         id: 'mud_slam',
         name: 'Mud Slam',
@@ -1034,7 +1034,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'viking_raid',
         name: 'Viking Raid',
@@ -1078,7 +1078,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'shield_bash',
         name: 'Shield Bash',
@@ -1115,7 +1115,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'ice_shard',
         name: 'Ice Shard',
@@ -1161,7 +1161,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'physical',
-    skills: [
+    abilities: [
       {
         id: 'pickaxe_strike',
         name: 'Pickaxe Strike',
@@ -1205,7 +1205,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'greed_strike',
         name: 'Greed Strike',
@@ -1249,7 +1249,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'parasitic_drain',
         name: 'Parasitic Drain',
@@ -1258,7 +1258,7 @@ export const ENEMIES: EnemyDefinition[] = [
         targetType: 'single',
         effect: {
           type: 'buff',
-          stat: 'heal_over_time',
+          stat: 'healOverTime',
           value: 8,
           duration: 3,
         },
@@ -1288,7 +1288,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'dark',
     resistance: 'holy',
-    skills: [
+    abilities: [
       {
         id: 'aurora_beam',
         name: 'Aurora Beam',
@@ -1332,7 +1332,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'arctic_bite',
         name: 'Arctic Bite',
@@ -1376,7 +1376,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'dark',
     resistance: 'holy',
-    skills: [
+    abilities: [
       {
         id: 'dimensional_flicker',
         name: 'Dimensional Flicker',
@@ -1409,7 +1409,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'blizzard',
         name: 'Blizzard',
@@ -1453,7 +1453,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'maul',
         name: 'Devastating Maul',
@@ -1497,7 +1497,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'spirit_harpoon',
         name: 'Spirit Harpoon',
@@ -1545,7 +1545,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'lightning',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'sky_coil',
         name: 'Sky Coil',
@@ -1595,7 +1595,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'chaos_bolt',
         name: 'Chaos Bolt',
@@ -1639,7 +1639,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'ice',
     resistance: 'lightning',
-    skills: [
+    abilities: [
       {
         id: 'diving_strike',
         name: 'Diving Strike',
@@ -1677,7 +1677,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'physical',
-    skills: [
+    abilities: [
       {
         id: 'void_touch',
         name: 'Void Touch',
@@ -1723,7 +1723,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'draining_touch',
         name: 'Draining Touch',
@@ -1732,7 +1732,7 @@ export const ENEMIES: EnemyDefinition[] = [
         targetType: 'single',
         effect: {
           type: 'buff',
-          stat: 'heal_over_time',
+          stat: 'healOverTime',
           value: 10,
           duration: 2,
         },
@@ -1745,7 +1745,7 @@ export const ENEMIES: EnemyDefinition[] = [
         targetType: 'all',
         effect: {
           type: 'debuff',
-          stat: 'damage_over_time',
+          stat: 'damageOverTime',
           value: 12,
           duration: 4,
         },
@@ -1773,7 +1773,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'frozen_grasp',
         name: 'Frozen Grasp',
@@ -1817,7 +1817,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'gold_fever_strike',
         name: 'Gold Fever Strike',
@@ -1863,7 +1863,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'paddle_strike',
         name: 'Spectral Paddle Strike',
@@ -1907,7 +1907,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'gust',
         name: 'Howling Gust',
@@ -1951,7 +1951,7 @@ export const ENEMIES: EnemyDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'terror_strike',
         name: 'Terror Strike',
@@ -2001,7 +2001,7 @@ export const BOSSES: BossDefinition[] = [
     },
     weakness: 'nature',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'bland_wave',
         name: 'Bland Wave',
@@ -2054,7 +2054,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 2,
         hpThreshold: 66,
         statModifiers: { attack: 10, speed: 3 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'mass_production',
             name: 'Mass Production',
@@ -2091,7 +2091,7 @@ export const BOSSES: BossDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'spectral_brie',
         name: 'Spectral Brie',
@@ -2144,7 +2144,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 3,
         hpThreshold: 50,
         statModifiers: { attack: 15, defense: 10 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'french_only_phase',
             name: 'Parler Francais!',
@@ -2187,7 +2187,7 @@ export const BOSSES: BossDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'physical',
-    skills: [
+    abilities: [
       {
         id: 'oil_splash',
         name: 'Oil Splash',
@@ -2234,7 +2234,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 2,
         hpThreshold: 66,
         statModifiers: { attack: 12, defense: 10 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'oil_puddle',
             name: 'Create Oil Puddle',
@@ -2277,7 +2277,7 @@ export const BOSSES: BossDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'nature',
-    skills: [
+    abilities: [
       {
         id: 'wheat_storm',
         name: 'Wheat Storm',
@@ -2318,7 +2318,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 2,
         hpThreshold: 50,
         statModifiers: { attack: 15, speed: 6 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'grain_swarm',
             name: 'Grain Swarm',
@@ -2349,7 +2349,7 @@ export const BOSSES: BossDefinition[] = [
     },
     weakness: 'lightning',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'claw_crush',
         name: 'Claw Crush',
@@ -2396,7 +2396,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 2,
         hpThreshold: 66,
         statModifiers: { defense: 20 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'tidal_wave',
             name: 'Tidal Wave',
@@ -2433,7 +2433,7 @@ export const BOSSES: BossDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'puck_deflection',
         name: 'Puck Deflection',
@@ -2486,7 +2486,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 2,
         hpThreshold: 66,
         statModifiers: { defense: 20, speed: 4 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'butterfly_save',
             name: 'Butterfly Save',
@@ -2529,7 +2529,7 @@ export const BOSSES: BossDefinition[] = [
     },
     weakness: 'lightning',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'tentacle_slam',
         name: 'Tentacle Slam',
@@ -2576,7 +2576,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 2,
         hpThreshold: 75,
         statModifiers: { attack: 10, speed: 3 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'summon_tentacles',
             name: 'Summon Tentacles',
@@ -2597,7 +2597,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 4,
         hpThreshold: 25,
         statModifiers: { attack: 35, defense: 20, speed: 5 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'tidal_crush',
             name: 'Tidal Crush',
@@ -2628,7 +2628,7 @@ export const BOSSES: BossDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'axe_throw',
         name: 'Phantom Axe Throw',
@@ -2669,7 +2669,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 2,
         hpThreshold: 66,
         statModifiers: { attack: 15, speed: 4 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'whirlwind_chop',
             name: 'Whirlwind Chop',
@@ -2706,7 +2706,7 @@ export const BOSSES: BossDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'imagination_bolt',
         name: 'Imagination Bolt',
@@ -2753,7 +2753,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 2,
         hpThreshold: 66,
         statModifiers: { attack: 12, speed: 6 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'story_twist',
             name: 'Plot Twist',
@@ -2790,7 +2790,7 @@ export const BOSSES: BossDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'glacial_slam',
         name: 'Glacial Slam',
@@ -2843,7 +2843,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 3,
         hpThreshold: 50,
         statModifiers: { attack: 20, defense: 25 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'flash_freeze',
             name: 'Flash Freeze',
@@ -2886,7 +2886,7 @@ export const BOSSES: BossDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'ravenous_bite',
         name: 'Ravenous Bite',
@@ -2915,7 +2915,7 @@ export const BOSSES: BossDefinition[] = [
         targetType: 'all',
         effect: {
           type: 'debuff',
-          stat: 'damage_over_time',
+          stat: 'damageOverTime',
           value: 15,
           duration: 5,
         },
@@ -2939,7 +2939,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 2,
         hpThreshold: 66,
         statModifiers: { attack: 20, speed: 5 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'consume',
             name: 'Consume',
@@ -2976,7 +2976,7 @@ export const BOSSES: BossDefinition[] = [
     },
     weakness: 'dark',
     resistance: 'holy',
-    skills: [
+    abilities: [
       {
         id: 'aurora_breath',
         name: 'Aurora Breath',
@@ -3023,7 +3023,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 2,
         hpThreshold: 75,
         statModifiers: { attack: 12, defense: 10 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'green_phase',
             name: 'Emerald Aurora',
@@ -3044,7 +3044,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 3,
         hpThreshold: 50,
         statModifiers: { attack: 25, speed: 8 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'red_phase',
             name: 'Crimson Aurora',
@@ -3059,7 +3059,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 4,
         hpThreshold: 25,
         statModifiers: { attack: 40, defense: 20, speed: 12 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'rainbow_finale',
             name: 'Rainbow Cataclysm',
@@ -3090,7 +3090,7 @@ export const BOSSES: BossDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'ice',
-    skills: [
+    abilities: [
       {
         id: 'ocean_wrath',
         name: 'Ocean Wrath',
@@ -3113,7 +3113,7 @@ export const BOSSES: BossDefinition[] = [
         targetType: 'single',
         effect: {
           type: 'debuff',
-          stat: 'damage_over_time',
+          stat: 'damageOverTime',
           value: 20,
           duration: 4,
         },
@@ -3137,7 +3137,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 2,
         hpThreshold: 80,
         statModifiers: { attack: 10, defense: 10 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'seal_army',
             name: 'Summon Seal Army',
@@ -3158,7 +3158,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 4,
         hpThreshold: 40,
         statModifiers: { attack: 35, defense: 20 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'tsunami',
             name: 'Arctic Tsunami',
@@ -3203,7 +3203,7 @@ export const BOSSES: BossDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'chaos_wave',
         name: 'Chaos Wave',
@@ -3256,7 +3256,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 2,
         hpThreshold: 80,
         statModifiers: { attack: 15, speed: 4 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'summon_void',
             name: 'Summon Void Stalkers',
@@ -3271,7 +3271,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 3,
         hpThreshold: 60,
         statModifiers: { attack: 25, defense: 15 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'dimensional_collapse',
             name: 'Dimensional Collapse',
@@ -3298,7 +3298,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 5,
         hpThreshold: 20,
         statModifiers: { attack: 60, defense: 25, speed: 10 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'annihilation',
             name: 'Annihilation',
@@ -3329,7 +3329,7 @@ export const BOSSES: BossDefinition[] = [
     },
     weakness: 'fire',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'consuming_bite',
         name: 'Consuming Bite',
@@ -3338,7 +3338,7 @@ export const BOSSES: BossDefinition[] = [
         targetType: 'single',
         effect: {
           type: 'buff',
-          stat: 'heal_over_time',
+          stat: 'healOverTime',
           value: 15,
           duration: 3,
         },
@@ -3364,7 +3364,7 @@ export const BOSSES: BossDefinition[] = [
         targetType: 'all',
         effect: {
           type: 'debuff',
-          stat: 'damage_over_time',
+          stat: 'damageOverTime',
           value: 20,
           duration: 5,
         },
@@ -3388,7 +3388,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 2,
         hpThreshold: 66,
         statModifiers: { attack: 20, speed: 6 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'feast',
             name: 'Feast',
@@ -3409,7 +3409,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 3,
         hpThreshold: 40,
         statModifiers: { attack: 35, speed: 10 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'hunger_epidemic',
             name: 'Hunger Epidemic',
@@ -3418,7 +3418,7 @@ export const BOSSES: BossDefinition[] = [
             targetType: 'all',
             effect: {
               type: 'debuff',
-              stat: 'damage_over_time',
+              stat: 'damageOverTime',
               value: 30,
               duration: 6,
             },
@@ -3452,7 +3452,7 @@ export const BOSSES: BossDefinition[] = [
     },
     weakness: 'holy',
     resistance: 'dark',
-    skills: [
+    abilities: [
       {
         id: 'devils_bargain',
         name: "Devil's Bargain",
@@ -3481,7 +3481,7 @@ export const BOSSES: BossDefinition[] = [
         targetType: 'all',
         effect: {
           type: 'debuff',
-          stat: 'damage_over_time',
+          stat: 'damageOverTime',
           value: 15,
           duration: 5,
         },
@@ -3505,7 +3505,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 2,
         hpThreshold: 66,
         statModifiers: { attack: 15, speed: 5 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'hellfire_rain',
             name: 'Hellfire Rain',
@@ -3520,7 +3520,7 @@ export const BOSSES: BossDefinition[] = [
         phaseNumber: 3,
         hpThreshold: 33,
         statModifiers: { attack: 30, defense: 15, speed: 8 },
-        newSkills: [
+        newAbilities: [
           {
             id: 'soul_harvest',
             name: 'Soul Harvest',
@@ -3577,19 +3577,19 @@ export function getEnemiesWeakTo(damageType: DamageType): EnemyDefinition[] {
  */
 export function scaleEnemyStats(
   enemy: EnemyDefinition,
-  levelModifier: number
+  levelScale: number
 ): EnemyDefinition {
   return {
     ...enemy,
     stats: {
-      hp: Math.floor(enemy.stats.hp * levelModifier),
-      attack: Math.floor(enemy.stats.attack * levelModifier),
-      defense: Math.floor(enemy.stats.defense * levelModifier),
+      hp: Math.floor(enemy.stats.hp * levelScale),
+      attack: Math.floor(enemy.stats.attack * levelScale),
+      defense: Math.floor(enemy.stats.defense * levelScale),
       speed: enemy.stats.speed, // Speed doesn't scale
       cheeseAffinity: enemy.stats.cheeseAffinity,
     },
-    xpReward: Math.floor(enemy.xpReward * levelModifier),
-    curdReward: enemy.curdReward.mul(levelModifier),
+    xpReward: Math.floor(enemy.xpReward * levelScale),
+    curdReward: enemy.curdReward.mul(levelScale),
   };
 }
 
@@ -3612,6 +3612,6 @@ export function scaleBossForPhase(
       speed: boss.stats.speed + (phase.statModifiers.speed || 0),
       cheeseAffinity: boss.stats.cheeseAffinity + (phase.statModifiers.cheeseAffinity || 0),
     },
-    skills: phase.newSkills ? [...boss.skills, ...phase.newSkills] : boss.skills,
+    abilities: phase.newAbilities ? [...boss.abilities, ...phase.newAbilities] : boss.abilities,
   };
 }

@@ -228,10 +228,10 @@ function HeroRecruitCard({ hero }: HeroRecruitCardProps) {
         </div>
       </div>
 
-      {/* Special Ability */}
+      {/* Ability Flavor */}
       <div className="mt-2 p-2 bg-timber-50 rounded text-xs">
-        <div className="font-medium text-timber-700">{hero.specialAbility.name}</div>
-        <p className="text-gray-600 mt-0.5 line-clamp-2" title={hero.specialAbility.description}>{hero.specialAbility.description}</p>
+        <div className="font-medium text-timber-700">{hero.abilityFlavor.name}</div>
+        <p className="text-gray-600 mt-0.5 line-clamp-2" title={hero.abilityFlavor.description}>{hero.abilityFlavor.description}</p>
       </div>
 
       {/* Base Stats Preview */}

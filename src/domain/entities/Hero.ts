@@ -30,8 +30,8 @@ export class Hero extends BaseEntity<HeroDefinition> implements HeroDefinition {
   get description(): string {
     return this.data.description;
   }
-  get specialAbility(): { name: string; description: string } {
-    return this.data.specialAbility;
+  get abilityFlavor(): { name: string; description: string } {
+    return this.data.abilityFlavor;
   }
   get baseStats(): HeroStats {
     return this.data.baseStats;

@@ -61,13 +61,13 @@ function BuffChip({ buff, currentTime }: BuffChipProps) {
 
 function getBuffIcon(type: CheeseActiveBuff['effect']['type']): string {
   switch (type) {
-    case 'production_boost':
+    case 'productionBoost':
       return '';
-    case 'click_boost':
+    case 'clickBoost':
       return '';
-    case 'xp_boost':
+    case 'xpBoost':
       return '';
-    case 'hero_buff':
+    case 'heroBuff':
       return '';
     default:
       return '';
@@ -76,13 +76,13 @@ function getBuffIcon(type: CheeseActiveBuff['effect']['type']): string {
 
 function getBuffLabel(effect: CheeseActiveBuff['effect']): string {
   switch (effect.type) {
-    case 'production_boost':
+    case 'productionBoost':
       return `+${Math.round((effect.multiplier - 1) * 100)}% Prod`;
-    case 'click_boost':
+    case 'clickBoost':
       return `+${Math.round((effect.multiplier - 1) * 100)}% Click`;
-    case 'xp_boost':
+    case 'xpBoost':
       return `+${Math.round((effect.multiplier - 1) * 100)}% XP`;
-    case 'hero_buff':
+    case 'heroBuff':
       return `+${effect.value} ${effect.stat}`;
     default:
       return 'Buff';

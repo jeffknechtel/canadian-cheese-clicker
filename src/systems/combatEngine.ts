@@ -163,9 +163,9 @@ export function processStatusEffects(
   const expiredEffects: string[] = [];
 
   for (const effect of statusEffects) {
-    if (effect.stat === 'damage_over_time') {
+    if (effect.stat === 'damageOverTime') {
       damage += effect.value;
-    } else if (effect.stat === 'heal_over_time') {
+    } else if (effect.stat === 'healOverTime') {
       healing += effect.value;
     }
 
@@ -287,27 +287,27 @@ export function getBossEffectiveStats(
 }
 
 /**
- * Get all available skills for a boss in their current phase
+ * Get all available abilities for a boss in their current phase
  */
-export function getBossCurrentSkills(
+export function getBossCurrentAbilities(
   enemy: CombatEnemy,
   bossDef: BossDefinition
-): typeof bossDef.skills {
+): typeof bossDef.abilities {
   if (!enemy.isBoss || !enemy.currentPhase) {
-    return bossDef.skills;
+    return bossDef.abilities;
   }
 
-  // Start with base skills
-  const skills = [...bossDef.skills];
+  // Start with base abilities
+  const abilities = [...bossDef.abilities];
 
-  // Add skills from all triggered phases
+  // Add abilities from all triggered phases
   for (const phase of bossDef.phases) {
-    if (enemy.phaseTriggered?.[phase.phaseNumber] && phase.newSkills) {
-      skills.push(...phase.newSkills);
+    if (enemy.phaseTriggered?.[phase.phaseNumber] && phase.newAbilities) {
+      abilities.push(...phase.newAbilities);
     }
   }
 
-  return skills;
+  return abilities;
 }
 
 /**
@@ -465,7 +465,7 @@ export function createHeroCombatState(
     atbGauge: 0,
     isAlive: true,
     statusEffects: [],
-    skillCooldowns: {},
+    abilityCooldowns: {},
   };
 }
 
@@ -486,7 +486,7 @@ export function createCombatEnemy(
     atbGauge: Math.random() * 20, // Start with 0-20% ATB for variety
     isAlive: true,
     statusEffects: [],
-    skillCooldowns: {},
+    abilityCooldowns: {},
     // Boss-specific fields
     isBoss,
     currentPhase: isBoss ? 1 : undefined,
@@ -538,7 +538,7 @@ export function initializeCombat(
     stage.enemies.forEach((enemyId, index) => {
       const enemyDef = enemyRegistry.get(enemyId);
       if (enemyDef) {
-        const scaledEnemy = scaleEnemyStats(enemyDef, stage.enemyLevelModifier);
+        const scaledEnemy = scaleEnemyStats(enemyDef, stage.enemyLevelScale);
         enemies.push(createCombatEnemy(scaledEnemy, index));
       }
     });
@@ -594,13 +594,13 @@ export function tickCombat(
     updatedHeroStates[id] = {
       ...heroState,
       statusEffects: [...heroState.statusEffects],
-      skillCooldowns: { ...heroState.skillCooldowns },
+      abilityCooldowns: { ...heroState.abilityCooldowns },
     };
   }
   const updatedEnemies = state.enemies.map((e) => ({
     ...e,
     statusEffects: [...e.statusEffects],
-    skillCooldowns: { ...e.skillCooldowns },
+    abilityCooldowns: { ...e.abilityCooldowns },
   }));
   let updatedLimitBreakGauge = state.limitBreakGauge;
 
@@ -750,22 +750,22 @@ export function tickCombat(
     const target = selectHeroTarget(updatedHeroStates);
     if (!target) continue;
 
-    // Get effective stats and skills (handles boss phase modifiers)
+    // Get effective stats and abilities (handles boss phase modifiers)
     let effectiveEnemyStats = enemyDef.stats;
-    let availableSkills = enemyDef.skills;
+    let availableAbilities = enemyDef.abilities;
 
     if (enemy.isBoss) {
       const bossDef = bossRegistry.get(enemy.id);
       if (bossDef) {
         effectiveEnemyStats = getBossEffectiveStats(enemy, bossDef);
-        availableSkills = getBossCurrentSkills(enemy, bossDef);
+        availableAbilities = getBossCurrentAbilities(enemy, bossDef);
       }
     }
 
-    // Get first available skill (basic attack) or default
-    // TODO: Could add smarter skill selection based on cooldowns
-    const skill = availableSkills[0];
-    const skillMultiplier = skill?.damage || 1.0;
+    // Get first available ability (basic attack) or default
+    // TODO: Could add smarter ability selection based on cooldowns
+    const ability = availableAbilities[0];
+    const abilityMultiplier = ability?.damage || 1.0;
 
     // Calculate damage with phase-adjusted stats
     const attackModifier = getStatModifierFromEffects(enemy.statusEffects, 'attack');
@@ -775,7 +775,7 @@ export function tickCombat(
     const defenseModifier = getStatModifierFromEffects(target.statusEffects, 'defense');
     const effectiveDefense = Math.max(0, (heroStats?.defense || 10) + defenseModifier);
 
-    const damage = calculateDamage(effectiveAttack, effectiveDefense, skillMultiplier);
+    const damage = calculateDamage(effectiveAttack, effectiveDefense, abilityMultiplier);
     target.currentHp = applyDamage(target.currentHp, damage);
     totalDamageTaken += damage;
 
@@ -899,20 +899,20 @@ export function tickCombat(
     });
   }
 
-  // Decrement skill cooldowns
+  // Decrement ability cooldowns
   for (const heroId of Object.keys(updatedHeroStates)) {
     const heroState = updatedHeroStates[heroId];
-    for (const skillId of Object.keys(heroState.skillCooldowns)) {
-      if (heroState.skillCooldowns[skillId] > 0) {
-        heroState.skillCooldowns[skillId] -= 1;
+    for (const abilityId of Object.keys(heroState.abilityCooldowns)) {
+      if (heroState.abilityCooldowns[abilityId] > 0) {
+        heroState.abilityCooldowns[abilityId] -= 1;
       }
     }
   }
 
   for (const enemy of updatedEnemies) {
-    for (const skillId of Object.keys(enemy.skillCooldowns)) {
-      if (enemy.skillCooldowns[skillId] > 0) {
-        enemy.skillCooldowns[skillId] -= 1;
+    for (const abilityId of Object.keys(enemy.abilityCooldowns)) {
+      if (enemy.abilityCooldowns[abilityId] > 0) {
+        enemy.abilityCooldowns[abilityId] -= 1;
       }
     }
   }
@@ -1079,7 +1079,7 @@ export function canUseAbility(
   }
 
   // Check cooldown
-  const cooldownRemaining = heroState.skillCooldowns[ability.id] || 0;
+  const cooldownRemaining = heroState.abilityCooldowns[ability.id] || 0;
   if (cooldownRemaining > 0) {
     return { canUse: false, reason: `Ability on cooldown (${cooldownRemaining} turns)` };
   }
@@ -1395,8 +1395,8 @@ export function executeHeroAbility(
   // Set cooldown
   updatedHeroStates[heroId] = {
     ...updatedHeroStates[heroId],
-    skillCooldowns: {
-      ...updatedHeroStates[heroId].skillCooldowns,
+    abilityCooldowns: {
+      ...updatedHeroStates[heroId].abilityCooldowns,
       [ability.id]: ability.cooldown,
     },
   };
@@ -1536,7 +1536,7 @@ export function executeHeroLimitBreak(
 export function getAbilityCooldown(heroState: HeroCombatState, heroId: string): number {
   const ability = getHeroAbility(heroId);
   if (!ability) return 0;
-  return heroState.skillCooldowns[ability.id] || 0;
+  return heroState.abilityCooldowns[ability.id] || 0;
 }
 
 /**
