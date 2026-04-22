@@ -1,6 +1,7 @@
 import type { CombatEnemy, StatusEffect } from '../../types/game';
 import { getAnyEnemy } from '../../domain';
 import { CombatATBBar } from './CombatATBBar';
+import { ATB_MAX, HP_LOW_THRESHOLD, HP_MEDIUM_THRESHOLD } from '../../systems/combatEngine';
 
 interface StatusEffectBadgeProps {
   effect: StatusEffect;
@@ -43,9 +44,9 @@ export function EnemyCard({ enemy, showATB = true }: EnemyCardProps) {
 
   const isBoss = enemyDef.type === 'boss';
   const hpPercentage = (enemy.currentHp / enemy.maxHp) * 100;
-  const isLowHp = hpPercentage < 25;
-  const isMediumHp = hpPercentage < 50;
-  const isReady = enemy.atbGauge >= 100;
+  const isLowHp = hpPercentage < HP_LOW_THRESHOLD;
+  const isMediumHp = hpPercentage < HP_MEDIUM_THRESHOLD;
+  const isReady = enemy.atbGauge >= ATB_MAX;
 
   return (
     <div

@@ -1,4 +1,9 @@
 import { useGameStore } from '../stores';
+import {
+  GAME_TICK_INTERVAL_MS,
+  MOBILE_TICK_INTERVAL_MS,
+  FRAME_BUDGET_MS,
+} from '../data/constants';
 
 let lastTime: number | null = null;
 let animationFrameId: number | null = null;
@@ -7,12 +12,10 @@ let isRunning = false;
 // ===== Performance Configuration =====
 // Separate game logic tick rate from visual frame rate
 // Visual: 60fps (every frame), Game Logic: 10fps (every 100ms)
-const GAME_LOGIC_INTERVAL_MS = 100; // 10 ticks per second for game logic
 let accumulatedGameLogicTime = 0;
 
 // Frame budget monitoring for performance tracking
 let frameBudgetWarnings = 0;
-const FRAME_BUDGET_MS = 16; // Target 60fps = 16.67ms per frame
 const MAX_WARNINGS_LOG = 5; // Only log first N warnings to avoid spam
 
 // Mobile detection (cached)
@@ -27,7 +30,7 @@ export function isMobile(): boolean {
 // Adjust intervals for mobile
 function getGameLogicInterval(): number {
   // Mobile gets slightly less frequent game logic updates for battery
-  return isMobile() ? 150 : GAME_LOGIC_INTERVAL_MS;
+  return isMobile() ? MOBILE_TICK_INTERVAL_MS : GAME_TICK_INTERVAL_MS;
 }
 
 function tick(currentTime: number) {

@@ -1,7 +1,7 @@
 import { useGameStore } from '../../stores';
 import { getHeroAbility, getHeroLimitBreak, heroHasLimitBreak } from '../../data/heroes';
 import { heroRegistry } from '../../domain';
-import { getAbilityCooldown, isAbilityReady } from '../../systems/combatEngine';
+import { getAbilityCooldown, isAbilityReady, LIMIT_BREAK_MAX } from '../../systems/combatEngine';
 import type { HeroCombatState } from '../../types/game';
 
 interface HeroAbilityButtonProps {
@@ -136,7 +136,7 @@ export function HeroAbilityPanel({ compact = false }: HeroAbilityPanelProps) {
 
   // Find heroes with limit breaks
   const heroesWithLimitBreak = aliveHeroes.filter((h) => heroHasLimitBreak(h.heroId));
-  const isLimitBreakReady = combat.limitBreakGauge >= 100;
+  const isLimitBreakReady = combat.limitBreakGauge >= LIMIT_BREAK_MAX;
 
   if (aliveHeroes.length === 0) return null;
 

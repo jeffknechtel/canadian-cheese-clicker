@@ -7,6 +7,7 @@ import { EnemyDisplay } from './EnemyDisplay';
 import { CompactCombatLog } from './CombatLog';
 import { HeroAbilityButton } from './HeroAbilityButton';
 import { announce } from '../../systems/accessibilityAnnouncer';
+import { ATB_MAX, LIMIT_BREAK_MAX, HP_LOW_THRESHOLD, HP_MEDIUM_THRESHOLD } from '../../systems/combatEngine';
 import type { HeroCombatState } from '../../types/game';
 
 interface HeroCombatCardProps {
@@ -23,9 +24,9 @@ function HeroCombatCard({ heroState, isSelected = false, heroNumber }: HeroComba
   if (!hero) return null;
 
   const hpPercentage = (heroState.currentHp / heroState.maxHp) * 100;
-  const isLowHp = hpPercentage < 25;
-  const isMediumHp = hpPercentage < 50;
-  const isReady = heroState.atbGauge >= 100;
+  const isLowHp = hpPercentage < HP_LOW_THRESHOLD;
+  const isMediumHp = hpPercentage < HP_MEDIUM_THRESHOLD;
+  const isReady = heroState.atbGauge >= ATB_MAX;
 
   // Build status description for screen readers
   const healthStatus = !heroState.isAlive
@@ -332,7 +333,7 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
         // Limit break with L key
         case 'l':
         case 'L':
-          if (combat.limitBreakGauge >= 100) {
+          if (combat.limitBreakGauge >= LIMIT_BREAK_MAX) {
             event.preventDefault();
             handleLimitBreak();
             announce('Activated limit break', 'assertive');

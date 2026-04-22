@@ -2,6 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { useGameStore } from '../stores';
 import { playClickSound, resumeAudioContext } from '../systems/audioSystem';
 import { announce } from '../systems/accessibilityAnnouncer';
+import { ATB_MAX } from '../systems/combatEngine';
 
 /**
  * Global keyboard shortcuts for the game
@@ -262,7 +263,7 @@ export function useCombatKeyboard({
         case 'Enter': {
           event.preventDefault();
           // Use the first ready hero's ability
-          const readyHero = aliveHeroes.find((h) => h.atbGauge >= 100);
+          const readyHero = aliveHeroes.find((h) => h.atbGauge >= ATB_MAX);
           if (readyHero) {
             onUseAbility(readyHero.heroId);
             announce('Used ability', 'polite');
