@@ -328,6 +328,9 @@ function startThemedMusic(state: MusicState): void {
     const playChord = () => {
       if (!isMusicPlaying || !musicGainNode) return;
 
+      // Capture musicGainNode in a local const for type safety in nested callbacks
+      const gainNode = musicGainNode;
+
       // Stop previous oscillators
       musicOscillators.forEach((osc) => {
         try {
@@ -348,7 +351,7 @@ function startThemedMusic(state: MusicState): void {
         const noteGain = ctx.createGain();
 
         osc.connect(noteGain);
-        noteGain.connect(musicGainNode!);
+        noteGain.connect(gainNode);
 
         const adjustedFreq = freq * theme.baseOctave * pitchMod;
         osc.frequency.setValueAtTime(adjustedFreq, now);
@@ -370,7 +373,7 @@ function startThemedMusic(state: MusicState): void {
       const padOsc = ctx.createOscillator();
       const padGain = ctx.createGain();
       padOsc.connect(padGain);
-      padGain.connect(musicGainNode!);
+      padGain.connect(gainNode);
 
       const padFreq = chord[0] * theme.baseOctave * pitchMod * 0.5; // One octave below root
       padOsc.frequency.setValueAtTime(padFreq, now);
@@ -391,7 +394,7 @@ function startThemedMusic(state: MusicState): void {
         const bassOsc = ctx.createOscillator();
         const bassGain = ctx.createGain();
         bassOsc.connect(bassGain);
-        bassGain.connect(musicGainNode!);
+        bassGain.connect(gainNode);
 
         bassOsc.frequency.setValueAtTime(chord[0] * 0.25 * pitchMod, now);
         bassOsc.type = 'sawtooth';
@@ -734,12 +737,15 @@ export function startProvinceAmbient(province: Province | null): void {
     const playChirp = () => {
       if (!isAmbientPlaying || !ambientGainNode || !config.chirpFreq) return;
 
+      // Capture ambientGainNode in a local const for type safety
+      const ambientNode = ambientGainNode;
+
       const now = ctx.currentTime;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
       osc.connect(gain);
-      gain.connect(ambientGainNode!);
+      gain.connect(ambientNode);
 
       // Frequency varies based on province ambient type
       const baseFreq = config.chirpFreq + (Math.random() - 0.5) * config.chirpFreq * 0.3;

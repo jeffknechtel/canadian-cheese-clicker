@@ -78,7 +78,9 @@ export function useFocusTrap<T extends HTMLElement = HTMLElement>(
     let animationFrameId: number | undefined;
 
     // Store the currently focused element to restore later
-    previousActiveElement.current = document.activeElement as HTMLElement;
+    previousActiveElement.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
 
     // Add keydown listener
     document.addEventListener('keydown', handleKeyDown);
@@ -126,7 +128,9 @@ export function useFocusReturn() {
 
   useEffect(() => {
     // Store the currently focused element
-    previousActiveElement.current = document.activeElement as HTMLElement;
+    previousActiveElement.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
 
     return () => {
       // Restore focus on unmount

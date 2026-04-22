@@ -262,7 +262,13 @@ class AnalyticsService {
     try {
       const stored = localStorage.getItem(CONSENT_STORAGE_KEY);
       if (stored) {
-        const consent = JSON.parse(stored) as PrivacyConsent;
+        const parsed = JSON.parse(stored);
+        // Validate that parsed data has the expected shape
+        if (typeof parsed !== 'object' || parsed === null || typeof parsed.analyticsEnabled !== 'boolean') {
+          console.warn('[Analytics] Invalid consent format in localStorage, resetting');
+          return { analyticsEnabled: false, consentedAt: null, version: CURRENT_CONSENT_VERSION };
+        }
+        const consent = parsed as PrivacyConsent;
         // Check if consent version is current
         if (consent.version === CURRENT_CONSENT_VERSION) {
           return consent;
@@ -293,7 +299,13 @@ class AnalyticsService {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        const events = JSON.parse(stored) as AnalyticsEvent[];
+        const parsed = JSON.parse(stored);
+        // Validate that parsed data is an array
+        if (!Array.isArray(parsed)) {
+          console.warn('[Analytics] Invalid event queue format in localStorage, resetting');
+          return;
+        }
+        const events = parsed as AnalyticsEvent[];
         // Only load events from the last 24 hours
         const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
         this.eventQueue = events.filter((e) => e.timestamp > oneDayAgo);

@@ -174,7 +174,7 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
           </span>
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-cheddar-500 hover:bg-cheddar-600 text-white font-medium rounded-lg transition-colors"
+            className="px-6 py-2 bg-cheddar-600 hover:bg-cheddar-700 text-white font-medium rounded-lg transition-colors"
           >
             Close
           </button>
