@@ -139,7 +139,7 @@ export function KeyboardHelpModal({ isOpen, onClose }: KeyboardHelpModalProps) {
         <div className="p-4 border-t border-timber-200 bg-timber-50/50">
           <button
             onClick={onClose}
-            className="w-full py-2 px-4 bg-cheddar-500 hover:bg-cheddar-600 text-white font-semibold rounded-lg transition-colors btn-ripple"
+            className="w-full py-2 px-4 bg-cheddar-600 hover:bg-cheddar-700 text-white font-semibold rounded-lg transition-colors btn-ripple"
           >
             Got it! (Press Escape to close)
           </button>

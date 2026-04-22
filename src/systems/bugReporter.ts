@@ -262,7 +262,12 @@ export function getStoredReports(): BugReport[] {
   try {
     const raw = localStorage.getItem(BUG_REPORTS_KEY);
     if (!raw) return [];
-    return JSON.parse(raw) as BugReport[];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      console.warn('[BugReporter] Invalid bug reports format in localStorage, resetting');
+      return [];
+    }
+    return parsed as BugReport[];
   } catch {
     return [];
   }

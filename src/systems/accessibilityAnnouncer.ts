@@ -7,8 +7,7 @@
  */
 
 import type { Achievement, CombatLogEntry, HeroCombatState, CombatEnemy } from '../types/game';
-import { getHeroById } from '../data/heroes';
-import { getEnemyById } from '../data/enemies';
+import { heroRegistry, enemyRegistry } from '../domain';
 
 type Priority = 'polite' | 'assertive';
 
@@ -193,14 +192,14 @@ export function announceCombatResult(result: 'victory' | 'defeat' | 'flee'): voi
 export function announceTurnOrder(heroStates: Record<string, HeroCombatState>, enemies: CombatEnemy[]): void {
   const heroNames = Object.values(heroStates)
     .map((h) => {
-      const hero = getHeroById(h.heroId);
+      const hero = heroRegistry.get(h.heroId);
       return hero?.name ?? 'Unknown hero';
     })
     .join(', ');
 
   const enemyNames = enemies
     .map((e) => {
-      const enemy = getEnemyById(e.id);
+      const enemy = enemyRegistry.get(e.id);
       return enemy?.name ?? 'Unknown enemy';
     })
     .join(', ');
@@ -215,7 +214,7 @@ export function announceTurnOrder(heroStates: Record<string, HeroCombatState>, e
  * Announce hero ready to act (ATB full)
  */
 export function announceHeroReady(heroId: string): void {
-  const hero = getHeroById(heroId);
+  const hero = heroRegistry.get(heroId);
   if (hero) {
     announce(`${hero.name} is ready to act.`, 'polite');
   }

@@ -128,8 +128,8 @@ export function DebugPanel({ className = '' }: DebugPanelProps) {
   }, [combat.isInCombat, log]);
 
   const handleTimeWarp = useCallback((hours: number) => {
-    const cps = useGameStore.getState().curdPerSecond;
-    const curdsEarned = cps.mul(hours * 60 * 60);
+    const curdPerSecond = useGameStore.getState().curdPerSecond;
+    const curdsEarned = curdPerSecond.mul(hours * 60 * 60);
 
     addCurds(curdsEarned);
     log(`Time warped ${hours}h, earned ${curdsEarned.toFixed(0)} curds`);

@@ -59,7 +59,14 @@ function loadAssignments(): ExperimentAssignments {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      assignments = JSON.parse(stored) as ExperimentAssignments;
+      const parsed = JSON.parse(stored);
+      // Validate that parsed data is a non-null object (not an array)
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+        console.warn('[A/B Testing] Invalid experiment assignments format in localStorage, resetting');
+        assignments = {};
+      } else {
+        assignments = parsed as ExperimentAssignments;
+      }
     } else {
       assignments = {};
     }
