@@ -1,3 +1,5 @@
+import { ATB_MAX, LIMIT_BREAK_MAX } from '../../systems/combatEngine';
+
 interface CombatATBBarProps {
   currentValue: number; // 0-100
   maxValue?: number;
@@ -11,7 +13,7 @@ interface CombatATBBarProps {
 
 export function CombatATBBar({
   currentValue,
-  maxValue = 100,
+  maxValue = ATB_MAX,
   label,
   icon,
   color = 'hero',
@@ -89,8 +91,8 @@ export function LimitBreakGauge({
   onActivate,
   isDisabled = false,
 }: LimitBreakGaugeProps) {
-  const isReady = currentValue >= 100;
-  const percentage = Math.min(100, currentValue);
+  const isReady = currentValue >= LIMIT_BREAK_MAX;
+  const percentage = Math.min(LIMIT_BREAK_MAX, currentValue);
 
   return (
     <div className="p-2 bg-timber-100 rounded-lg border border-timber-200">

@@ -1,5 +1,6 @@
 import Decimal from 'decimal.js';
 import type { Generator } from '../types/game';
+import { GENERATOR_COST_MULTIPLIER } from './constants';
 
 export const GENERATORS: Generator[] = [
   // Phase 1: Basic Generators (1-5)
@@ -9,7 +10,7 @@ export const GENERATORS: Generator[] = [
     description: 'A humble pail for collecting fresh milk',
     baseCost: new Decimal(15),
     baseCps: new Decimal(1),
-    costMultiplier: 1.15,
+    costMultiplier: GENERATOR_COST_MULTIPLIER,
     icon: '🪣',
   },
   {
@@ -18,7 +19,7 @@ export const GENERATORS: Generator[] = [
     description: 'A proper vat for curdling milk',
     baseCost: new Decimal(100),
     baseCps: new Decimal(8),
-    costMultiplier: 1.15,
+    costMultiplier: GENERATOR_COST_MULTIPLIER,
     icon: '🫕',
   },
   {
@@ -27,7 +28,7 @@ export const GENERATORS: Generator[] = [
     description: 'Wooden racks for aging your curds',
     baseCost: new Decimal(1100),
     baseCps: new Decimal(47),
-    costMultiplier: 1.15,
+    costMultiplier: GENERATOR_COST_MULTIPLIER,
     icon: '🪵',
   },
   {
@@ -36,7 +37,7 @@ export const GENERATORS: Generator[] = [
     description: 'A cool cave perfect for aging cheese',
     baseCost: new Decimal(12000),
     baseCps: new Decimal(260),
-    costMultiplier: 1.15,
+    costMultiplier: GENERATOR_COST_MULTIPLIER,
     icon: '🏔️',
   },
   {
@@ -45,7 +46,7 @@ export const GENERATORS: Generator[] = [
     description: 'A budding cheese master learning the craft',
     baseCost: new Decimal(130000),
     baseCps: new Decimal(1400),
-    costMultiplier: 1.15,
+    costMultiplier: GENERATOR_COST_MULTIPLIER,
     icon: '👨‍🍳',
   },
   // Phase 2: Canadian-Themed Generators (6-15)
@@ -55,7 +56,7 @@ export const GENERATORS: Generator[] = [
     description: "Sweeping curds to victory, eh!",
     baseCost: new Decimal(1_400_000),
     baseCps: new Decimal(7_800),
-    costMultiplier: 1.15,
+    costMultiplier: GENERATOR_COST_MULTIPLIER,
     icon: '🥌',
   },
   {
@@ -64,7 +65,7 @@ export const GENERATORS: Generator[] = [
     description: 'They always get their cheese',
     baseCost: new Decimal(20_000_000),
     baseCps: new Decimal(44_000),
-    costMultiplier: 1.15,
+    costMultiplier: GENERATOR_COST_MULTIPLIER,
     icon: '🐴',
   },
   {
@@ -73,7 +74,7 @@ export const GENERATORS: Generator[] = [
     description: 'Paddling curds across the nation',
     baseCost: new Decimal(330_000_000),
     baseCps: new Decimal(260_000),
-    costMultiplier: 1.15,
+    costMultiplier: GENERATOR_COST_MULTIPLIER,
     icon: '🛶',
   },
   {
@@ -82,7 +83,7 @@ export const GENERATORS: Generator[] = [
     description: 'Slapshot curd production',
     baseCost: new Decimal(5_100_000_000),
     baseCps: new Decimal(1_600_000),
-    costMultiplier: 1.15,
+    costMultiplier: GENERATOR_COST_MULTIPLIER,
     icon: '🏒',
   },
   {
@@ -91,7 +92,7 @@ export const GENERATORS: Generator[] = [
     description: "Nature's most industrious cheesemakers",
     baseCost: new Decimal(75_000_000_000),
     baseCps: new Decimal(10_000_000),
-    costMultiplier: 1.15,
+    costMultiplier: GENERATOR_COST_MULTIPLIER,
     icon: '🦫',
   },
   {
@@ -100,7 +101,7 @@ export const GENERATORS: Generator[] = [
     description: 'Double-double the cheese production',
     baseCost: new Decimal(1_000_000_000_000),
     baseCps: new Decimal(65_000_000),
-    costMultiplier: 1.15,
+    costMultiplier: GENERATOR_COST_MULTIPLIER,
     icon: '☕',
   },
   {
@@ -109,7 +110,7 @@ export const GENERATORS: Generator[] = [
     description: 'Sweet Canadian fusion',
     baseCost: new Decimal(14_000_000_000_000),
     baseCps: new Decimal(430_000_000),
-    costMultiplier: 1.15,
+    costMultiplier: GENERATOR_COST_MULTIPLIER,
     icon: '🍁',
   },
   {
@@ -118,7 +119,7 @@ export const GENERATORS: Generator[] = [
     description: 'Majestic moose power',
     baseCost: new Decimal(170_000_000_000_000),
     baseCps: new Decimal(2_900_000_000),
-    costMultiplier: 1.15,
+    costMultiplier: GENERATOR_COST_MULTIPLIER,
     icon: '🫎',
   },
   {
@@ -127,7 +128,7 @@ export const GENERATORS: Generator[] = [
     description: 'Aurora-blessed cheese aging',
     baseCost: new Decimal(2_100_000_000_000_000),
     baseCps: new Decimal(21_000_000_000),
-    costMultiplier: 1.15,
+    costMultiplier: GENERATOR_COST_MULTIPLIER,
     icon: '🌌',
   },
   {
@@ -136,7 +137,7 @@ export const GENERATORS: Generator[] = [
     description: 'Mythical cheese mastery',
     baseCost: new Decimal(26_000_000_000_000_000),
     baseCps: new Decimal(150_000_000_000),
-    costMultiplier: 1.15,
+    costMultiplier: GENERATOR_COST_MULTIPLIER,
     icon: '🦅',
   },
 ];

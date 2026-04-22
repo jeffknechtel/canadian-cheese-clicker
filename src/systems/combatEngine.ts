@@ -23,11 +23,22 @@ import { calculateHeroStats } from './productionEngine';
 
 // ===== Constants =====
 
-const ATB_MAX = 100;
-const BASE_ATB_RATE = 10; // 10% per second at speed 100
-const LIMIT_BREAK_MAX = 100;
-const LIMIT_BREAK_GAIN_FROM_DEALT = 0.01; // 1% per damage dealt
-const LIMIT_BREAK_GAIN_FROM_TAKEN = 0.05; // 5% per damage taken
+export const ATB_MAX = 100;
+export const BASE_ATB_RATE = 10; // 10% per second at speed 100
+export const LIMIT_BREAK_MAX = 100;
+export const LIMIT_BREAK_GAIN_FROM_DEALT = 0.01; // 1% per damage dealt
+export const LIMIT_BREAK_GAIN_FROM_TAKEN = 0.05; // 5% per damage taken
+
+// HP threshold constants
+export const HP_LOW_THRESHOLD = 25; // Below this = red/critical
+export const HP_MEDIUM_THRESHOLD = 50; // Below this = yellow/warning
+
+// Combat calculation constants
+export const DEFENSE_DIVISOR = 100; // damage = attack * (1 - defense / (defense + DEFENSE_DIVISOR))
+export const DAMAGE_VARIANCE_MIN = 0.9; // Minimum damage roll multiplier
+export const DAMAGE_VARIANCE_MAX = 1.1; // Maximum damage roll multiplier
+export const INITIAL_ATB_VARIANCE = 20; // Random 0-20% starting ATB for enemies
+export const BOSS_PHASE_HEAL_PERCENT = 0.1; // 10% heal on phase transition
 
 // ===== Combat Result Type =====
 
@@ -77,8 +88,8 @@ export function calculateDamage(
   skillMultiplier: number = 1.0
 ): number {
   const baseDamage = attackerAttack * skillMultiplier;
-  const defenseFactor = 1 - defenderDefense / (defenderDefense + 100);
-  const variance = 0.9 + Math.random() * 0.2; // 0.9-1.1
+  const defenseFactor = 1 - defenderDefense / (defenderDefense + DEFENSE_DIVISOR);
+  const variance = DAMAGE_VARIANCE_MIN + Math.random() * (DAMAGE_VARIANCE_MAX - DAMAGE_VARIANCE_MIN);
   return Math.max(1, Math.floor(baseDamage * defenseFactor * variance));
 }
 
@@ -321,8 +332,8 @@ export function applyBossPhaseTransition(
   const phase = bossDef.phases.find(p => p.phaseNumber === newPhase);
   if (!phase) return enemy;
 
-  // Boss heals a small amount on phase transition (10% of max HP)
-  const healAmount = Math.floor(enemy.maxHp * 0.10);
+  // Boss heals a small amount on phase transition
+  const healAmount = Math.floor(enemy.maxHp * BOSS_PHASE_HEAL_PERCENT);
   const newHp = Math.min(enemy.maxHp, enemy.currentHp + healAmount);
 
   return {
@@ -483,7 +494,7 @@ export function createCombatEnemy(
     instanceId: `${enemy.id}_${instanceIndex}_${Date.now()}`,
     currentHp: enemy.stats.hp,
     maxHp: enemy.stats.hp,
-    atbGauge: Math.random() * 20, // Start with 0-20% ATB for variety
+    atbGauge: Math.random() * INITIAL_ATB_VARIANCE, // Start with 0-20% ATB for variety
     isAlive: true,
     statusEffects: [],
     abilityCooldowns: {},
@@ -728,7 +739,7 @@ export function tickCombat(
             type: 'heal',
             source: bossDef.name,
             target: bossDef.name,
-            value: Math.floor(target.maxHp * 0.10),
+            value: Math.floor(target.maxHp * BOSS_PHASE_HEAL_PERCENT),
             message: `${bossDef.name} regenerates some health as they enter phase ${phaseResult.newPhase}!`,
           });
         }
@@ -931,15 +942,32 @@ export function tickCombat(
 // ===== Combat Rewards =====
 
 /**
- * Boss reward multipliers based on difficulty
+ * Boss reward multipliers based on difficulty (scales with zone progression)
  */
 const BOSS_REWARD_MULTIPLIERS: Record<string, { curds: number; xp: number; wheyPercent: number }> = {
-  bland_baron: { curds: 1.5, xp: 2.0, wheyPercent: 0.15 },      // Ontario - first boss, easier
-  fromage_fantome: { curds: 1.8, xp: 2.5, wheyPercent: 0.20 },  // Quebec - harder, 4 phases
-  oil_slick_sally: { curds: 1.7, xp: 2.3, wheyPercent: 0.18 },  // Alberta - mid difficulty
-  wheat_witch: { curds: 1.6, xp: 2.2, wheyPercent: 0.17 },      // Saskatchewan - less phases
-  pacific_rim_crab: { curds: 2.0, xp: 3.0, wheyPercent: 0.25 }, // BC - final boss, hardest
+  // Province Bosses (difficulty scales with zone order)
+  bland_baron: { curds: 1.5, xp: 2.0, wheyPercent: 0.15 },           // Ontario - starter
+  fromage_fantome: { curds: 1.6, xp: 2.1, wheyPercent: 0.16 },       // Quebec
+  oil_slick_sally: { curds: 1.7, xp: 2.2, wheyPercent: 0.17 },       // Alberta
+  wheat_witch: { curds: 1.8, xp: 2.3, wheyPercent: 0.18 },           // Saskatchewan
+  pacific_rim_crab: { curds: 1.9, xp: 2.4, wheyPercent: 0.19 },      // BC
+  frozen_goalie: { curds: 2.0, xp: 2.5, wheyPercent: 0.20 },         // Manitoba
+  the_kraken: { curds: 2.1, xp: 2.6, wheyPercent: 0.21 },            // Nova Scotia
+  headless_lumberjack: { curds: 2.2, xp: 2.7, wheyPercent: 0.22 },   // New Brunswick
+  annes_dark_side: { curds: 2.3, xp: 2.8, wheyPercent: 0.23 },       // PEI
+  iceberg_leviathan: { curds: 2.4, xp: 2.9, wheyPercent: 0.24 },     // Newfoundland
+  the_wendigo: { curds: 2.5, xp: 3.0, wheyPercent: 0.25 },           // Yukon
+  aurora_serpent: { curds: 2.6, xp: 3.1, wheyPercent: 0.26 },        // NWT
+  sedna: { curds: 2.7, xp: 3.2, wheyPercent: 0.27 },                 // Nunavut - final province
+
+  // Mythology Bosses (hardest content)
+  chaos_incarnate: { curds: 3.0, xp: 4.0, wheyPercent: 0.30 },       // Thunderbird Saga
+  wendigo_prime: { curds: 3.5, xp: 4.5, wheyPercent: 0.35 },         // Wendigo Warning
+  devil_of_the_deal: { curds: 4.0, xp: 5.0, wheyPercent: 0.40 },     // La Chasse-Galerie
 };
+
+/** Default multiplier for any boss not in the table */
+export const DEFAULT_BOSS_REWARD_MULTIPLIER = { curds: 1.0, xp: 1.0, wheyPercent: 0.1 };
 
 /**
  * Calculate rewards for completing a battle

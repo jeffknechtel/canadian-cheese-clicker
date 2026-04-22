@@ -2,6 +2,16 @@ import Decimal from 'decimal.js';
 import { generatorRegistry, upgradeRegistry, heroRegistry } from '../domain';
 import { getAchievementById } from '../data/achievements';
 import { getAgingUpgradeById } from '../data/agingUpgrades';
+import {
+  FORMATION_TANK_FRONT_BONUS,
+  FORMATION_HEALER_BACK_BONUS,
+  FORMATION_FULL_PARTY_BONUS,
+  RENNET_PRODUCTION_MULTIPLIER,
+  VINTAGE_WHEEL_MULTIPLIER,
+  LEGACY_POINT_MULTIPLIER,
+  MAX_PRESTIGE_COST_REDUCTION,
+  CHEESE_AFFINITY_DIVISOR,
+} from '../data/constants';
 import type { HeroState, HeroStats, PartyFormation, PrestigeState } from '../types/game';
 
 /**
@@ -187,9 +197,9 @@ export function calculateHeroCpsMultiplier(
   }
 
   // Convert affinity to multiplier: every 100 affinity = +10% CPS
-  // Formula: 1 + (totalAffinity / 1000)
+  // Formula: 1 + (totalAffinity / CHEESE_AFFINITY_DIVISOR)
   // This means 100 affinity = 1.1x, 500 affinity = 1.5x, etc.
-  return 1 + totalAffinity / 1000;
+  return 1 + totalAffinity / CHEESE_AFFINITY_DIVISOR;
 }
 
 /**
@@ -215,7 +225,7 @@ export function calculateFormationMultiplier(
   for (const heroId of frontHeroes) {
     const hero = heroRegistry.get(heroId);
     if (hero?.class === 'tank') {
-      bonus += 0.05; // +5% for tank in front
+      bonus += FORMATION_TANK_FRONT_BONUS;
       break; // Only count once
     }
   }
@@ -227,7 +237,7 @@ export function calculateFormationMultiplier(
   for (const heroId of backHeroes) {
     const hero = heroRegistry.get(heroId);
     if (hero?.class === 'healer') {
-      bonus += 0.05; // +5% for healer in back
+      bonus += FORMATION_HEALER_BACK_BONUS;
       break; // Only count once
     }
   }
@@ -235,7 +245,7 @@ export function calculateFormationMultiplier(
   // Check for full party
   const partySize = [...frontHeroes, ...backHeroes].length;
   if (partySize === 4) {
-    bonus += 0.1; // +10% for full party
+    bonus += FORMATION_FULL_PARTY_BONUS;
   }
 
   // Verify heroes exist in heroes record (prevent phantom bonuses)
@@ -284,7 +294,7 @@ export function calculatePotentialRennet(totalCurdsEarned: Decimal): number {
  * Calculate base Rennet multiplier (+1% per Rennet)
  */
 export function calculateRennetMultiplier(rennet: number): number {
-  return 1 + rennet * 0.01;
+  return 1 + rennet * RENNET_PRODUCTION_MULTIPLIER;
 }
 
 /**
@@ -306,11 +316,11 @@ export function calculatePrestigeProductionMultiplier(prestige: PrestigeState): 
   }
 
   // Vintage Wheels bonus (future): +5% per wheel
-  multiplier *= 1 + prestige.vintageWheels * 0.05;
+  multiplier *= 1 + prestige.vintageWheels * VINTAGE_WHEEL_MULTIPLIER;
 
   // Legacy bonus (future): sum of province bonuses
   const legacyBonus = Object.values(prestige.legacyBonuses).reduce((a, b) => a + b, 0);
-  multiplier *= 1 + legacyBonus * 0.01;
+  multiplier *= 1 + legacyBonus * LEGACY_POINT_MULTIPLIER;
 
   return multiplier;
 }
@@ -347,7 +357,7 @@ export function calculatePrestigeCostReduction(prestige: PrestigeState): number 
   }
 
   // Cap at 90% reduction
-  return Math.min(reduction, 0.9);
+  return Math.min(reduction, MAX_PRESTIGE_COST_REDUCTION);
 }
 
 /**
