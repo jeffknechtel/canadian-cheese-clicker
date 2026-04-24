@@ -22,6 +22,9 @@ export const EVENTS: GameEvent[] = [
       cheeses: ['maple-firework-curd'],
       equipment: ['canada-day-cape'],
     },
+    icon: '🍁',
+    startMonth: 6, startDay: 25,  // June 25
+    endMonth: 7, endDay: 7,       // July 7 (week around Canada Day)
   },
   {
     id: 'poutine-week',
@@ -38,6 +41,9 @@ export const EVENTS: GameEvent[] = [
     exclusiveContent: {
       cheeses: ['festival-poutine-supreme'],
     },
+    icon: '🍟',
+    startMonth: 2, startDay: 1,   // February 1
+    endMonth: 2, endDay: 7,       // February 7
   },
   {
     id: 'hockey-season',
@@ -54,6 +60,9 @@ export const EVENTS: GameEvent[] = [
     exclusiveContent: {
       equipment: ['stanley-cup-replica'],
     },
+    icon: '🏒',
+    startMonth: 10, startDay: 1,  // October 1
+    endMonth: 10, endDay: 15,     // October 15
   },
   {
     id: 'winterlude',
@@ -71,6 +80,9 @@ export const EVENTS: GameEvent[] = [
       cheeses: ['ice-sculpture-aged'],
       equipment: ['winterlude-toque'],
     },
+    icon: '❄️',
+    startMonth: 2, startDay: 1,   // February 1
+    endMonth: 2, endDay: 21,      // February 21 (3 weeks in February)
   },
 ];
 
@@ -109,4 +121,38 @@ export function calculateEventBonusMultiplier(
   }
 
   return multiplier;
+}
+
+/**
+ * Check if an event should be active based on current date.
+ */
+export function isEventInDateRange(event: GameEvent, currentDate: Date = new Date()): boolean {
+  if (!event.startMonth || !event.startDay || !event.endMonth || !event.endDay) {
+    return false; // No date range defined
+  }
+
+  const currentMonth = currentDate.getMonth() + 1; // 1-12
+  const currentDay = currentDate.getDate();        // 1-31
+
+  // Handle year-wrapping (e.g., Dec 25 - Jan 5)
+  const startDayOfYear = event.startMonth * 100 + event.startDay;
+  const endDayOfYear = event.endMonth * 100 + event.endDay;
+  const currentDayOfYear = currentMonth * 100 + currentDay;
+
+  if (startDayOfYear <= endDayOfYear) {
+    // Normal range (doesn't wrap year)
+    return currentDayOfYear >= startDayOfYear && currentDayOfYear <= endDayOfYear;
+  } else {
+    // Year-wrapping range (e.g., Dec 25 - Jan 5)
+    return currentDayOfYear >= startDayOfYear || currentDayOfYear <= endDayOfYear;
+  }
+}
+
+/**
+ * Get all events that should be active based on current date.
+ */
+export function getAutoActiveEventIds(currentDate: Date = new Date()): string[] {
+  return EVENTS
+    .filter((event) => isEventInDateRange(event, currentDate))
+    .map((event) => event.id);
 }

@@ -33,6 +33,9 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
       lastSaved: Date.now(),
     });
 
+    // Check for seasonal event auto-activation after loading
+    get().checkEventActivation();
+
     return offlineProgress;
   },
 

@@ -303,7 +303,7 @@ export interface CombatEnemy {
 export interface StatusEffect {
   id: string;
   type: 'buff' | 'debuff';
-  stat: keyof HeroStats | 'damageOverTime' | 'healOverTime';
+  stat: keyof HeroStats | 'damageOverTime' | 'healOverTime' | 'taunt';
   value: number;
   duration: number; // Remaining ticks
   source: string; // Hero or enemy ID that applied this
@@ -540,6 +540,7 @@ export interface CraftingJob {
   };
   qualityBonus: number; // From cave + ingredients
   interactions: CraftingInteraction[]; // Rind washes, flavor additions during aging
+  notificationSent?: boolean; // Track if completion notification was sent
 }
 
 export interface CraftingInteraction {
@@ -606,8 +607,6 @@ export interface GameEvent {
   id: string;
   name: string;
   description: string;
-  startDate?: Date; // undefined = manual activation
-  endDate?: Date;
   isActive: boolean;
   bonuses: EventBonus[];
   exclusiveContent: {
@@ -615,4 +614,10 @@ export interface GameEvent {
     equipment?: string[];
     enemies?: string[];
   };
+  icon?: string;
+  // Date range for auto-activation (month/day)
+  startMonth?: number; // 1-12
+  startDay?: number;   // 1-31
+  endMonth?: number;   // 1-12
+  endDay?: number;     // 1-31
 }

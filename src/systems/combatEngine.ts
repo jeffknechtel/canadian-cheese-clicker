@@ -20,25 +20,31 @@ import { getStage } from '../data/zones';
 import { getHeroAbility, getHeroLimitBreak, heroHasLimitBreak } from '../data/heroes';
 import { heroRegistry, zoneRegistry, getAnyEnemy, enemyRegistry, bossRegistry } from '../domain';
 import { calculateHeroStats } from './productionEngine';
+import {
+  ATB_MAX,
+  BASE_ATB_RATE,
+  LIMIT_BREAK_MAX,
+  LIMIT_BREAK_GAIN_FROM_DEALT,
+  LIMIT_BREAK_GAIN_FROM_TAKEN,
+  HP_LOW_THRESHOLD,
+  HP_MEDIUM_THRESHOLD,
+  DEFENSE_DIVISOR,
+  DAMAGE_VARIANCE_MIN,
+  DAMAGE_VARIANCE_MAX,
+  INITIAL_ATB_VARIANCE,
+  BOSS_PHASE_HEAL_PERCENT,
+} from '../data/constants';
 
-// ===== Constants =====
-
-export const ATB_MAX = 100;
-export const BASE_ATB_RATE = 10; // 10% per second at speed 100
-export const LIMIT_BREAK_MAX = 100;
-export const LIMIT_BREAK_GAIN_FROM_DEALT = 0.01; // 1% per damage dealt
-export const LIMIT_BREAK_GAIN_FROM_TAKEN = 0.05; // 5% per damage taken
-
-// HP threshold constants
-export const HP_LOW_THRESHOLD = 25; // Below this = red/critical
-export const HP_MEDIUM_THRESHOLD = 50; // Below this = yellow/warning
-
-// Combat calculation constants
-export const DEFENSE_DIVISOR = 100; // damage = attack * (1 - defense / (defense + DEFENSE_DIVISOR))
-export const DAMAGE_VARIANCE_MIN = 0.9; // Minimum damage roll multiplier
-export const DAMAGE_VARIANCE_MAX = 1.1; // Maximum damage roll multiplier
-export const INITIAL_ATB_VARIANCE = 20; // Random 0-20% starting ATB for enemies
-export const BOSS_PHASE_HEAL_PERCENT = 0.1; // 10% heal on phase transition
+// Re-export constants for backwards compatibility with UI components
+export {
+  ATB_MAX,
+  BASE_ATB_RATE,
+  LIMIT_BREAK_MAX,
+  LIMIT_BREAK_GAIN_FROM_DEALT,
+  LIMIT_BREAK_GAIN_FROM_TAKEN,
+  HP_LOW_THRESHOLD,
+  HP_MEDIUM_THRESHOLD,
+};
 
 // ===== Combat Result Type =====
 
@@ -140,6 +146,7 @@ export function selectEnemyTarget(
 
 /**
  * Select a hero target from party
+ * Heroes with active taunt effects are prioritized
  */
 export function selectHeroTarget(
   heroStates: Record<string, HeroCombatState>,
@@ -148,6 +155,17 @@ export function selectHeroTarget(
   const aliveHeroes = Object.values(heroStates).filter((h) => h.isAlive);
   if (aliveHeroes.length === 0) return null;
 
+  // Check for heroes with active taunt - they take priority
+  const tauntingHeroes = aliveHeroes.filter((h) =>
+    h.statusEffects.some((e) => e.stat === 'taunt' && e.value > 0)
+  );
+
+  if (tauntingHeroes.length > 0) {
+    // If multiple heroes have taunt, pick randomly among them
+    return tauntingHeroes[Math.floor(Math.random() * tauntingHeroes.length)];
+  }
+
+  // Fall back to normal targeting
   switch (targetType) {
     case 'lowest_hp':
       return aliveHeroes.reduce((min, h) => (h.currentHp < min.currentHp ? h : min));
@@ -1270,8 +1288,8 @@ function applyAbilityEffect(
         const statusEffect: StatusEffect = {
           id: `taunt_${Date.now()}`,
           type: 'buff',
-          stat: 'defense', // Taunt uses defense stat as placeholder
-          value: 0, // No stat change, just marker
+          stat: 'taunt',
+          value: 1, // Indicates active taunt
           duration: effect.duration,
           source: source.heroId,
         };

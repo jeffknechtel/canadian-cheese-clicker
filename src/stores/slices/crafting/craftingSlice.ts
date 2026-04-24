@@ -242,6 +242,7 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
       ingredients,
       qualityBonus,
       interactions: [],
+      notificationSent: false,
     };
 
     set({
@@ -290,8 +291,46 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   tickCrafting: (_deltaMs: number) => {
-    // Jobs stay in activeJobs until collected
-    // This could be used for progress notifications in the future
+    const state = get();
+    const now = Date.now();
+
+    // Find jobs that just completed but haven't been notified
+    const newlyCompleted = state.crafting.activeJobs.filter(
+      (job) => now >= job.endTime && !job.notificationSent
+    );
+
+    if (newlyCompleted.length === 0) return;
+
+    // Mark jobs as notified
+    set((s) => ({
+      crafting: {
+        ...s.crafting,
+        activeJobs: s.crafting.activeJobs.map((job) =>
+          newlyCompleted.some((c) => c.id === job.id)
+            ? { ...job, notificationSent: true }
+            : job
+        ),
+      },
+    }));
+
+    // Trigger notifications for completed jobs via existing event callback
+    if (craftingEventCallback) {
+      for (const job of newlyCompleted) {
+        const recipe = recipeRegistry.get(job.recipeId);
+        if (recipe) {
+          // Use existing cheese_complete event type to notify of ready-to-collect cheese
+          // The cheese object is a placeholder since it hasn't been collected yet
+          const placeholderCheese = {
+            id: `pending_${job.id}`,
+            recipeId: job.recipeId,
+            quality: recipe.baseQuality + job.qualityBonus,
+            craftedAt: now,
+            ingredients: job.ingredients,
+          };
+          craftingEventCallback({ type: 'cheese_complete', cheese: placeholderCheese, recipe });
+        }
+      }
+    }
   },
 
   collectCheese: (jobId: string) => {

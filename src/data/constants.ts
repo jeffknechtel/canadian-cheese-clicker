@@ -70,3 +70,41 @@ export const TARGET_FPS = 60;
 
 /** Frame budget in milliseconds (1000 / TARGET_FPS) */
 export const FRAME_BUDGET_MS = 16;
+
+// ===== Combat Balance =====
+
+/** Maximum ATB gauge value */
+export const ATB_MAX = 100;
+
+/** Base ATB fill rate per tick */
+export const BASE_ATB_RATE = 10;
+
+/** Maximum limit break gauge value */
+export const LIMIT_BREAK_MAX = 100;
+
+/** Limit break gain from dealing damage (% of damage) */
+export const LIMIT_BREAK_GAIN_FROM_DEALT = 0.01;
+
+/** Limit break gain from taking damage (% of damage) */
+export const LIMIT_BREAK_GAIN_FROM_TAKEN = 0.05;
+
+/** HP percentage threshold for "low health" (red) */
+export const HP_LOW_THRESHOLD = 25;
+
+/** HP percentage threshold for "medium health" (yellow) */
+export const HP_MEDIUM_THRESHOLD = 50;
+
+/** Defense formula divisor: damage = attack * (1 - defense / (defense + DEFENSE_DIVISOR)) */
+export const DEFENSE_DIVISOR = 100;
+
+/** Minimum damage variance multiplier */
+export const DAMAGE_VARIANCE_MIN = 0.9;
+
+/** Maximum damage variance multiplier */
+export const DAMAGE_VARIANCE_MAX = 1.1;
+
+/** Random ATB start variance for enemies (0 to this value) */
+export const INITIAL_ATB_VARIANCE = 20;
+
+/** Boss HP recovery on phase transition (% of max HP) */
+export const BOSS_PHASE_HEAL_PERCENT = 0.1;

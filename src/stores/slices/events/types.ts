@@ -14,6 +14,7 @@ export interface EventSliceActions {
     drops: number;
     click: number;
   };
+  checkEventActivation: () => void;
 }
 
 export type EventSlice = EventSliceState & EventSliceActions;

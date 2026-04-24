@@ -1,6 +1,6 @@
 import type { SliceCreator } from '../../types';
 import type { EventSlice } from './types';
-import { getEventById, calculateEventBonusMultiplier } from '../../../data/events';
+import { getEventById, calculateEventBonusMultiplier, getAutoActiveEventIds } from '../../../data/events';
 import type { EventBonus } from '../../../types/game';
 
 export const createEventSlice: SliceCreator<EventSlice> = (set, get) => ({
@@ -56,5 +56,18 @@ export const createEventSlice: SliceCreator<EventSlice> = (set, get) => ({
       drops: calculateEventBonusMultiplier(state.activeEvents, 'drops'),
       click: calculateEventBonusMultiplier(state.activeEvents, 'click'),
     };
+  },
+
+  checkEventActivation: () => {
+    const autoActiveIds = getAutoActiveEventIds();
+    const currentIds = get().activeEvents;
+
+    // Merge auto-active events with any manually-activated events
+    const newIds = [...new Set([...currentIds, ...autoActiveIds])];
+
+    // Only update if different to avoid unnecessary re-renders
+    if (newIds.length !== currentIds.length || !newIds.every((id) => currentIds.includes(id))) {
+      set({ activeEvents: newIds });
+    }
   },
 });
