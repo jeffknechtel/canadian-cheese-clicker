@@ -220,21 +220,37 @@ function migrateEffectTypes(crafting: CraftingState): CraftingState {
     'hero_buff': 'heroBuff',
   };
 
-  if (!crafting.activeBuffs?.length) return crafting;
+  let result = crafting;
 
-  const migratedBuffs = crafting.activeBuffs.map(buff => {
-    const oldType = buff.effect.type as string;
-    const newType = effectTypeMap[oldType];
-    if (newType) {
-      return {
-        ...buff,
-        effect: { ...buff.effect, type: newType } as typeof buff.effect,
-      };
-    }
-    return buff;
-  });
+  // Migrate active buffs effect types from snake_case to camelCase
+  if (crafting.activeBuffs?.length) {
+    const migratedBuffs = crafting.activeBuffs.map(buff => {
+      const oldType = buff.effect.type as string;
+      const newType = effectTypeMap[oldType];
+      if (newType) {
+        return {
+          ...buff,
+          effect: { ...buff.effect, type: newType } as typeof buff.effect,
+        };
+      }
+      return buff;
+    });
+    result = { ...result, activeBuffs: migratedBuffs };
+  }
 
-  return { ...crafting, activeBuffs: migratedBuffs };
+  // Migrate active jobs to include notificationSent flag (set to true for existing jobs
+  // so they don't spam notifications on load)
+  if (crafting.activeJobs?.length) {
+    const migratedJobs = crafting.activeJobs.map(job => {
+      if (job.notificationSent === undefined) {
+        return { ...job, notificationSent: true };
+      }
+      return job;
+    });
+    result = { ...result, activeJobs: migratedJobs };
+  }
+
+  return result;
 }
 
 export function loadGame(): GameState | null {
