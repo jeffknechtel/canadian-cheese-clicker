@@ -84,21 +84,20 @@ function HeroCombatCard({ heroState, isSelected = false, heroNumber }: HeroComba
         >
           {hero.icon}
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1">
-            <span
-              className={`font-semibold text-sm truncate ${
-                !heroState.isAlive ? 'text-gray-400 line-through' : 'text-timber-700'
-              }`}
-            >
-              {hero.name}
-            </span>
+        <div className="flex-1 min-w-0 overflow-hidden">
+          <span
+            className={`font-semibold text-sm block truncate ${
+              !heroState.isAlive ? 'text-gray-400 line-through' : 'text-timber-700'
+            }`}
+            title={hero.name}
+          >
+            {hero.name}
             {isReady && heroState.isAlive && (
-              <span className="text-xs bg-cheddar-100 text-cheddar-700 px-1 rounded animate-pulse" aria-hidden="true">
+              <span className="ml-1 text-xs bg-cheddar-100 text-cheddar-700 px-1 rounded animate-pulse" aria-hidden="true">
                 READY
               </span>
             )}
-          </div>
+          </span>
         </div>
       </div>
 
