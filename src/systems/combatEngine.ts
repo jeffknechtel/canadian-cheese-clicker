@@ -565,8 +565,9 @@ export function initializeCombat(
   } else {
     const stage = stageInfo.stage;
     stage.enemies.forEach((enemyId, index) => {
-      const enemyDef = enemyRegistry.get(enemyId);
-      if (enemyDef) {
+      const enemy = enemyRegistry.get(enemyId);
+      if (enemy) {
+        const enemyDef = enemy.toJSON();
         const scaledEnemy = scaleEnemyStats(enemyDef, stage.enemyLevelScale);
         enemies.push(createCombatEnemy(scaledEnemy, index));
       }
