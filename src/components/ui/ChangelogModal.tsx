@@ -63,7 +63,7 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
     >
       <div className="bg-white panel-wood-solid rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-linear-to-r from-cheddar-500 to-cheddar-600 text-white">
+        <div className="flex items-center justify-between px-6 py-4 bg-linear-to-r from-cheddar-600 to-cheddar-700 text-white">
           <h2 id="changelog-title" className="text-xl font-bold flex items-center gap-2">
             <span className="text-2xl" aria-hidden="true">
               📜
@@ -128,7 +128,7 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
                 onClick={() => setTypeFilter(filter.value)}
                 className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                   typeFilter === filter.value
-                    ? 'bg-cheddar-500 text-white'
+                    ? 'bg-cheddar-700 text-white'
                     : 'bg-white hover:bg-cheddar-100 text-rind-700 border border-cheddar-200'
                 }`}
               >
@@ -174,7 +174,7 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
           </span>
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-cheddar-600 hover:bg-cheddar-700 text-white font-medium rounded-lg transition-colors"
+            className="px-6 py-2 bg-cheddar-700 hover:bg-cheddar-800 text-white font-medium rounded-lg transition-colors"
           >
             Close
           </button>
@@ -209,7 +209,7 @@ function ChangelogEntryCard({ entry, isExpanded, onToggle, isCurrent }: Changelo
             v{entry.version}
           </span>
           {isCurrent && (
-            <span className="px-2 py-0.5 text-xs font-medium bg-cheddar-500 text-white rounded-full">
+            <span className="px-2 py-0.5 text-xs font-medium bg-cheddar-700 text-white rounded-full">
               Current
             </span>
           )}

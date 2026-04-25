@@ -84,7 +84,7 @@ export function CheeseInventoryCard({ cheese }: CheeseInventoryCardProps) {
           {hasEffects && (
             <button
               onClick={handleConsume}
-              className="px-3 py-1.5 text-xs bg-cheddar-600 hover:bg-cheddar-700 text-white rounded font-medium transition-colors"
+              className="px-3 py-1.5 text-xs bg-cheddar-700 hover:bg-cheddar-800 text-white rounded font-medium transition-colors"
             >
               Consume
             </button>

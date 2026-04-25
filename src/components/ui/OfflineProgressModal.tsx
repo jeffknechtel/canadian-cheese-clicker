@@ -53,7 +53,7 @@ export function OfflineProgressModal({
 
         <button
           onClick={onDismiss}
-          className="w-full bg-cheddar-600 hover:bg-cheddar-700 text-white font-bold py-3 px-6 rounded-lg transition-colors btn-ripple btn-scale"
+          className="w-full bg-cheddar-700 hover:bg-cheddar-800 text-white font-bold py-3 px-6 rounded-lg transition-colors btn-ripple btn-scale"
         >
           Collect Curds
         </button>

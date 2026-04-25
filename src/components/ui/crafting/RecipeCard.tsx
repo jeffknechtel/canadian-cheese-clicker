@@ -223,7 +223,7 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
               className={`
                 px-4 py-2 rounded-lg font-medium text-sm transition-all
                 ${canCraft
-                  ? 'bg-cheddar-600 hover:bg-cheddar-700 text-white shadow-md hover:shadow-lg active:scale-95'
+                  ? 'bg-cheddar-700 hover:bg-cheddar-800 text-white shadow-md hover:shadow-lg active:scale-95'
                   : 'bg-gray-200 text-gray-700 cursor-not-allowed'
                 }
               `}
