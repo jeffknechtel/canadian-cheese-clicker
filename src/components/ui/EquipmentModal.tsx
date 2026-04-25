@@ -117,7 +117,7 @@ function EquipmentCard({
               w-full py-1.5 rounded text-sm font-medium transition-colors
               ${isEquippedByOther
                 ? 'bg-gray-200 text-gray-700 cursor-not-allowed'
-                : 'bg-cheddar-500 hover:bg-cheddar-600 text-white'
+                : 'bg-cheddar-600 hover:bg-cheddar-700 text-white'
               }
             `}
           >

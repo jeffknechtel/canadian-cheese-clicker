@@ -72,7 +72,7 @@ export function CombatResultsModal({
           className={`
             py-4 px-6 text-center
             ${isVictory
-              ? 'bg-linear-to-r from-cheddar-500 to-cheddar-600'
+              ? 'bg-linear-to-r from-cheddar-600 to-cheddar-700'
               : 'bg-linear-to-r from-gray-500 to-gray-600'
             }
           `}
@@ -198,7 +198,7 @@ export function CombatResultsModal({
             className={`
               flex-1 py-3 rounded-lg font-bold transition-all active:scale-[0.98]
               ${isVictory
-                ? 'text-white bg-linear-to-r from-cheddar-500 to-cheddar-600 hover:from-cheddar-600 hover:to-cheddar-700 shadow-md hover:shadow-lg'
+                ? 'text-white bg-linear-to-r from-cheddar-600 to-cheddar-700 hover:from-cheddar-700 hover:to-cheddar-800 shadow-md hover:shadow-lg'
                 : 'text-timber-700 bg-gray-200 hover:bg-gray-300'
               }
             `}
