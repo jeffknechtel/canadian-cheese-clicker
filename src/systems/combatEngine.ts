@@ -14,6 +14,7 @@ import type {
   PartyFormation,
   HeroAbilityDefinition,
   AbilityEffect,
+  EnemyAbility,
 } from '../types/game';
 import { scaleEnemyStats } from '../data/enemies';
 import { getStage } from '../data/zones';
@@ -45,6 +46,24 @@ export {
   HP_LOW_THRESHOLD,
   HP_MEDIUM_THRESHOLD,
 };
+
+// ===== Enemy Ability Selection =====
+
+/**
+ * Select an ability that is off cooldown, or return null if all are on cooldown.
+ */
+function selectAbilityFromCooldowns(
+  abilities: EnemyAbility[],
+  cooldowns: Record<string, number>
+): EnemyAbility | null {
+  for (const ability of abilities) {
+    const cooldown = cooldowns[ability.id] ?? 0;
+    if (cooldown <= 0) {
+      return ability;
+    }
+  }
+  return null;
+}
 
 // ===== Combat Result Type =====
 
@@ -623,13 +642,13 @@ export function tickCombat(
   for (const [id, heroState] of Object.entries(state.heroStates)) {
     updatedHeroStates[id] = {
       ...heroState,
-      statusEffects: [...heroState.statusEffects],
+      statusEffects: heroState.statusEffects.map(e => ({ ...e })),
       abilityCooldowns: { ...heroState.abilityCooldowns },
     };
   }
   const updatedEnemies = state.enemies.map((e) => ({
     ...e,
-    statusEffects: [...e.statusEffects],
+    statusEffects: e.statusEffects.map(se => ({ ...se })),
     abilityCooldowns: { ...e.abilityCooldowns },
   }));
   let updatedLimitBreakGauge = state.limitBreakGauge;
@@ -792,9 +811,9 @@ export function tickCombat(
       }
     }
 
-    // Get first available ability (basic attack) or default
-    // TODO: Could add smarter ability selection based on cooldowns
-    const ability = availableAbilities[0];
+    // Select ability respecting cooldowns, fall back to first if all on cooldown
+    const ability = selectAbilityFromCooldowns(availableAbilities, enemy.abilityCooldowns)
+      || availableAbilities[0];
     const abilityMultiplier = ability?.damage || 1.0;
 
     // Calculate damage with phase-adjusted stats
@@ -831,6 +850,11 @@ export function tickCombat(
         target: heroDef?.name || target.heroId,
         message: `${heroDef?.name || target.heroId} has fallen!`,
       });
+    }
+
+    // Set cooldown for the used ability
+    if (ability && ability.cooldown) {
+      enemy.abilityCooldowns[ability.id] = ability.cooldown;
     }
 
     // Reset enemy ATB

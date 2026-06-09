@@ -48,65 +48,6 @@ export class Enemy extends BaseEntity<EnemyDefinition> implements EnemyDefinitio
     return this.data.icon;
   }
 
-  protected withData(updates: Partial<EnemyDefinition>): this {
-    return new Enemy({ ...this.data, ...updates }) as this;
-  }
-
-  /**
-   * Get scaled stats for a zone level.
-   */
-  getScaledStats(zoneLevel: number): HeroStats {
-    const scaleFactor = 1 + (zoneLevel - 1) * 0.15;
-    return {
-      hp: Math.floor(this.stats.hp * scaleFactor),
-      attack: Math.floor(this.stats.attack * scaleFactor),
-      defense: Math.floor(this.stats.defense * scaleFactor),
-      speed: this.stats.speed,
-      cheeseAffinity: this.stats.cheeseAffinity,
-    };
-  }
-
-  /**
-   * Select an ability to use based on AI logic.
-   * Returns the first available ability (can be extended for smarter AI).
-   */
-  selectAbility(cooldowns: Record<string, number>): EnemyAbility | null {
-    for (const ability of this.abilities) {
-      const cooldown = cooldowns[ability.id] ?? 0;
-      if (cooldown <= 0) {
-        return ability;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Calculate damage dealt to a target.
-   */
-  calculateDamage(targetDefense: number): number {
-    const baseDamage = this.stats.attack;
-    const mitigation = targetDefense / (targetDefense + 100);
-    return Math.max(1, Math.floor(baseDamage * (1 - mitigation)));
-  }
-
-  /**
-   * Get scaled rewards for a zone level.
-   */
-  getScaledRewards(zoneLevel: number): { curds: Decimal; xp: number } {
-    const scaleFactor = 1 + (zoneLevel - 1) * 0.1;
-    return {
-      curds: this.curdReward.mul(scaleFactor).floor(),
-      xp: Math.floor(this.xpReward * scaleFactor),
-    };
-  }
-
-  /**
-   * Check if this enemy is a boss type.
-   */
-  isBoss(): boolean {
-    return this.type === 'boss';
-  }
-
   static fromDefinition(data: EnemyDefinition): Enemy {
     return new Enemy(data);
   }

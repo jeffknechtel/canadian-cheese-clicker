@@ -14,12 +14,7 @@ export abstract class BaseEntity<T extends { id: string }> {
   }
 
   /**
-   * Create a new instance with updated data (immutable update)
-   */
-  protected abstract withData(updates: Partial<T>): this;
-
-  /**
-   * Serialize to plain object for persistence
+   * Serialize to plain object for persistence/interop
    */
   toJSON(): T {
     return { ...this.data };

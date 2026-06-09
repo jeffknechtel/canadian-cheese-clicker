@@ -1012,13 +1012,6 @@ export const CHEESE_RECIPES: CheeseRecipe[] = [
 ];
 
 /**
- * @deprecated Use recipeRegistry.get() from '../domain' instead
- */
-export function getRecipeById(id: string): CheeseRecipe | undefined {
-  return CHEESE_RECIPES.find((r) => r.id === id);
-}
-
-/**
  * Get all recipes of a specific category
  */
 export function getRecipesByCategory(category: CheeseCategory): CheeseRecipe[] {

@@ -1,6 +1,5 @@
 import type {
   ZoneDefinition,
-  ZoneProgress,
   ZoneUnlockRequirement,
   Province,
   StageDefinition,
@@ -36,54 +35,6 @@ export class Zone extends BaseEntity<ZoneDefinition> implements ZoneDefinition {
   }
   get recommendedLevel(): number {
     return this.data.recommendedLevel;
-  }
-
-  protected withData(updates: Partial<ZoneDefinition>): this {
-    return new Zone({ ...this.data, ...updates }) as this;
-  }
-
-  /**
-   * Check if this zone is unlocked given current progress.
-   */
-  isUnlocked(zoneProgress: Record<string, ZoneProgress>): boolean {
-    if (this.unlockRequirement.type === 'none') return true;
-
-    if (this.unlockRequirement.type === 'zone_complete') {
-      return zoneProgress[this.unlockRequirement.zoneId]?.bossDefeated ?? false;
-    }
-
-    return true;
-  }
-
-  /**
-   * Get completion percentage for this zone.
-   */
-  getProgress(zoneProgress: ZoneProgress | undefined): number {
-    if (!zoneProgress) return 0;
-    if (zoneProgress.bossDefeated) return 100;
-    const totalStages = this.stages.length;
-    return Math.floor((zoneProgress.highestStageCleared / totalStages) * 100);
-  }
-
-  /**
-   * Check if boss stage has been reached.
-   */
-  isBossStageReached(currentStage: number): boolean {
-    return currentStage > this.stages.length;
-  }
-
-  /**
-   * Get stage definition for a specific stage number.
-   */
-  getStage(stageNumber: number): StageDefinition | undefined {
-    return this.stages.find((s) => s.stageNumber === stageNumber);
-  }
-
-  /**
-   * Get total number of stages (excluding boss).
-   */
-  getTotalStages(): number {
-    return this.stages.length;
   }
 
   static fromDefinition(data: ZoneDefinition): Zone {
