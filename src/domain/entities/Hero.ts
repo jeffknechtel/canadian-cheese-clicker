@@ -8,6 +8,7 @@ import type {
 } from '../../types/game';
 import { BaseEntity } from './BaseEntity';
 import { equipmentRegistry } from '../registry/equipment';
+import { Stats } from '../valueObjects';
 
 /**
  * Rich domain model for Hero definition.
@@ -50,13 +51,7 @@ export class Hero extends BaseEntity<HeroDefinition> implements HeroDefinition {
    */
   getStatsAtLevel(level: number): HeroStats {
     const levelBonus = Math.max(0, level - 1);
-    return {
-      hp: this.baseStats.hp + this.statGrowth.hp * levelBonus,
-      attack: this.baseStats.attack + this.statGrowth.attack * levelBonus,
-      defense: this.baseStats.defense + this.statGrowth.defense * levelBonus,
-      speed: this.baseStats.speed + this.statGrowth.speed * levelBonus,
-      cheeseAffinity: this.baseStats.cheeseAffinity + this.statGrowth.cheeseAffinity * levelBonus,
-    };
+    return Stats.of(this.baseStats).addScaled(this.statGrowth, levelBonus).toHeroStats();
   }
 
   /**

@@ -37,6 +37,7 @@ import {
   BOSS_REWARD_MULTIPLIERS,
   DEFAULT_BOSS_REWARD_MULTIPLIER,
 } from '../data/constants';
+import { Stats } from '../domain/valueObjects';
 
 // Re-export constants for backwards compatibility with UI components
 export {
@@ -297,7 +298,7 @@ export function checkBossPhaseTransition(
         newPhase: phase.phaseNumber,
         logEntry: {
           timestamp: Date.now(),
-          type: 'phase_change',
+          type: 'phaseChange',
           source: bossDef.name,
           target: '',
           message: phase.onEnterMessage,
@@ -322,18 +323,15 @@ export function getBossEffectiveStats(
   }
 
   // Apply stat modifiers from all triggered phases cumulatively
-  const stats = { ...bossDef.stats };
+  let stats = Stats.of(bossDef.stats);
 
   for (const phase of bossDef.phases) {
-    if (enemy.phaseTriggered?.[phase.phaseNumber]) {
-      if (phase.statModifiers.attack) stats.attack += phase.statModifiers.attack;
-      if (phase.statModifiers.defense) stats.defense += phase.statModifiers.defense;
-      if (phase.statModifiers.speed) stats.speed += phase.statModifiers.speed;
-      if (phase.statModifiers.cheeseAffinity) stats.cheeseAffinity += phase.statModifiers.cheeseAffinity;
+    if (enemy.phaseTriggered?.[phase.phaseNumber] && phase.statModifiers) {
+      stats = stats.add(phase.statModifiers);
     }
   }
 
-  return stats;
+  return stats.toHeroStats();
 }
 
 /**
@@ -434,7 +432,7 @@ export function processBossSpecialMechanics(
           result.minionsToSpawn.push(minion);
           result.logEntries.push({
             timestamp: Date.now(),
-            type: 'skill',
+            type: 'ability',
             source: bossDef.name,
             target: '',
             message: `${bossDef.name} summons a Processed Cheese Slime! "More for the factory!"`,
@@ -1152,7 +1150,7 @@ function applyAbilityEffect(
   switch (effect.type) {
     case 'damage': {
       // Apply damage to enemies
-      const targets = targetType === 'all_enemies'
+      const targets = targetType === 'allEnemies'
         ? targetEnemies.filter((e) => e.isAlive)
         : specificTargetId
           ? targetEnemies.filter((e) => e.instanceId === specificTargetId && e.isAlive)
@@ -1166,7 +1164,7 @@ function applyAbilityEffect(
 
         logEntries.push({
           timestamp: Date.now(),
-          type: 'skill',
+          type: 'ability',
           source: heroName,
           target: enemyDef?.name || enemy.id,
           value: damage,
@@ -1189,7 +1187,7 @@ function applyAbilityEffect(
 
     case 'heal': {
       // Apply healing to allies
-      const allyTargets = targetType === 'all_allies'
+      const allyTargets = targetType === 'allAllies'
         ? Object.values(targetHeroStates).filter((h) => h.isAlive)
         : targetType === 'self'
           ? [targetHeroStates[source.heroId]].filter((h) => h?.isAlive)
@@ -1220,7 +1218,7 @@ function applyAbilityEffect(
 
     case 'buff': {
       // Apply buff to allies
-      const buffTargets = targetType === 'all_allies'
+      const buffTargets = targetType === 'allAllies'
         ? Object.values(targetHeroStates).filter((h) => h.isAlive)
         : targetType === 'self'
           ? [targetHeroStates[source.heroId]].filter((h) => h?.isAlive)
@@ -1251,7 +1249,7 @@ function applyAbilityEffect(
 
     case 'debuff': {
       // Apply debuff to enemies
-      const debuffTargets = targetType === 'all_enemies'
+      const debuffTargets = targetType === 'allEnemies'
         ? targetEnemies.filter((e) => e.isAlive)
         : specificTargetId
           ? targetEnemies.filter((e) => e.instanceId === specificTargetId && e.isAlive)
@@ -1307,7 +1305,7 @@ function applyAbilityEffect(
 
     case 'immunity': {
       // Apply immunity to allies
-      const immunityTargets = targetType === 'all_allies'
+      const immunityTargets = targetType === 'allAllies'
         ? Object.values(targetHeroStates).filter((h) => h.isAlive)
         : targetType === 'self'
           ? [targetHeroStates[source.heroId]].filter((h) => h?.isAlive)
@@ -1336,7 +1334,7 @@ function applyAbilityEffect(
       break;
     }
 
-    case 'drop_rate_bonus': {
+    case 'dropRateBonus': {
       // Drop rate bonus is handled at reward calculation time
       // Just log the effect
       logEntries.push({
@@ -1351,7 +1349,7 @@ function applyAbilityEffect(
 
     case 'cleanse': {
       // Remove all debuffs from allies
-      const cleanseTargets = targetType === 'all_allies'
+      const cleanseTargets = targetType === 'allAllies'
         ? Object.values(targetHeroStates).filter((h) => h.isAlive)
         : targetType === 'self'
           ? [targetHeroStates[source.heroId]].filter((h) => h?.isAlive)
@@ -1417,7 +1415,7 @@ export function executeHeroAbility(
   // Log ability activation
   allLogEntries.push({
     timestamp: Date.now(),
-    type: 'skill',
+    type: 'ability',
     source: heroName,
     target: '',
     message: `${heroName} uses ${ability.name}! "${ability.description.split('.')[0]}!"`,
@@ -1519,7 +1517,7 @@ export function executeHeroLimitBreak(
   // Log limit break activation with dramatic message
   allLogEntries.push({
     timestamp: Date.now(),
-    type: 'skill',
+    type: 'ability',
     source: heroName,
     target: '',
     message: `⚡ LIMIT BREAK! ${heroName} unleashes "${limitBreak.name}"! ⚡`,
@@ -1534,7 +1532,7 @@ export function executeHeroLimitBreak(
         { heroId, attack: heroStats?.attack || 10 },
         updatedHeroStates,
         updatedEnemies,
-        'all_allies' // Heal always targets all allies for limit breaks
+        'allAllies' // Heal always targets all allies for limit breaks
       );
       allLogEntries.push(...logEntries);
     } else {

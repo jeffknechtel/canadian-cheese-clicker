@@ -6,6 +6,7 @@ import type {
   HeroStats,
 } from '../../types/game';
 import { BaseEntity } from './BaseEntity';
+import { Stats } from '../valueObjects';
 
 /**
  * Rich domain model for Equipment.
@@ -45,13 +46,7 @@ export class Equipment extends BaseEntity<EquipmentData> implements EquipmentDat
    * Apply this equipment's stats to base stats.
    */
   applyTo(baseStats: HeroStats): HeroStats {
-    return {
-      hp: baseStats.hp + this.getStatBonus('hp'),
-      attack: baseStats.attack + this.getStatBonus('attack'),
-      defense: baseStats.defense + this.getStatBonus('defense'),
-      speed: baseStats.speed + this.getStatBonus('speed'),
-      cheeseAffinity: baseStats.cheeseAffinity + this.getStatBonus('cheeseAffinity'),
-    };
+    return Stats.of(baseStats).add(this.stats).toHeroStats();
   }
 
   static fromDefinition(data: EquipmentData): Equipment {

@@ -311,7 +311,7 @@ export interface StatusEffect {
 
 export interface CombatLogEntry {
   timestamp: number;
-  type: 'attack' | 'skill' | 'damage' | 'heal' | 'status' | 'defeat' | 'victory' | 'phase_change';
+  type: 'attack' | 'ability' | 'damage' | 'heal' | 'status' | 'defeat' | 'victory' | 'phaseChange';
   source: string;
   target: string;
   value?: number;
@@ -428,7 +428,7 @@ export interface CombatDrop {
 
 // ===== Hero Ability Types =====
 
-export type AbilityTargetType = 'self' | 'single_ally' | 'all_allies' | 'single_enemy' | 'all_enemies';
+export type AbilityTargetType = 'self' | 'singleAlly' | 'allAllies' | 'singleEnemy' | 'allEnemies';
 
 export interface HeroAbilityDefinition {
   id: string;
@@ -443,12 +443,12 @@ export interface HeroAbilityDefinition {
 export type AbilityEffect =
   | { type: 'damage'; multiplier: number; damageType?: DamageType }
   | { type: 'heal'; amount: number; isPercentage: boolean }
-  | { type: 'buff'; stat: keyof HeroStats | 'damage_reduction'; value: number; duration: number }
+  | { type: 'buff'; stat: keyof HeroStats | 'damageReduction'; value: number; duration: number }
   | { type: 'debuff'; stat: keyof HeroStats | 'damageOverTime'; value: number; duration: number }
   | { type: 'taunt'; duration: number }
-  | { type: 'cleanse' } // Remove debuffs
-  | { type: 'immunity'; immunityType: 'freeze' | 'slow' | 'all_debuffs'; duration: number }
-  | { type: 'drop_rate_bonus'; value: number; duration: number };
+  | { type: 'cleanse' }
+  | { type: 'immunity'; immunityType: 'freeze' | 'slow' | 'allDebuffs'; duration: number }
+  | { type: 'dropRateBonus'; value: number; duration: number };
 
 // ===== Limit Break Types =====
 

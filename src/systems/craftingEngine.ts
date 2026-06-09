@@ -18,12 +18,8 @@ import {
   getCultureByType,
   getRennetByType,
 } from '../data/ingredients';
-import {
-  CHEESE_SELL_QUALITY_BASE,
-  CHEESE_SELL_QUALITY_SCALE,
-  BUFF_QUALITY_BASE,
-  BUFF_QUALITY_SCALE,
-} from '../data/constants';
+import { BUFF_QUALITY_BASE, BUFF_QUALITY_SCALE } from '../data/constants';
+import { Quality } from '../domain/valueObjects';
 
 /**
  * Crafting Engine for The Great Canadian Cheese Quest
@@ -103,9 +99,10 @@ export function checkAllRequirements(
 
 /**
  * Clamps quality to valid range [1, 100].
+ * @deprecated Use Quality.of() instead
  */
 export function clampQuality(quality: number): number {
-  return Math.max(1, Math.min(100, quality));
+  return Quality.of(quality).toNumber();
 }
 
 // ===== Ingredient Cost Calculations =====
@@ -241,7 +238,7 @@ export function calculateCheeseQuality(
   }
 
   // Clamp quality between 1 and 100
-  return Math.max(1, Math.min(100, quality));
+  return Quality.of(quality).toNumber();
 }
 
 /**
@@ -283,8 +280,7 @@ export function calculateCheeseValue(
   recipe: CheeseRecipe,
   quality: number
 ): Decimal {
-  const qualityMultiplier =
-    CHEESE_SELL_QUALITY_BASE + (quality / 100) * CHEESE_SELL_QUALITY_SCALE;
+  const qualityMultiplier = Quality.of(quality).toSellMultiplier();
   return recipe.baseValue.mul(qualityMultiplier);
 }
 

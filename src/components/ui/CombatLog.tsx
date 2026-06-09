@@ -3,24 +3,24 @@ import type { CombatLogEntry } from '../../types/game';
 
 const LOG_TYPE_COLORS: Record<CombatLogEntry['type'], string> = {
   attack: 'text-timber-700',
-  skill: 'text-purple-600',
+  ability: 'text-purple-600',
   damage: 'text-red-600',
   heal: 'text-green-600',
   status: 'text-amber-600',
   defeat: 'text-red-700 font-semibold',
   victory: 'text-cheddar-600 font-bold',
-  phase_change: 'text-purple-700 font-semibold',
+  phaseChange: 'text-purple-700 font-semibold',
 };
 
 const LOG_TYPE_ICONS: Record<CombatLogEntry['type'], string> = {
   attack: '⚔️',
-  skill: '✨',
+  ability: '✨',
   damage: '💥',
   heal: '💚',
   status: '🔮',
   defeat: '💀',
   victory: '🎉',
-  phase_change: '⚠️',
+  phaseChange: '⚠️',
 };
 
 interface CombatLogEntryItemProps {
