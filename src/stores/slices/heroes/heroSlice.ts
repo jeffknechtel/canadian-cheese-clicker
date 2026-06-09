@@ -1,6 +1,5 @@
 import type { SliceCreator } from '../../types';
 import type { HeroSlice } from './types';
-import { computeCps } from '../production/cpsCalculator';
 import {
   calculateXpPerSecond,
   calculateHeroStats,
@@ -55,7 +54,7 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
       heroes: { ...state.heroes, [heroId]: newHeroState },
     });
 
-    set({ curdPerSecond: computeCps(get()) });
+    get().recalculateCps();
 
     const totalRecruited = Object.keys(get().heroes).length;
     trackHeroRecruit(heroId, totalRecruited);
@@ -106,7 +105,7 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
     newParty[position] = heroId;
 
     set({ party: newParty });
-    set({ curdPerSecond: computeCps(get()) });
+    get().recalculateCps();
 
     return true;
   },
@@ -116,7 +115,7 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
     const newParty = { ...state.party, [position]: null };
 
     set({ party: newParty });
-    set({ curdPerSecond: computeCps(get()) });
+    get().recalculateCps();
   },
 
   swapPartyPositions: (pos1: FormationPosition, pos2: FormationPosition) => {
@@ -128,7 +127,7 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
     };
 
     set({ party: newParty });
-    set({ curdPerSecond: computeCps(get()) });
+    get().recalculateCps();
   },
 
   getPartyHeroes: () => {
@@ -192,7 +191,7 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
       heroes: { ...state.heroes, [heroId]: newHeroState },
     });
 
-    set({ curdPerSecond: computeCps(get()) });
+    get().recalculateCps();
 
     return true;
   },
@@ -216,7 +215,7 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
       heroes: { ...state.heroes, [heroId]: newHeroState },
     });
 
-    set({ curdPerSecond: computeCps(get()) });
+    get().recalculateCps();
   },
 
   getHeroEquipment: (heroId: string) => {
@@ -269,7 +268,7 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
       heroes: { ...state.heroes, [heroId]: newHero },
     });
 
-    set({ curdPerSecond: computeCps(get()) });
+    get().recalculateCps();
 
     if (levelUps.length > 0) {
       const heroDef = heroRegistry.get(heroId);

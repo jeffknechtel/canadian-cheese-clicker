@@ -38,6 +38,7 @@ export interface ProductionActions {
   getGeneratorMultiplier: (id: string) => number;
   getGlobalMultiplier: () => number;
   recalculateCps: () => void;
+  recalculateClickValue: () => void;
 }
 
 export type ProductionSlice = ProductionState & ProductionActions;

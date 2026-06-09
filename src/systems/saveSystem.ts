@@ -1,17 +1,6 @@
 import Decimal from 'decimal.js';
 import type { GameState, HeroState, PartyFormation, PrestigeState, ZoneProgress, CraftingState } from '../types/game';
-import {
-  calculateCps,
-  calculateClickMultiplier,
-  calculateGeneratorMultipliers,
-  calculateGlobalMultiplier,
-  calculateAchievementGlobalMultiplier,
-  calculateAchievementClickMultiplier,
-  calculateHeroCpsMultiplier,
-  calculateFormationMultiplier,
-  calculatePrestigeProductionMultiplier,
-  calculatePrestigeClickMultiplier,
-} from './productionEngine';
+import { MAX_OFFLINE_SECONDS } from '../data/constants';
 import type { AudioPreferences } from './audioSystem';
 import {
   getAudioPreferences,
@@ -139,22 +128,11 @@ function deserializeState(serialized: SerializedGameState): GameState {
     legacyResetCount: 0,
   };
 
-  // Recalculate derived values from saved state (including hero and prestige bonuses)
-  const generatorMultipliers = calculateGeneratorMultipliers(upgrades);
-  const upgradeGlobalMultiplier = calculateGlobalMultiplier(upgrades);
-  const achievementGlobalMultiplier = calculateAchievementGlobalMultiplier(achievements);
-  const heroMultiplier = calculateHeroCpsMultiplier(heroes, party);
-  const formationMultiplier = calculateFormationMultiplier(party, heroes);
-  const prestigeMultiplier = calculatePrestigeProductionMultiplier(prestige);
-  const totalGlobalMultiplier =
-    upgradeGlobalMultiplier * achievementGlobalMultiplier * heroMultiplier * formationMultiplier * prestigeMultiplier;
-  const curdPerSecond = calculateCps(generators, generatorMultipliers, totalGlobalMultiplier);
-
-  const upgradeClickMultiplier = calculateClickMultiplier(upgrades);
-  const achievementClickMultiplier = calculateAchievementClickMultiplier(achievements);
-  const prestigeClickMultiplier = calculatePrestigeClickMultiplier(prestige);
-  const totalClickMultiplier = upgradeClickMultiplier * achievementClickMultiplier * prestigeClickMultiplier;
-  const curdPerClick = new Decimal(1).mul(totalClickMultiplier);
+  // CPS and click values are placeholders here - they will be recalculated
+  // after state is loaded via store.recalculateCps() and store.recalculateClickValue()
+  // This fixes the bug where Eh multiplier was omitted from the load-path CPS calculation
+  const curdPerSecond = new Decimal(0);
+  const curdPerClick = new Decimal(1);
 
   return {
     curds: new Decimal(serialized.curds),
@@ -287,7 +265,6 @@ export function calculateOfflineProgress(
   curdPerSecond: Decimal,
   lastSaved: number
 ): OfflineProgress {
-  const MAX_OFFLINE_SECONDS = 8 * 60 * 60; // 8 hours max
   const now = Date.now();
   const elapsedMs = now - lastSaved;
   const elapsedSeconds = Math.min(elapsedMs / 1000, MAX_OFFLINE_SECONDS);

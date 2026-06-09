@@ -33,6 +33,10 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
       lastSaved: Date.now(),
     });
 
+    // Recalculate CPS and click value with proper Eh multiplier inclusion
+    get().recalculateCps();
+    get().recalculateClickValue();
+
     // Check for seasonal event auto-activation after loading
     get().checkEventActivation();
 

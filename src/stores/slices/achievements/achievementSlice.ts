@@ -1,13 +1,9 @@
-import Decimal from 'decimal.js';
 import type { SliceCreator } from '../../types';
 import type { AchievementSlice } from './types';
 import {
   calculateAchievementGlobalMultiplier,
   calculateAchievementClickMultiplier,
-  calculateClickMultiplier,
-  calculatePrestigeClickMultiplier,
 } from '../../../systems/productionEngine';
-import { computeCps } from '../production/cpsCalculator';
 import { ACHIEVEMENTS } from '../../../data/achievements';
 import { GENERATORS } from '../../../data/generators';
 import { CHEESE_RECIPES } from '../../../data/cheeseRecipes';
@@ -137,20 +133,10 @@ export const createAchievementSlice: SliceCreator<AchievementSlice> = (set, get)
 
     const newAchievements = [...state.achievements, ...newlyUnlocked.map((a) => a.id)];
 
-    // Recalculate click value with new achievement bonuses
-    const upgradeClickMultiplier = calculateClickMultiplier(state.upgrades);
-    const achievementClickMultiplier = calculateAchievementClickMultiplier(newAchievements);
-    const prestigeClickMultiplier = calculatePrestigeClickMultiplier(state.prestige);
-    const totalClickMultiplier = upgradeClickMultiplier * achievementClickMultiplier * prestigeClickMultiplier;
-    const newCurdPerClick = new Decimal(1).mul(totalClickMultiplier);
+    set({ achievements: newAchievements });
 
-    set({
-      achievements: newAchievements,
-      curdPerClick: newCurdPerClick,
-    });
-
-    // Recalculate CPS with new achievement bonuses
-    set({ curdPerSecond: computeCps(get()) });
+    get().recalculateClickValue();
+    get().recalculateCps();
 
     // Notify about unlocked achievements and track analytics
     const totalUnlocked = get().achievements.length;
