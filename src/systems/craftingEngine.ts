@@ -1,22 +1,29 @@
 import Decimal from 'decimal.js';
 import type {
-  GameState,
   CheeseRecipe,
   AffinageCave,
   CraftingJob,
   CraftingInteraction,
   CheeseEffect,
   Ingredient,
+  IngredientUnlockRequirement,
+  RecipeUnlockRequirement,
+  CaveUnlockRequirement,
 } from '../types/game';
-import { CHEESE_RECIPES } from '../data/cheeseRecipes';
 import { recipeRegistry } from '../domain';
-import { getCaveById, CAVES } from '../data/caves';
+import { getCaveById } from '../data/caves';
 import {
   getIngredientById,
   getMilkByType,
   getCultureByType,
   getRennetByType,
 } from '../data/ingredients';
+import {
+  CHEESE_SELL_QUALITY_BASE,
+  CHEESE_SELL_QUALITY_SCALE,
+  BUFF_QUALITY_BASE,
+  BUFF_QUALITY_SCALE,
+} from '../data/constants';
 
 /**
  * Crafting Engine for The Great Canadian Cheese Quest
@@ -29,6 +36,77 @@ import {
  * - Unlock requirement verification
  * - Buff effect scaling
  */
+
+// ===== Unlock Requirement Service =====
+
+/**
+ * Union of all crafting-related unlock requirements.
+ */
+export type CraftingUnlockRequirement =
+  | IngredientUnlockRequirement
+  | RecipeUnlockRequirement
+  | CaveUnlockRequirement;
+
+/**
+ * Read-only view into cross-context state needed for unlock requirements.
+ * Makes crafting's upstream dependencies declared rather than ambient.
+ */
+export interface UnlockContext {
+  readonly totalRennet: number;
+  readonly totalVintageWheels: number;
+  readonly achievements: readonly string[];
+  readonly zoneProgress: Record<string, { bossDefeated: boolean }>;
+  readonly unlockedCaves: readonly string[];
+  readonly cheeseCollection: Record<string, number>;
+}
+
+/**
+ * Evaluates whether an unlock requirement is satisfied.
+ * Single source of truth — replaces 7 copy-pasted switches.
+ */
+export function checkUnlockRequirement(
+  req: CraftingUnlockRequirement,
+  ctx: UnlockContext
+): boolean {
+  switch (req.type) {
+    case 'none':
+      return true;
+    case 'prestige_rennet':
+      return ctx.totalRennet >= req.amount;
+    case 'prestige_vintage':
+      return ctx.totalVintageWheels >= req.amount;
+    case 'achievement':
+      return ctx.achievements.includes(req.achievementId);
+    case 'province':
+    case 'province_complete':
+      return ctx.zoneProgress[req.provinceId]?.bossDefeated ?? false;
+    case 'cave_unlocked':
+      return ctx.unlockedCaves.includes(req.caveId);
+    case 'cave_level':
+      return ctx.unlockedCaves.includes(req.caveId);
+    case 'cheese_crafted':
+      return (ctx.cheeseCollection[req.recipeId] ?? 0) >= req.count;
+    default:
+      return false;
+  }
+}
+
+/**
+ * Checks if all requirements in an array are satisfied.
+ */
+export function checkAllRequirements(
+  requirements: readonly CraftingUnlockRequirement[],
+  ctx: UnlockContext
+): boolean {
+  return requirements.every((req) => checkUnlockRequirement(req, ctx));
+}
+
+/**
+ * Clamps quality to valid range [1, 100].
+ */
+export function clampQuality(quality: number): number {
+  return Math.max(1, Math.min(100, quality));
+}
 
 // ===== Ingredient Cost Calculations =====
 
@@ -198,14 +276,15 @@ export function calculateIngredientQualityBonus(
  *
  * Value formula:
  * baseValue = recipe.baseValue
- * qualityMultiplier = 0.5 + (quality / 100) * 1.5  // Quality 1 = 0.5x, Quality 100 = 2x
+ * qualityMultiplier = CHEESE_SELL_QUALITY_BASE + (quality / 100) * CHEESE_SELL_QUALITY_SCALE
  * finalValue = baseValue * qualityMultiplier
  */
 export function calculateCheeseValue(
   recipe: CheeseRecipe,
   quality: number
 ): Decimal {
-  const qualityMultiplier = 0.5 + (quality / 100) * 1.5;
+  const qualityMultiplier =
+    CHEESE_SELL_QUALITY_BASE + (quality / 100) * CHEESE_SELL_QUALITY_SCALE;
   return recipe.baseValue.mul(qualityMultiplier);
 }
 
@@ -281,149 +360,26 @@ export function formatRemainingTime(remainingMs: number): string {
   }
 }
 
-// ===== Unlock Requirement Checks =====
-
-/**
- * Check if a recipe can be unlocked given current game state
- */
-export function canUnlockRecipe(
-  recipe: CheeseRecipe,
-  state: GameState
-): boolean {
-  // Already unlocked
-  if (state.crafting.unlockedRecipes.includes(recipe.id)) return false;
-
-  const req = recipe.unlockRequirement;
-  if (!req || req.type === 'none') return true;
-
-  switch (req.type) {
-    case 'prestige_rennet':
-      return state.prestige.totalRennet >= req.amount;
-    case 'prestige_vintage':
-      return state.prestige.totalVintageWheels >= req.amount;
-    case 'cheese_crafted':
-      return (state.crafting.cheeseCollection[req.recipeId] ?? 0) >= req.count;
-    case 'province_complete':
-      return state.zoneProgress[req.provinceId]?.bossDefeated ?? false;
-    default:
-      return false;
-  }
-}
-
-/**
- * Check if a cave can be unlocked given current game state
- */
-export function canUnlockCave(
-  cave: AffinageCave,
-  state: GameState
-): boolean {
-  // Already unlocked
-  if (state.crafting.unlockedCaves.includes(cave.id)) return false;
-
-  // Check rennet cost
-  if (state.prestige.rennet < cave.cost) return false;
-
-  const req = cave.unlockRequirement;
-  if (!req || req.type === 'none') return true;
-
-  switch (req.type) {
-    case 'prestige_rennet':
-      return state.prestige.totalRennet >= req.amount;
-    case 'prestige_vintage':
-      return state.prestige.totalVintageWheels >= req.amount;
-    case 'cave_unlocked':
-      return state.crafting.unlockedCaves.includes(req.caveId);
-    default:
-      return false;
-  }
-}
-
-/**
- * Check if an ingredient can be unlocked given current game state
- */
-export function canUnlockIngredient(
-  ingredient: Ingredient,
-  state: GameState
-): boolean {
-  // Already unlocked
-  if (state.crafting.unlockedIngredients.includes(ingredient.id)) return false;
-
-  const req = ingredient.unlockRequirement;
-  if (!req || req.type === 'none') return true;
-
-  switch (req.type) {
-    case 'prestige_rennet':
-      return state.prestige.totalRennet >= req.amount;
-    case 'prestige_vintage':
-      return state.prestige.totalVintageWheels >= req.amount;
-    case 'achievement':
-      return state.achievements.includes(req.achievementId);
-    case 'province':
-      return state.zoneProgress[req.provinceId]?.bossDefeated ?? false;
-    case 'cave_level':
-      return state.crafting.unlockedCaves.includes(req.caveId);
-    default:
-      return false;
-  }
-}
-
-// ===== Recipe Filtering =====
-
-/**
- * Get all recipes available for a specific cave
- * (recipes that are unlocked and can be crafted in this cave)
- */
-export function getAvailableRecipesForCave(
-  caveId: string,
-  state: GameState
-): CheeseRecipe[] {
-  const cave = getCaveById(caveId);
-  if (!cave) return [];
-
-  // Cave must be unlocked
-  if (!state.crafting.unlockedCaves.includes(caveId)) return [];
-
-  // Return all unlocked recipes (all recipes can be made in any cave)
-  return CHEESE_RECIPES.filter((recipe) =>
-    state.crafting.unlockedRecipes.includes(recipe.id)
-  );
-}
-
-/**
- * Get recipes that can potentially be unlocked
- */
-export function getUnlockableRecipes(state: GameState): CheeseRecipe[] {
-  return CHEESE_RECIPES.filter((recipe) => canUnlockRecipe(recipe, state));
-}
-
-/**
- * Get caves that can potentially be unlocked
- */
-export function getUnlockableCaves(state: GameState): AffinageCave[] {
-  return CAVES.filter((cave) => canUnlockCave(cave, state));
-}
-
 // ===== Buff Effect Calculations =====
 
 /**
  * Calculate a quality-scaled buff effect
  *
  * Quality scaling:
- * - Quality 1 = 0.5x effect strength
- * - Quality 50 = 1.0x effect strength
- * - Quality 100 = 1.5x effect strength
+ * - Quality 1 = BUFF_QUALITY_BASE effect strength
+ * - Quality 100 = BUFF_QUALITY_BASE + BUFF_QUALITY_SCALE effect strength
  */
 export function calculateBuffEffect(
   effect: CheeseEffect,
   quality: number
 ): CheeseEffect {
-  // Quality multiplier: 0.5 at Q1, 1.0 at Q50, 1.5 at Q100
-  const qualityMultiplier = 0.5 + (quality / 100) * 1.0;
+  const qualityMultiplier =
+    BUFF_QUALITY_BASE + (quality / 100) * BUFF_QUALITY_SCALE;
 
   const scaledEffect = { ...effect };
 
   // Scale multiplier-based effects
-  if ('multiplier' in scaledEffect) {
+  if ('multiplier' in scaledEffect && typeof scaledEffect.multiplier === 'number') {
     // For multipliers, scale the bonus portion: (mult - 1) * qualityMult + 1
     const bonus = (scaledEffect.multiplier - 1) * qualityMultiplier;
     scaledEffect.multiplier = 1 + bonus;

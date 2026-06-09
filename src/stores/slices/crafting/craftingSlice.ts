@@ -3,12 +3,6 @@ import type { SliceCreator } from '../../types';
 import type { CraftingSlice } from './types';
 import { createInitialCraftingState, createPrestigeCraftingState } from './resetFactory';
 import { recipeRegistry } from '../../../domain';
-import {
-  BUFF_QUALITY_BASE,
-  BUFF_QUALITY_SCALE,
-  CHEESE_SELL_QUALITY_BASE,
-  CHEESE_SELL_QUALITY_SCALE,
-} from '../../../data/constants';
 import { CHEESE_RECIPES } from '../../../data/cheeseRecipes';
 import { getCaveById, CAVES } from '../../../data/caves';
 import {
@@ -21,6 +15,16 @@ import {
   trackCraftingStart,
   trackCraftingComplete,
 } from '../../../systems/analyticsService';
+import {
+  checkUnlockRequirement,
+  type UnlockContext,
+  calculateIngredientQualityBonus,
+  clampQuality,
+  calculateCheeseValue,
+  calculateBuffEffect,
+  getCaveAvailableSlots as engineGetCaveAvailableSlots,
+  calculateAgingProgress,
+} from '../../../systems/craftingEngine';
 import type {
   CraftingJob,
   CraftingInteraction,
@@ -44,6 +48,22 @@ export function setCraftingEventCallback(callback: CraftingEventCallback | null)
   craftingEventCallback = callback;
 }
 
+function buildUnlockContext(state: {
+  prestige: { totalRennet: number; totalVintageWheels: number };
+  achievements: string[];
+  zoneProgress: Record<string, { bossDefeated: boolean }>;
+  crafting: { unlockedCaves: string[]; cheeseCollection: Record<string, number> };
+}): UnlockContext {
+  return {
+    totalRennet: state.prestige.totalRennet,
+    totalVintageWheels: state.prestige.totalVintageWheels,
+    achievements: state.achievements,
+    zoneProgress: state.zoneProgress,
+    unlockedCaves: state.crafting.unlockedCaves,
+    cheeseCollection: state.crafting.cheeseCollection,
+  };
+}
+
 export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
   // State - use factory for initial
   crafting: createInitialCraftingState(),
@@ -56,29 +76,12 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
   unlockIngredient: (ingredientId: string) => {
     const state = get();
     const ingredient = getIngredientById(ingredientId);
-
     if (!ingredient) return false;
     if (state.crafting.unlockedIngredients.includes(ingredientId)) return false;
 
-    const req = ingredient.unlockRequirement;
-    if (req) {
-      switch (req.type) {
-        case 'prestige_rennet':
-          if (state.prestige.totalRennet < req.amount) return false;
-          break;
-        case 'prestige_vintage':
-          if (state.prestige.totalVintageWheels < req.amount) return false;
-          break;
-        case 'achievement':
-          if (!state.achievements.includes(req.achievementId)) return false;
-          break;
-        case 'province':
-          if (!state.zoneProgress[req.provinceId]?.bossDefeated) return false;
-          break;
-        case 'cave_level':
-          if (!state.crafting.unlockedCaves.includes(req.caveId)) return false;
-          break;
-      }
+    if (ingredient.unlockRequirement) {
+      const ctx = buildUnlockContext(state);
+      if (!checkUnlockRequirement(ingredient.unlockRequirement, ctx)) return false;
     }
 
     set({
@@ -87,33 +90,18 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
         unlockedIngredients: [...state.crafting.unlockedIngredients, ingredientId],
       },
     });
-
     return true;
   },
 
   unlockRecipe: (recipeId: string) => {
     const state = get();
     const recipe = recipeRegistry.get(recipeId);
-
     if (!recipe) return false;
     if (state.crafting.unlockedRecipes.includes(recipeId)) return false;
 
-    const req = recipe.unlockRequirement;
-    if (req) {
-      switch (req.type) {
-        case 'prestige_rennet':
-          if (state.prestige.totalRennet < req.amount) return false;
-          break;
-        case 'prestige_vintage':
-          if (state.prestige.totalVintageWheels < req.amount) return false;
-          break;
-        case 'cheese_crafted':
-          if ((state.crafting.cheeseCollection[req.recipeId] ?? 0) < req.count) return false;
-          break;
-        case 'province_complete':
-          if (!state.zoneProgress[req.provinceId]?.bossDefeated) return false;
-          break;
-      }
+    if (recipe.unlockRequirement) {
+      const ctx = buildUnlockContext(state);
+      if (!checkUnlockRequirement(recipe.unlockRequirement, ctx)) return false;
     }
 
     set({
@@ -122,35 +110,22 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
         unlockedRecipes: [...state.crafting.unlockedRecipes, recipeId],
       },
     });
-
     if (craftingEventCallback) {
       craftingEventCallback({ type: 'recipe_unlocked', recipe });
     }
-
     return true;
   },
 
   unlockCave: (caveId: string) => {
     const state = get();
     const cave = getCaveById(caveId);
-
     if (!cave) return false;
     if (state.crafting.unlockedCaves.includes(caveId)) return false;
     if (!state.canAffordCave(caveId)) return false;
 
-    const req = cave.unlockRequirement;
-    if (req) {
-      switch (req.type) {
-        case 'prestige_rennet':
-          if (state.prestige.totalRennet < req.amount) return false;
-          break;
-        case 'prestige_vintage':
-          if (state.prestige.totalVintageWheels < req.amount) return false;
-          break;
-        case 'cave_unlocked':
-          if (!state.crafting.unlockedCaves.includes(req.caveId)) return false;
-          break;
-      }
+    if (cave.unlockRequirement) {
+      const ctx = buildUnlockContext(state);
+      if (!checkUnlockRequirement(cave.unlockRequirement, ctx)) return false;
     }
 
     set({
@@ -163,39 +138,24 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
         unlockedCaves: [...state.crafting.unlockedCaves, caveId],
       },
     });
-
     if (craftingEventCallback) {
       craftingEventCallback({ type: 'cave_unlocked', cave });
     }
-
     get().checkAchievements();
-
     return true;
   },
 
   canAffordCave: (caveId: string) => {
     const state = get();
     const cave = getCaveById(caveId);
-
     if (!cave) return false;
     if (state.crafting.unlockedCaves.includes(caveId)) return false;
     if (state.prestige.rennet < cave.cost) return false;
 
-    const req = cave.unlockRequirement;
-    if (req) {
-      switch (req.type) {
-        case 'prestige_rennet':
-          if (state.prestige.totalRennet < req.amount) return false;
-          break;
-        case 'prestige_vintage':
-          if (state.prestige.totalVintageWheels < req.amount) return false;
-          break;
-        case 'cave_unlocked':
-          if (!state.crafting.unlockedCaves.includes(req.caveId)) return false;
-          break;
-      }
+    if (cave.unlockRequirement) {
+      const ctx = buildUnlockContext(state);
+      if (!checkUnlockRequirement(cave.unlockRequirement, ctx)) return false;
     }
-
     return true;
   },
 
@@ -225,18 +185,10 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     }
 
     const finalCost = totalCurdsCost.plus(specialtyCost);
-
     if (state.curds.lt(finalCost)) return false;
 
-    const milkQuality = milk.qualityModifier ?? 0;
-    const cultureQuality = culture.qualityModifier ?? 0;
-    const rennetQuality = rennet.qualityModifier ?? 0;
-    let specialtyQuality = 0;
-    for (const itemId of ingredients.specialtyItems) {
-      const item = getIngredientById(itemId);
-      specialtyQuality += item?.qualityModifier ?? 0;
-    }
-    const qualityBonus = cave.qualityBonus + milkQuality + cultureQuality + rennetQuality + specialtyQuality;
+    const ingredientQualityBonus = calculateIngredientQualityBonus(ingredients);
+    const qualityBonus = cave.qualityBonus + ingredientQualityBonus;
 
     const now = Date.now();
     const job: CraftingJob = {
@@ -285,14 +237,7 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
 
   getCaveAvailableSlots: (caveId: string) => {
     const state = get();
-    const cave = getCaveById(caveId);
-    if (!cave) return 0;
-
-    const usedSlots = state.crafting.activeJobs.filter(
-      (job) => job.caveId === caveId
-    ).length;
-
-    return Math.max(0, cave.capacity - usedSlots);
+    return engineGetCaveAvailableSlots(caveId, state.crafting.activeJobs);
   },
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -352,12 +297,10 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     if (!recipe) return null;
 
     let finalQuality = recipe.baseQuality + job.qualityBonus;
-
     for (const interaction of job.interactions) {
       finalQuality += interaction.qualityEffect;
     }
-
-    finalQuality = Math.max(1, Math.min(100, finalQuality));
+    finalQuality = clampQuality(finalQuality);
 
     const cheese: CraftedCheese = {
       id: `cheese_${now}_${Math.random().toString(36).substring(2, 11)}`,
@@ -408,17 +351,7 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     if (!recipe || !recipe.effects || recipe.effects.length === 0) return false;
 
     const newBuffs: CheeseActiveBuff[] = recipe.effects.map((effect) => {
-      const qualityMultiplier = BUFF_QUALITY_BASE + (cheese.quality / 100) * BUFF_QUALITY_SCALE;
-      const scaledEffect = { ...effect };
-
-      if ('multiplier' in scaledEffect) {
-        const bonus = (scaledEffect.multiplier - 1) * qualityMultiplier;
-        scaledEffect.multiplier = 1 + bonus;
-      }
-      if ('value' in scaledEffect && typeof scaledEffect.value === 'number') {
-        scaledEffect.value = Math.round(scaledEffect.value * qualityMultiplier);
-      }
-
+      const scaledEffect = calculateBuffEffect(effect, cheese.quality);
       return {
         id: `buff_${now}_${Math.random().toString(36).substring(2, 11)}`,
         effect: scaledEffect,
@@ -460,8 +393,7 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     const recipe = recipeRegistry.get(cheese.recipeId);
     if (!recipe) return new Decimal(0);
 
-    const qualityMultiplier = CHEESE_SELL_QUALITY_BASE + (cheese.quality / 100) * CHEESE_SELL_QUALITY_SCALE;
-    const value = recipe.baseValue.mul(qualityMultiplier);
+    const value = calculateCheeseValue(recipe, cheese.quality);
 
     set((s) => {
       const currentIndex = s.crafting.cheeseInventory.findIndex((c) => c.id === cheeseId);
@@ -597,15 +529,6 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     const state = get();
     const job = state.crafting.activeJobs.find((j) => j.id === jobId);
     if (!job) return 0;
-
-    const now = Date.now();
-    const totalDuration = job.endTime - job.startTime;
-
-    if (totalDuration === 0) return 100;
-
-    const elapsed = now - job.startTime;
-    const progress = (elapsed / totalDuration) * 100;
-
-    return Math.min(100, Math.max(0, progress));
+    return calculateAgingProgress(job, Date.now());
   },
 });
