@@ -26,41 +26,6 @@ export class Upgrade extends BaseEntity<UpgradeData> implements UpgradeData {
     return this.data.requirement;
   }
 
-  protected withData(updates: Partial<UpgradeData>): this {
-    return new Upgrade({ ...this.data, ...updates }) as this;
-  }
-
-  /**
-   * Check if this upgrade's requirement is met.
-   */
-  isUnlocked(ownedGenerators: Record<string, number>): boolean {
-    if (!this.requirement) return true;
-
-    if (this.requirement.type === 'generatorOwned') {
-      const owned = ownedGenerators[this.requirement.generatorId] ?? 0;
-      return owned >= this.requirement.count;
-    }
-
-    return true;
-  }
-
-  /**
-   * Check if player can afford this upgrade.
-   */
-  canAfford(curds: Decimal, whey: Decimal): boolean {
-    const currency = this.costCurrency === 'curds' ? curds : whey;
-    return currency.gte(this.cost);
-  }
-
-  /**
-   * Check if this upgrade affects a specific generator.
-   */
-  affectsGenerator(generatorId: string): boolean {
-    return (
-      this.effect.type === 'generatorMultiplier' && this.effect.generatorId === generatorId
-    );
-  }
-
   /**
    * Get the multiplier value if this is a multiplier upgrade.
    */

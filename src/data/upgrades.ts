@@ -505,10 +505,3 @@ export const UPGRADES: Upgrade[] = [
     effect: { type: 'globalMultiplier', value: 3 },
   },
 ];
-
-/**
- * @deprecated Use upgradeRegistry.get() from '../domain' instead
- */
-export function getUpgradeById(id: string): Upgrade | undefined {
-  return UPGRADES.find((u) => u.id === id);
-}

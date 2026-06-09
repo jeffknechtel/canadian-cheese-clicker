@@ -8,7 +8,6 @@ import type {
 } from '../../types/game';
 import { BaseEntity } from './BaseEntity';
 import { equipmentRegistry } from '../registry/equipment';
-import { HERO_XP_BASE, HERO_XP_MULTIPLIER, HERO_MAX_LEVEL } from '../../data/heroes';
 
 /**
  * Rich domain model for Hero definition.
@@ -46,10 +45,6 @@ export class Hero extends BaseEntity<HeroDefinition> implements HeroDefinition {
     return this.data.icon;
   }
 
-  protected withData(updates: Partial<HeroDefinition>): this {
-    return new Hero({ ...this.data, ...updates }) as this;
-  }
-
   /**
    * Calculate stats at a given level (without equipment).
    */
@@ -80,52 +75,6 @@ export class Hero extends BaseEntity<HeroDefinition> implements HeroDefinition {
     }
 
     return stats;
-  }
-
-  /**
-   * Calculate XP required for next level.
-   */
-  static getXpForLevel(level: number): number {
-    return Math.floor(HERO_XP_BASE * Math.pow(HERO_XP_MULTIPLIER, level - 1));
-  }
-
-  /**
-   * Check if hero can level up with current XP.
-   */
-  canLevelUp(heroState: HeroState): boolean {
-    if (heroState.level >= HERO_MAX_LEVEL) return false;
-    return heroState.xp >= heroState.xpToNextLevel;
-  }
-
-  /**
-   * Get CPS contribution from this hero's cheese affinity.
-   */
-  getCpsContribution(heroState: HeroState): number {
-    const stats = this.getFullStats(heroState);
-    return stats.cheeseAffinity / 100; // Convert to percentage
-  }
-
-  /**
-   * Check if player can afford to recruit this hero.
-   */
-  canRecruit(curds: Decimal): boolean {
-    return curds.gte(this.recruitCost);
-  }
-
-  /**
-   * Get class role description for UI.
-   */
-  getRoleDescription(): string {
-    switch (this.class) {
-      case 'tank':
-        return 'Absorbs damage and protects allies';
-      case 'dps':
-        return 'Deals high damage to enemies';
-      case 'support':
-        return 'Buffs allies and debuffs enemies';
-      case 'healer':
-        return 'Restores HP to allies';
-    }
   }
 
   static fromDefinition(data: HeroDefinition): Hero {

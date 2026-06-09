@@ -34,10 +34,6 @@ export class Equipment extends BaseEntity<EquipmentData> implements EquipmentDat
     return this.data.icon;
   }
 
-  protected withData(updates: Partial<EquipmentData>): this {
-    return new Equipment({ ...this.data, ...updates }) as this;
-  }
-
   /**
    * Get stat bonus for a specific stat.
    */
@@ -56,22 +52,6 @@ export class Equipment extends BaseEntity<EquipmentData> implements EquipmentDat
       speed: baseStats.speed + this.getStatBonus('speed'),
       cheeseAffinity: baseStats.cheeseAffinity + this.getStatBonus('cheeseAffinity'),
     };
-  }
-
-  /**
-   * Get rarity color for UI display.
-   */
-  getRarityColor(): string {
-    switch (this.rarity) {
-      case 'common':
-        return '#9ca3af'; // gray
-      case 'uncommon':
-        return '#22c55e'; // green
-      case 'rare':
-        return '#3b82f6'; // blue
-      default:
-        return '#9ca3af';
-    }
   }
 
   static fromDefinition(data: EquipmentData): Equipment {

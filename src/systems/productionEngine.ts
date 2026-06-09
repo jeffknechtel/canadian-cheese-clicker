@@ -425,36 +425,3 @@ export function calculateStartingGenerators(prestige: PrestigeState): Record<str
 
   return starting;
 }
-
-// ===== CPS Recalculation Utility =====
-
-/**
- * Recalculate CPS from game state components.
- * Centralizes the repeated pattern of:
- * 1. Calculate generator multipliers
- * 2. Calculate global multiplier from upgrades
- * 3. Calculate achievement multiplier
- * 4. Calculate hero CPS bonus
- * 5. Calculate formation bonus
- * 6. Calculate prestige multiplier
- * 7. Combine and calculate final CPS
- */
-export function recalculateCpsFromState(
-  generators: Record<string, number>,
-  upgrades: string[],
-  achievements: string[],
-  heroes: Record<string, HeroState>,
-  party: PartyFormation,
-  prestige: PrestigeState
-): Decimal {
-  const generatorMultipliers = calculateGeneratorMultipliers(upgrades);
-  const upgradeGlobalMultiplier = calculateGlobalMultiplier(upgrades);
-  const achievementGlobalMultiplier = calculateAchievementGlobalMultiplier(achievements);
-  const heroMultiplier = calculateHeroCpsMultiplier(heroes, party);
-  const formationMultiplier = calculateFormationMultiplier(party, heroes);
-  const prestigeMultiplier = calculatePrestigeProductionMultiplier(prestige);
-  const totalGlobalMultiplier =
-    upgradeGlobalMultiplier * achievementGlobalMultiplier * heroMultiplier * formationMultiplier * prestigeMultiplier;
-
-  return calculateCps(generators, generatorMultipliers, totalGlobalMultiplier);
-}

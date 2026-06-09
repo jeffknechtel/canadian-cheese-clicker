@@ -26,10 +26,6 @@ export class Generator extends BaseEntity<GeneratorData> implements GeneratorDat
     return this.data.icon;
   }
 
-  protected withData(updates: Partial<GeneratorData>): this {
-    return new Generator({ ...this.data, ...updates }) as this;
-  }
-
   /**
    * Calculate cost to buy `count` generators when `owned` are already owned.
    * Geometric series: baseCost * m^owned * (m^count - 1) / (m - 1)

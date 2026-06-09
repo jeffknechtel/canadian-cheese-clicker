@@ -1,5 +1,6 @@
 import Decimal from 'decimal.js';
 import type { ZoneDefinition, Province } from '../types/game';
+import { zoneRegistry } from '../domain';
 
 /**
  * Province zones for the combat system
@@ -1091,13 +1092,6 @@ export const ZONES: ZoneDefinition[] = [
 // ===== Helper Functions =====
 
 /**
- * @deprecated Use zoneRegistry.get() from '../domain' instead
- */
-export function getZoneById(id: string): ZoneDefinition | undefined {
-  return ZONES.find((z) => z.id === id);
-}
-
-/**
  * Get all zones for a specific province
  */
 export function getZonesByProvince(province: Province): ZoneDefinition[] {
@@ -1204,7 +1198,7 @@ export function getProvinceDisplayName(province: Province): string {
  * Get a stage by zone ID and stage number
  */
 export function getStage(zoneId: string, stageNumber: number) {
-  const zone = getZoneById(zoneId);
+  const zone = zoneRegistry.get(zoneId);
   if (!zone) return undefined;
 
   if (stageNumber === zone.bossStage.stageNumber) {

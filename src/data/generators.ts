@@ -141,10 +141,3 @@ export const GENERATORS: Generator[] = [
     icon: '🦅',
   },
 ];
-
-/**
- * @deprecated Use generatorRegistry.get() from '../domain' instead
- */
-export function getGeneratorById(id: string): Generator | undefined {
-  return GENERATORS.find((g) => g.id === id);
-}
