@@ -1428,7 +1428,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     cooldown: 8,
     targetType: 'self',
     effects: [
-      { type: 'buff', stat: 'damage_reduction', value: 50, duration: 5 },
+      { type: 'buff', stat: 'damageReduction', value: 50, duration: 5 },
       { type: 'taunt', duration: 5 },
     ],
   },
@@ -1439,7 +1439,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Gravy Blast',
     description: 'Launches a torrent of hot gravy dealing AoE damage and slowing all enemies by 30% for 4 seconds.',
     cooldown: 6,
-    targetType: 'all_enemies',
+    targetType: 'allEnemies',
     effects: [
       { type: 'damage', multiplier: 1.5 },
       { type: 'debuff', stat: 'speed', value: -30, duration: 4 },
@@ -1452,9 +1452,9 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Always Get My Cheese',
     description: 'Marks enemies, increasing drop rates by 25% and critical hit chance by 15% for 6 seconds.',
     cooldown: 10,
-    targetType: 'all_enemies',
+    targetType: 'allEnemies',
     effects: [
-      { type: 'drop_rate_bonus', value: 25, duration: 6 },
+      { type: 'dropRateBonus', value: 25, duration: 6 },
       { type: 'buff', stat: 'attack', value: 15, duration: 6 }, // Represented as attack bonus for crit
     ],
   },
@@ -1465,7 +1465,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Slapshot',
     description: 'Winds up and delivers a devastating single-target attack dealing 300% weapon damage with a chance to stun.',
     cooldown: 5,
-    targetType: 'single_enemy',
+    targetType: 'singleEnemy',
     effects: [
       { type: 'damage', multiplier: 3.0 },
       { type: 'debuff', stat: 'speed', value: -100, duration: 2 }, // Stun effect (speed to 0)
@@ -1478,7 +1478,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Paddle Song',
     description: 'Sings an inspiring paddling rhythm that increases party attack by 20% and speed by 20% for 8 seconds.',
     cooldown: 12,
-    targetType: 'all_allies',
+    targetType: 'allAllies',
     effects: [
       { type: 'buff', stat: 'attack', value: 20, duration: 8 },
       { type: 'buff', stat: 'speed', value: 20, duration: 8 },
@@ -1491,7 +1491,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Cold Resistance',
     description: 'Enters a meditative state, becoming immune to freeze and slow effects while gaining 40% damage reduction for 5 seconds.',
     cooldown: 10,
-    targetType: 'all_allies',
+    targetType: 'allAllies',
     effects: [
       { type: 'immunity', immunityType: 'freeze', duration: 5 },
       { type: 'immunity', immunityType: 'slow', duration: 5 },
@@ -1505,7 +1505,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Cedar Healing',
     description: 'Summons the spirit of the great cedars to heal all party members for 30% of their max HP over 6 seconds.',
     cooldown: 14,
-    targetType: 'all_allies',
+    targetType: 'allAllies',
     effects: [
       { type: 'heal', amount: 30, isPercentage: true },
     ],
@@ -1517,7 +1517,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Lobster Trap',
     description: 'Sets a trap that snares an enemy, dealing damage over time (150% weapon damage over 8 seconds) and preventing movement.',
     cooldown: 8,
-    targetType: 'single_enemy',
+    targetType: 'singleEnemy',
     effects: [
       { type: 'damage', multiplier: 0.5 }, // Initial hit
       { type: 'debuff', stat: 'damageOverTime', value: 12, duration: 8 }, // DoT over 8 seconds
@@ -1533,7 +1533,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Cloud Computing',
     description: 'Extends all active buff durations by 50% and increases party speed by 15% for 8 seconds.',
     cooldown: 12,
-    targetType: 'all_allies',
+    targetType: 'allAllies',
     effects: [
       { type: 'buff', stat: 'speed', value: 15, duration: 8 },
     ],
@@ -1547,7 +1547,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     cooldown: 10,
     targetType: 'self',
     effects: [
-      { type: 'buff', stat: 'damage_reduction', value: 60, duration: 6 },
+      { type: 'buff', stat: 'damageReduction', value: 60, duration: 6 },
       { type: 'buff', stat: 'defense', value: 30, duration: 6 },
     ],
   },
@@ -1558,7 +1558,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Bull Rush',
     description: 'Charges at an enemy dealing 250% damage and stunning them for 2 seconds. Gains 25% crit chance for 5 seconds.',
     cooldown: 6,
-    targetType: 'single_enemy',
+    targetType: 'singleEnemy',
     effects: [
       { type: 'damage', multiplier: 2.5 },
       { type: 'debuff', stat: 'speed', value: -100, duration: 2 }, // Stun
@@ -1572,7 +1572,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Perfect Draw',
     description: 'Increases party accuracy by 30% and critical hit damage by 40% for 6 seconds. Also cleanses one debuff.',
     cooldown: 10,
-    targetType: 'all_allies',
+    targetType: 'allAllies',
     effects: [
       { type: 'buff', stat: 'attack', value: 30, duration: 6 },
       { type: 'cleanse' },
@@ -1585,7 +1585,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Wheat Blessing',
     description: 'Heals all allies for 25% max HP and cleanses all debuffs. Also provides a 10% healing over time for 8 seconds.',
     cooldown: 14,
-    targetType: 'all_allies',
+    targetType: 'allAllies',
     effects: [
       { type: 'heal', amount: 25, isPercentage: true },
       { type: 'cleanse' },
@@ -1598,10 +1598,10 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Gold Strike',
     description: 'Strikes a critical blow dealing 350% damage with guaranteed crit. Has a 25% chance to drop bonus curds.',
     cooldown: 7,
-    targetType: 'single_enemy',
+    targetType: 'singleEnemy',
     effects: [
       { type: 'damage', multiplier: 3.5 },
-      { type: 'drop_rate_bonus', value: 25, duration: 1 },
+      { type: 'dropRateBonus', value: 25, duration: 1 },
     ],
   },
 
@@ -1611,7 +1611,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Cryptid Shield',
     description: "Creates a mystical barrier that absorbs up to 40% of the party's max HP in damage for 5 seconds.",
     cooldown: 12,
-    targetType: 'all_allies',
+    targetType: 'allAllies',
     effects: [
       { type: 'buff', stat: 'defense', value: 40, duration: 5 },
     ],
@@ -1623,7 +1623,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Schooner Slash',
     description: 'Delivers 4 rapid slashes each dealing 80% damage. Has increased chance to hit for bonus damage.',
     cooldown: 6,
-    targetType: 'single_enemy',
+    targetType: 'singleEnemy',
     effects: [
       { type: 'damage', multiplier: 0.8 },
       { type: 'damage', multiplier: 0.8 },
@@ -1641,7 +1641,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     targetType: 'self',
     effects: [
       { type: 'buff', stat: 'speed', value: 50, duration: 5 },
-      { type: 'buff', stat: 'damage_reduction', value: 30, duration: 5 },
+      { type: 'buff', stat: 'damageReduction', value: 30, duration: 5 },
       { type: 'taunt', duration: 5 },
     ],
   },
@@ -1652,7 +1652,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Tidal Strike',
     description: 'Unleashes a wave of tidal energy dealing 200% damage that increases to 300% if the target is debuffed.',
     cooldown: 7,
-    targetType: 'single_enemy',
+    targetType: 'singleEnemy',
     effects: [
       { type: 'damage', multiplier: 2.5 }, // Average between 2.0 and 3.0
     ],
@@ -1664,11 +1664,11 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Kindred Inspiration',
     description: 'Inspires all allies, increasing attack by 25% and healing for 15% max HP. Also grants immunity to fear.',
     cooldown: 11,
-    targetType: 'all_allies',
+    targetType: 'allAllies',
     effects: [
       { type: 'buff', stat: 'attack', value: 25, duration: 8 },
       { type: 'heal', amount: 15, isPercentage: true },
-      { type: 'immunity', immunityType: 'all_debuffs', duration: 4 },
+      { type: 'immunity', immunityType: 'allDebuffs', duration: 4 },
     ],
   },
 
@@ -1680,7 +1680,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     cooldown: 12,
     targetType: 'self',
     effects: [
-      { type: 'buff', stat: 'damage_reduction', value: 70, duration: 4 },
+      { type: 'buff', stat: 'damageReduction', value: 70, duration: 4 },
       { type: 'debuff', stat: 'speed', value: -100, duration: 4 }, // Self-root
     ],
   },
@@ -1691,7 +1691,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Screech Storm',
     description: 'Lets out a mighty screech dealing 180% AoE damage and reducing enemy defense by 25% for 5 seconds.',
     cooldown: 8,
-    targetType: 'all_enemies',
+    targetType: 'allEnemies',
     effects: [
       { type: 'damage', multiplier: 1.8 },
       { type: 'debuff', stat: 'defense', value: -25, duration: 5 },
@@ -1717,7 +1717,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Northern Lights Blessing',
     description: 'Channels the aurora to heal all allies for 35% max HP and grants a shield equal to 15% max HP for 6 seconds.',
     cooldown: 14,
-    targetType: 'all_allies',
+    targetType: 'allAllies',
     effects: [
       { type: 'heal', amount: 35, isPercentage: true },
       { type: 'buff', stat: 'defense', value: 15, duration: 6 },
@@ -1730,7 +1730,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Pressure Point',
     description: 'Strikes with diamond-hard precision dealing 280% damage. Ignores 50% of enemy defense.',
     cooldown: 6,
-    targetType: 'single_enemy',
+    targetType: 'singleEnemy',
     effects: [
       { type: 'damage', multiplier: 2.8 },
       { type: 'debuff', stat: 'defense', value: -50, duration: 3 },
@@ -1743,7 +1743,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Arctic Precision',
     description: 'Throws a harpoon dealing 320% damage to a single target. If the target survives, they bleed for 100% damage over 6 seconds.',
     cooldown: 8,
-    targetType: 'single_enemy',
+    targetType: 'singleEnemy',
     effects: [
       { type: 'damage', multiplier: 3.2 },
       { type: 'debuff', stat: 'damageOverTime', value: 16, duration: 6 },
@@ -1756,7 +1756,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: "Ocean Mother's Embrace",
     description: "Calls upon Sedna to heal all allies for 40% max HP and resurrect any fallen party member at 25% HP.",
     cooldown: 18,
-    targetType: 'all_allies',
+    targetType: 'allAllies',
     effects: [
       { type: 'heal', amount: 40, isPercentage: true },
     ],
@@ -1768,7 +1768,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: '99 Goals',
     description: 'Channels legendary prowess to deal 400% damage to all enemies. Guaranteed to crit. Cannot be blocked or dodged.',
     cooldown: 10,
-    targetType: 'all_enemies',
+    targetType: 'allEnemies',
     effects: [
       { type: 'damage', multiplier: 4.0 },
     ],
@@ -1780,12 +1780,12 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'Marathon of Hope',
     description: 'Inspires the entire party with unbreakable determination. Increases all stats by 20% and prevents death for 5 seconds.',
     cooldown: 16,
-    targetType: 'all_allies',
+    targetType: 'allAllies',
     effects: [
       { type: 'buff', stat: 'attack', value: 20, duration: 5 },
       { type: 'buff', stat: 'defense', value: 20, duration: 5 },
       { type: 'buff', stat: 'speed', value: 20, duration: 5 },
-      { type: 'immunity', immunityType: 'all_debuffs', duration: 5 },
+      { type: 'immunity', immunityType: 'allDebuffs', duration: 5 },
     ],
   },
 
@@ -1797,7 +1797,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     cooldown: 14,
     targetType: 'self',
     effects: [
-      { type: 'buff', stat: 'damage_reduction', value: 100, duration: 4 },
+      { type: 'buff', stat: 'damageReduction', value: 100, duration: 4 },
       { type: 'taunt', duration: 4 },
     ],
   },
@@ -1808,7 +1808,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     name: 'United Dominion',
     description: 'Unites the party, causing all abilities to have 30% reduced cooldown and sharing 15% of healing between all members for 8 seconds.',
     cooldown: 15,
-    targetType: 'all_allies',
+    targetType: 'allAllies',
     effects: [
       { type: 'buff', stat: 'speed', value: 30, duration: 8 },
       { type: 'buff', stat: 'cheeseAffinity', value: 30, duration: 8 },
@@ -1836,9 +1836,9 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     name: 'Coast to Coast Charge',
     description: 'An invincible rush from coast to coast! Becomes immune to damage briefly and hits all enemies for massive damage.',
     heroId: 'maple_knight',
-    targetType: 'all_enemies',
+    targetType: 'allEnemies',
     effects: [
-      { type: 'immunity', immunityType: 'all_debuffs', duration: 3 },
+      { type: 'immunity', immunityType: 'allDebuffs', duration: 3 },
       { type: 'damage', multiplier: 4.0 },
     ],
     animation: 'charge',
@@ -1850,7 +1850,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     name: 'Festival of Flavor',
     description: 'Unleashes the full power of Quebec cuisine! Deals massive AoE damage to all enemies and fully heals the entire party.',
     heroId: 'poutine_mage',
-    targetType: 'all_enemies',
+    targetType: 'allEnemies',
     effects: [
       { type: 'damage', multiplier: 5.0 },
       { type: 'heal', amount: 100, isPercentage: true }, // Full heal applied to party separately
@@ -1864,7 +1864,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     name: 'Gordie Howe Hat Trick',
     description: 'A goal, an assist, and a fight! Delivers 3 consecutive devastating attacks to a single target for massive damage.',
     heroId: 'hockey_enforcer',
-    targetType: 'single_enemy',
+    targetType: 'singleEnemy',
     effects: [
       { type: 'damage', multiplier: 2.5 },
       { type: 'damage', multiplier: 2.5 },
@@ -1881,7 +1881,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     name: 'Calgary Stampede',
     description: 'Summons a thundering herd of wild horses that trample all enemies for devastating damage!',
     heroId: 'stampede_rider',
-    targetType: 'all_enemies',
+    targetType: 'allEnemies',
     effects: [
       { type: 'damage', multiplier: 4.5 },
       { type: 'debuff', stat: 'speed', value: -50, duration: 4 },
@@ -1895,10 +1895,10 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     name: 'Mother Lode',
     description: 'Strikes the legendary mother lode, dealing massive damage and guaranteeing rare drops!',
     heroId: 'sourdough_miner',
-    targetType: 'single_enemy',
+    targetType: 'singleEnemy',
     effects: [
       { type: 'damage', multiplier: 6.0 },
-      { type: 'drop_rate_bonus', value: 100, duration: 1 },
+      { type: 'dropRateBonus', value: 100, duration: 1 },
     ],
     animation: 'gold_explosion',
   },
@@ -1909,7 +1909,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     name: 'Atlantic Hurricane',
     description: 'Calls upon the fury of the Atlantic, unleashing a hurricane of slashes and waves!',
     heroId: 'bluenose_sailor',
-    targetType: 'all_enemies',
+    targetType: 'allEnemies',
     effects: [
       { type: 'damage', multiplier: 1.5 },
       { type: 'damage', multiplier: 1.5 },
@@ -1925,7 +1925,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     name: 'Tidal Wave',
     description: 'Summons the full force of the Bay of Fundy tides, crashing down on all enemies!',
     heroId: 'fundy_fisher',
-    targetType: 'all_enemies',
+    targetType: 'allEnemies',
     effects: [
       { type: 'damage', multiplier: 5.0 },
       { type: 'debuff', stat: 'speed', value: -75, duration: 5 },
@@ -1939,7 +1939,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     name: 'Kiss the Cod',
     description: 'Performs the sacred Screecher initiation, dealing massive damage and gaining powerful buffs!',
     heroId: 'screech_captain',
-    targetType: 'all_enemies',
+    targetType: 'allEnemies',
     effects: [
       { type: 'damage', multiplier: 4.0 },
       { type: 'buff', stat: 'attack', value: 50, duration: 6 },
@@ -1953,7 +1953,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     name: 'Berserker Rage',
     description: 'Channels the fury of Viking ancestors, becoming an unstoppable berserker!',
     heroId: 'viking_descendant',
-    targetType: 'single_enemy',
+    targetType: 'singleEnemy',
     effects: [
       { type: 'damage', multiplier: 5.5 },
       { type: 'buff', stat: 'attack', value: 75, duration: 8 },
@@ -1968,7 +1968,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     name: 'Diamond Cutter',
     description: 'Strikes with the force of continental pressure, cutting through all defenses!',
     heroId: 'diamond_miner',
-    targetType: 'single_enemy',
+    targetType: 'singleEnemy',
     effects: [
       { type: 'damage', multiplier: 6.5 },
       { type: 'debuff', stat: 'defense', value: -100, duration: 4 },
@@ -1982,7 +1982,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     name: 'Spirit of the Hunt',
     description: 'Channels generations of hunting wisdom, becoming one with the arctic predators!',
     heroId: 'inuit_hunter',
-    targetType: 'single_enemy',
+    targetType: 'singleEnemy',
     effects: [
       { type: 'damage', multiplier: 7.0 },
       { type: 'debuff', stat: 'damageOverTime', value: 30, duration: 8 },
@@ -1996,7 +1996,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     name: 'The Goal',
     description: 'Recreates the most legendary goal ever scored, dealing reality-breaking damage!',
     heroId: 'the_great_one',
-    targetType: 'all_enemies',
+    targetType: 'allEnemies',
     effects: [
       { type: 'damage', multiplier: 9.9 }, // 99 reference!
       { type: 'buff', stat: 'attack', value: 99, duration: 9 },
@@ -2010,9 +2010,9 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     name: 'Never Forgotten',
     description: 'The spirits of Vimy rise to protect the party, becoming completely invulnerable!',
     heroId: 'vimy_guardian',
-    targetType: 'all_allies',
+    targetType: 'allAllies',
     effects: [
-      { type: 'immunity', immunityType: 'all_debuffs', duration: 6 },
+      { type: 'immunity', immunityType: 'allDebuffs', duration: 6 },
       { type: 'heal', amount: 100, isPercentage: true },
       { type: 'buff', stat: 'defense', value: 100, duration: 6 },
     ],

@@ -2,6 +2,7 @@ import { useGameStore } from '../../../stores';
 import { formatNumber } from '../../../utils/formatNumber';
 import { recipeRegistry } from '../../../domain';
 import { playPurchaseSound } from '../../../systems/audioSystem';
+import { Quality } from '../../../domain/valueObjects';
 import type { CraftedCheese, CheeseEffect } from '../../../types/game';
 
 interface CheeseInventoryCardProps {
@@ -15,8 +16,7 @@ export function CheeseInventoryCard({ cheese }: CheeseInventoryCardProps) {
   if (!recipe) return null;
 
   // Calculate sell value based on quality
-  const qualityMultiplier = 0.5 + (cheese.quality / 100) * 1.5;
-  const sellValue = recipe.baseValue.mul(qualityMultiplier);
+  const sellValue = recipe.baseValue.mul(Quality.of(cheese.quality).toSellMultiplier());
 
   const hasEffects = recipe.effects && recipe.effects.length > 0;
 
@@ -53,7 +53,7 @@ export function CheeseInventoryCard({ cheese }: CheeseInventoryCardProps) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="font-semibold text-timber-700">{recipe.name}</span>
-            <span className={`text-xs px-1.5 py-0.5 rounded ${getQualityColor(cheese.quality)}`}>
+            <span className={`text-xs px-1.5 py-0.5 rounded ${Quality.of(cheese.quality).toColorClass()}`}>
               Q{cheese.quality}
             </span>
           </div>
@@ -114,17 +114,10 @@ function QualityStars({ quality }: { quality: number }) {
   );
 }
 
-function getQualityColor(quality: number): string {
-  if (quality >= 90) return 'bg-purple-100 text-purple-700';
-  if (quality >= 70) return 'bg-yellow-100 text-yellow-700';
-  if (quality >= 50) return 'bg-green-100 text-green-700';
-  if (quality >= 30) return 'bg-blue-100 text-blue-700';
-  return 'bg-gray-100 text-gray-700';
-}
 
 function formatEffect(effect: CheeseEffect, quality: number): string {
   // Scale effect by quality
-  const qualityMultiplier = 0.5 + (quality / 100) * 1.0;
+  const qualityMultiplier = Quality.of(quality).toBuffScale();
   const durationSec = Math.round(effect.duration / 1000);
   const durationStr = durationSec >= 60 ? `${Math.round(durationSec / 60)}m` : `${durationSec}s`;
 

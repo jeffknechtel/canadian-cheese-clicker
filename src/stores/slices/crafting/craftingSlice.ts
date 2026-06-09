@@ -19,12 +19,12 @@ import {
   checkUnlockRequirement,
   type UnlockContext,
   calculateIngredientQualityBonus,
-  clampQuality,
   calculateCheeseValue,
   calculateBuffEffect,
   getCaveAvailableSlots as engineGetCaveAvailableSlots,
   calculateAgingProgress,
 } from '../../../systems/craftingEngine';
+import { Quality } from '../../../domain/valueObjects';
 import type {
   CraftingJob,
   CraftingInteraction,
@@ -296,11 +296,11 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     const recipe = recipeRegistry.get(job.recipeId);
     if (!recipe) return null;
 
-    let finalQuality = recipe.baseQuality + job.qualityBonus;
+    let rawQuality = recipe.baseQuality + job.qualityBonus;
     for (const interaction of job.interactions) {
-      finalQuality += interaction.qualityEffect;
+      rawQuality += interaction.qualityEffect;
     }
-    finalQuality = clampQuality(finalQuality);
+    const finalQuality = Quality.of(rawQuality).toNumber();
 
     const cheese: CraftedCheese = {
       id: `cheese_${now}_${Math.random().toString(36).substring(2, 11)}`,

@@ -8,6 +8,7 @@
 
 import type { Achievement, CombatLogEntry, HeroCombatState, CombatEnemy } from '../types/game';
 import { heroRegistry, enemyRegistry } from '../domain';
+import { Quality } from '../domain/valueObjects';
 
 type Priority = 'polite' | 'assertive';
 
@@ -289,10 +290,9 @@ export function announcePrestige(tier: string, currencyGained: number, currencyN
  * Announce crafting completion
  */
 export function announceCraftingComplete(cheeseName: string, quality: number): void {
-  const qualityText =
-    quality >= 90 ? 'exceptional' : quality >= 70 ? 'high' : quality >= 50 ? 'good' : 'standard';
+  const qualityTier = Quality.of(quality).toTier();
   announce(
-    `Crafting complete! Your ${cheeseName} has finished aging with ${qualityText} quality.`,
+    `Crafting complete! Your ${cheeseName} has finished aging with ${qualityTier} quality.`,
     'polite'
   );
 }
