@@ -1,7 +1,6 @@
 import Decimal from 'decimal.js';
 import type { SliceCreator } from '../../types';
 import type { PrestigeSlice } from './types';
-import { computeCps } from '../production/cpsCalculator';
 import {
   calculatePotentialRennet,
   calculateStartingCurds,
@@ -103,7 +102,7 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
       lastSaved: Date.now(),
     });
 
-    set({ curdPerSecond: computeCps(get()) });
+    get().recalculateCps();
     trackPrestige('aging', rennetGained);
 
     return { rennetGained, newTotal: get().prestige.rennet };
@@ -124,7 +123,7 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
       },
     });
 
-    set({ curdPerSecond: computeCps(get()) });
+    get().recalculateCps();
 
     return true;
   },

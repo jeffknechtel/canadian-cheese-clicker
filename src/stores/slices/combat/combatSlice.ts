@@ -1,6 +1,7 @@
 import type { SliceCreator } from '../../types';
 import type { CombatSlice } from './types';
 import { createEmptyCombatState, createPrestigeCombatState } from './resetFactory';
+import { COMBAT_LOG_MAX_ENTRIES } from '../../../data/constants';
 import {
   initializeCombat,
   tickCombat,
@@ -70,7 +71,7 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
         combat: {
           ...state.combat,
           ...result.stateUpdates,
-          combatLog: [...state.combat.combatLog, ...result.newLogEntries].slice(-100),
+          combatLog: [...state.combat.combatLog, ...result.newLogEntries].slice(-COMBAT_LOG_MAX_ENTRIES),
         },
       });
     }
@@ -159,7 +160,7 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     const updatedCombat = {
       ...state.combat,
       ...result.stateUpdates,
-      combatLog: [...state.combat.combatLog, ...result.logEntries].slice(-100),
+      combatLog: [...state.combat.combatLog, ...result.logEntries].slice(-COMBAT_LOG_MAX_ENTRIES),
     };
 
     if (result.stateUpdates.enemies?.every((e: { isAlive: boolean }) => !e.isAlive)) {
@@ -189,7 +190,7 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     const updatedCombat = {
       ...state.combat,
       ...result.stateUpdates,
-      combatLog: [...state.combat.combatLog, ...result.logEntries].slice(-100),
+      combatLog: [...state.combat.combatLog, ...result.logEntries].slice(-COMBAT_LOG_MAX_ENTRIES),
     };
 
     if (result.stateUpdates.enemies?.every((e: { isAlive: boolean }) => !e.isAlive)) {

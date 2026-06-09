@@ -1,7 +1,7 @@
 import Decimal from 'decimal.js';
 import type { SliceCreator } from '../../types';
 import type { ProductionSlice } from './types';
-import { computeCps } from './cpsCalculator';
+import { computeCps, computeClickValue } from './cpsCalculator';
 import {
   calculateGeneratorCost,
   calculateMaxAffordable,
@@ -22,6 +22,7 @@ import {
   trackGeneratorPurchase,
   trackUpgradePurchase,
 } from '../../../systems/analyticsService';
+import { EH_DIVISOR, EH_BONUS_PER_TIER } from '../../../data/constants';
 import type { UpgradeRequirement } from '../../../types/game';
 
 function checkRequirement(
@@ -105,7 +106,7 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
       generators: { ...state.generators, [id]: currentOwned + count },
     });
 
-    set({ curdPerSecond: computeCps(get()) });
+    get().recalculateCps();
 
     trackGeneratorPurchase(id, count, currentOwned + count);
     get().checkAchievements();
@@ -147,20 +148,14 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
 
     const newUpgrades = [...state.upgrades, id];
 
-    const upgradeClickMultiplier = calculateClickMultiplier(newUpgrades);
-    const achievementClickMultiplier = calculateAchievementClickMultiplier(state.achievements);
-    const prestigeClickMultiplier = calculatePrestigeClickMultiplier(state.prestige);
-    const totalClickMultiplier = upgradeClickMultiplier * achievementClickMultiplier * prestigeClickMultiplier;
-    const newCurdPerClick = new Decimal(1).mul(totalClickMultiplier);
-
     set({
       curds: upgrade.costCurrency === 'curds' ? state.curds.minus(upgrade.cost) : state.curds,
       whey: upgrade.costCurrency === 'whey' ? state.whey.minus(upgrade.cost) : state.whey,
       upgrades: newUpgrades,
-      curdPerClick: newCurdPerClick,
     });
 
-    set({ curdPerSecond: computeCps(get()) });
+    get().recalculateClickValue();
+    get().recalculateCps();
 
     trackUpgradePurchase(id);
     get().checkAchievements();
@@ -214,12 +209,19 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
   },
 
   incrementEh: () => {
-    set((state) => ({ ehCount: state.ehCount + 1 }));
+    const oldEhCount = get().ehCount;
+    const newEhCount = oldEhCount + 1;
+    set({ ehCount: newEhCount });
+
+    // Recalculate CPS when crossing an Eh tier boundary (when multiplier changes)
+    if (Math.floor(newEhCount / EH_DIVISOR) > Math.floor(oldEhCount / EH_DIVISOR)) {
+      get().recalculateCps();
+    }
   },
 
   getEhMultiplier: () => {
     const { ehCount } = get();
-    return 1 + Math.floor(ehCount / 100) * 0.01;
+    return 1 + Math.floor(ehCount / EH_DIVISOR) * EH_BONUS_PER_TIER;
   },
 
   checkMilestone: () => {
@@ -269,5 +271,9 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
 
   recalculateCps: () => {
     set({ curdPerSecond: computeCps(get()) });
+  },
+
+  recalculateClickValue: () => {
+    set({ curdPerClick: computeClickValue(get()) });
   },
 });

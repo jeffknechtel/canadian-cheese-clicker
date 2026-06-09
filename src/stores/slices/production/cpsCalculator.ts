@@ -7,6 +7,9 @@ import {
   calculateHeroCpsMultiplier,
   calculateFormationMultiplier,
   calculatePrestigeProductionMultiplier,
+  calculateClickMultiplier,
+  calculateAchievementClickMultiplier,
+  calculatePrestigeClickMultiplier,
 } from '../../../systems/productionEngine';
 import type { GameStore } from '../../types';
 
@@ -33,4 +36,16 @@ export function computeCps(state: GameStore): Decimal {
     ehMultiplier;
 
   return calculateCps(state.generators, generatorMultipliers, totalGlobalMultiplier);
+}
+
+/**
+ * Single source of truth for click value calculation.
+ * Replaces 3 copy-pasted blocks in productionSlice, achievementSlice, and saveSystem.
+ */
+export function computeClickValue(state: GameStore): Decimal {
+  const upgradeClickMultiplier = calculateClickMultiplier(state.upgrades);
+  const achievementClickMultiplier = calculateAchievementClickMultiplier(state.achievements);
+  const prestigeClickMultiplier = calculatePrestigeClickMultiplier(state.prestige);
+  const totalClickMultiplier = upgradeClickMultiplier * achievementClickMultiplier * prestigeClickMultiplier;
+  return new Decimal(1).mul(totalClickMultiplier);
 }

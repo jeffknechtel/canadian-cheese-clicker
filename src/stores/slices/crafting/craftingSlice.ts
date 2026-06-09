@@ -3,6 +3,12 @@ import type { SliceCreator } from '../../types';
 import type { CraftingSlice } from './types';
 import { createInitialCraftingState, createPrestigeCraftingState } from './resetFactory';
 import { recipeRegistry } from '../../../domain';
+import {
+  BUFF_QUALITY_BASE,
+  BUFF_QUALITY_SCALE,
+  CHEESE_SELL_QUALITY_BASE,
+  CHEESE_SELL_QUALITY_SCALE,
+} from '../../../data/constants';
 import { CHEESE_RECIPES } from '../../../data/cheeseRecipes';
 import { getCaveById, CAVES } from '../../../data/caves';
 import {
@@ -402,7 +408,7 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     if (!recipe || !recipe.effects || recipe.effects.length === 0) return false;
 
     const newBuffs: CheeseActiveBuff[] = recipe.effects.map((effect) => {
-      const qualityMultiplier = 0.5 + (cheese.quality / 100) * 1.0;
+      const qualityMultiplier = BUFF_QUALITY_BASE + (cheese.quality / 100) * BUFF_QUALITY_SCALE;
       const scaledEffect = { ...effect };
 
       if ('multiplier' in scaledEffect) {
@@ -454,7 +460,7 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     const recipe = recipeRegistry.get(cheese.recipeId);
     if (!recipe) return new Decimal(0);
 
-    const qualityMultiplier = 0.5 + (cheese.quality / 100) * 1.5;
+    const qualityMultiplier = CHEESE_SELL_QUALITY_BASE + (cheese.quality / 100) * CHEESE_SELL_QUALITY_SCALE;
     const value = recipe.baseValue.mul(qualityMultiplier);
 
     set((s) => {
