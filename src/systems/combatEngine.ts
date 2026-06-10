@@ -39,7 +39,7 @@ import {
 } from '../data/constants';
 import { Stats } from '../domain/valueObjects';
 
-// Re-export constants for backwards compatibility with UI components
+// Re-export constants for backwards compatibility with UI components and Battle aggregate
 export {
   ATB_MAX,
   BASE_ATB_RATE,
@@ -48,6 +48,7 @@ export {
   LIMIT_BREAK_GAIN_FROM_TAKEN,
   HP_LOW_THRESHOLD,
   HP_MEDIUM_THRESHOLD,
+  BOSS_PHASE_HEAL_PERCENT,
 };
 
 // ===== Enemy Ability Selection =====
@@ -621,6 +622,8 @@ export function initializeCombat(
 // ===== Combat Tick =====
 
 /**
+ * @deprecated Use Battle aggregate instead: Battle.from(state).tick(deltaMs, partyStats)
+ * This function is retained temporarily for reference but should not be called.
  * Main combat tick function - called from game loop
  */
 export function tickCombat(

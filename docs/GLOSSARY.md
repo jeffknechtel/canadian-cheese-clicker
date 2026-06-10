@@ -69,3 +69,23 @@
 |----------------|------------|-------------|
 | `'ability'` | Hero or enemy ability activation | `'skill'` |
 | `'phaseChange'` | Boss phase transition | `'phase_change'` |
+
+## Aggregates
+
+| Canonical Term | Definition | Location |
+|----------------|------------|----------|
+| `Battle` | Aggregate wrapping `CombatState`. Owns victory/defeat invariants. All combat state transitions go through `Battle.tick()` or `Battle.useAbility()`/`useLimitBreak()`. | `src/domain/aggregates/Battle.ts` |
+| `Party` | Aggregate wrapping `PartyFormation`. Owns slot assignment invariants (hero can only occupy one slot, only recruited heroes can be assigned). | `src/domain/aggregates/Party.ts` |
+
+### Aggregate Usage Pattern:
+```typescript
+// Battle aggregate
+const battle = Battle.from(state.combat);
+const { battle: updated, logs } = battle.tick(deltaMs, partyStats);
+set({ combat: updated.toState() });
+
+// Party aggregate
+const party = Party.from(state.party, state.heroes);
+const updated = party.assignHero(heroId, position);
+set({ party: updated.toFormation() });
+```
