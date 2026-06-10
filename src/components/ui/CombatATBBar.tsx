@@ -1,3 +1,4 @@
+import { useGameStore } from '../../stores';
 import { ATB_MAX, LIMIT_BREAK_MAX } from '../../systems/combatEngine';
 
 interface CombatATBBarProps {
@@ -21,6 +22,7 @@ export function CombatATBBar({
   showLabel = true,
   size = 'md',
 }: CombatATBBarProps) {
+  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
   const percentage = Math.min(100, (currentValue / maxValue) * 100);
 
   const sizeClasses = {
@@ -29,12 +31,13 @@ export function CombatATBBar({
     lg: 'h-3',
   };
 
+  const pulseClass = isReady && !reducedMotion ? 'animate-pulse' : '';
   const gradientClasses = {
     hero: isReady
-      ? 'bg-linear-to-r from-cheddar-400 to-cheddar-500 animate-pulse'
+      ? `bg-linear-to-r from-cheddar-400 to-cheddar-500 ${pulseClass}`
       : 'bg-linear-to-r from-maple-400 to-maple-600',
     enemy: isReady
-      ? 'bg-linear-to-r from-red-400 to-red-500 animate-pulse'
+      ? `bg-linear-to-r from-red-400 to-red-500 ${pulseClass}`
       : 'bg-linear-to-r from-red-300 to-red-500',
   };
 
@@ -60,7 +63,7 @@ export function CombatATBBar({
           <div className="flex justify-between items-center mb-0.5">
             <span className="text-xs font-medium text-timber-600 truncate">{label}</span>
             {isReady && (
-              <span className="text-xs text-cheddar-600 font-bold animate-pulse">READY!</span>
+              <span className={`text-xs text-cheddar-600 font-bold ${!reducedMotion ? 'animate-pulse' : ''}`}>READY!</span>
             )}
           </div>
         )}
@@ -91,6 +94,7 @@ export function LimitBreakGauge({
   onActivate,
   isDisabled = false,
 }: LimitBreakGaugeProps) {
+  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
   const isReady = currentValue >= LIMIT_BREAK_MAX;
   const percentage = Math.min(LIMIT_BREAK_MAX, currentValue);
 
@@ -107,7 +111,7 @@ export function LimitBreakGauge({
           className={`
             h-full rounded-full transition-all duration-200
             ${isReady
-              ? 'bg-linear-to-r from-amber-400 via-orange-500 to-red-500 animate-pulse'
+              ? `bg-linear-to-r from-amber-400 via-orange-500 to-red-500 ${!reducedMotion ? 'animate-pulse' : ''}`
               : 'bg-linear-to-r from-amber-300 to-amber-500'
             }
           `}

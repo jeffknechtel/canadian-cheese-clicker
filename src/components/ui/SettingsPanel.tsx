@@ -3,6 +3,7 @@ import { useSettingsStore } from '../../stores/settingsStore';
 import { useGameStore } from '../../stores';
 import { deleteSave } from '../../systems/saveSystem';
 import { PrivacyToggle } from './PrivacyConsent';
+import { AnimatedTabContent } from './shared/AnimatedTabContent';
 import type { SettingsState } from '../../types/settings';
 
 interface SettingsPanelProps {
@@ -128,59 +129,61 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: '#FFFEF5' }}>
-          {activeTab === 'audio' && (
-            <AudioSettings
-              settings={settings}
-              onMasterVolumeChange={settings.setMasterVolume}
-              onMusicVolumeChange={settings.setMusicVolume}
-              onSfxVolumeChange={settings.setSfxVolume}
-              onMusicEnabledChange={settings.setMusicEnabled}
-              onSfxEnabledChange={settings.setSfxEnabled}
-            />
-          )}
+          <AnimatedTabContent activeKey={activeTab}>
+            {activeTab === 'audio' && (
+              <AudioSettings
+                settings={settings}
+                onMasterVolumeChange={settings.setMasterVolume}
+                onMusicVolumeChange={settings.setMusicVolume}
+                onSfxVolumeChange={settings.setSfxVolume}
+                onMusicEnabledChange={settings.setMusicEnabled}
+                onSfxEnabledChange={settings.setSfxEnabled}
+              />
+            )}
 
-          {activeTab === 'graphics' && (
-            <GraphicsSettings
-              settings={settings}
-              onQualityChange={settings.setQuality}
-              onParticlesChange={settings.setParticlesEnabled}
-              onAnimationsChange={settings.setAnimationsEnabled}
-            />
-          )}
+            {activeTab === 'graphics' && (
+              <GraphicsSettings
+                settings={settings}
+                onQualityChange={settings.setQuality}
+                onParticlesChange={settings.setParticlesEnabled}
+                onAnimationsChange={settings.setAnimationsEnabled}
+              />
+            )}
 
-          {activeTab === 'accessibility' && (
-            <AccessibilitySettings
-              settings={settings}
-              onColorblindModeChange={settings.setColorblindMode}
-              onReducedMotionChange={settings.setReducedMotion}
-              onHighContrastChange={settings.setHighContrast}
-              onFontSizeChange={settings.setFontSize}
-            />
-          )}
+            {activeTab === 'accessibility' && (
+              <AccessibilitySettings
+                settings={settings}
+                onColorblindModeChange={settings.setColorblindMode}
+                onReducedMotionChange={settings.setReducedMotion}
+                onHighContrastChange={settings.setHighContrast}
+                onFontSizeChange={settings.setFontSize}
+              />
+            )}
 
-          {activeTab === 'game' && (
-            <GameSettings
-              settings={settings}
-              onAutoSaveChange={settings.setAutoSaveInterval}
-              onOfflineCapChange={settings.setOfflineProgressCap}
-              onNumberFormatChange={settings.setNumberFormat}
-            />
-          )}
+            {activeTab === 'game' && (
+              <GameSettings
+                settings={settings}
+                onAutoSaveChange={settings.setAutoSaveInterval}
+                onOfflineCapChange={settings.setOfflineProgressCap}
+                onNumberFormatChange={settings.setNumberFormat}
+              />
+            )}
 
-          {activeTab === 'data' && (
-            <DataSettings
-              onExport={handleExportSave}
-              onSave={() => { saveGame(); alert('Game saved!'); }}
-              importValue={importValue}
-              onImportValueChange={setImportValue}
-              onImport={handleImportSave}
-              importError={importError}
-              showResetConfirm={showResetConfirm}
-              onShowResetConfirm={() => setShowResetConfirm(true)}
-              onCancelReset={() => setShowResetConfirm(false)}
-              onConfirmReset={handleResetProgress}
-            />
-          )}
+            {activeTab === 'data' && (
+              <DataSettings
+                onExport={handleExportSave}
+                onSave={() => { saveGame(); alert('Game saved!'); }}
+                importValue={importValue}
+                onImportValueChange={setImportValue}
+                onImport={handleImportSave}
+                importError={importError}
+                showResetConfirm={showResetConfirm}
+                onShowResetConfirm={() => setShowResetConfirm(true)}
+                onCancelReset={() => setShowResetConfirm(false)}
+                onConfirmReset={handleResetProgress}
+              />
+            )}
+          </AnimatedTabContent>
         </div>
 
         {/* Footer */}

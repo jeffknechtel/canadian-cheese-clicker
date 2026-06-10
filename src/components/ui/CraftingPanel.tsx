@@ -4,6 +4,7 @@ import { RecipeCard } from './crafting/RecipeCard';
 import { CaveCard } from './crafting/CaveCard';
 import { CheeseInventoryCard } from './crafting/CheeseInventoryCard';
 import { CheeseCollectionView } from './crafting/CheeseCollectionView';
+import { AnimatedTabContent } from './shared/AnimatedTabContent';
 import { CHEESE_RECIPES } from '../../data/cheeseRecipes';
 
 type CraftingTab = 'recipes' | 'caves' | 'inventory' | 'collection';
@@ -53,7 +54,7 @@ export function CraftingPanel() {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`
-              flex-1 px-2 py-1.5 text-xs rounded font-medium transition-colors border
+              flex-1 px-2 py-1.5 text-xs rounded font-medium transition-colors border btn-scale
               ${activeTab === tab.id
                 ? 'bg-timber-500 text-white border-timber-600'
                 : 'bg-timber-100 text-timber-700 border-timber-300 hover:bg-timber-200'
@@ -72,18 +73,20 @@ export function CraftingPanel() {
 
       {/* Tab Content */}
       <div className="flex-1 overflow-y-auto scrollbar-thin">
-        {activeTab === 'recipes' && (
-          <RecipesTab recipes={unlockedRecipes} caves={unlockedCaves} />
-        )}
-        {activeTab === 'caves' && (
-          <CavesTab caves={unlockedCaves} activeJobs={activeJobs} />
-        )}
-        {activeTab === 'inventory' && (
-          <InventoryTab inventory={cheeseInventory} />
-        )}
-        {activeTab === 'collection' && (
-          <CheeseCollectionView />
-        )}
+        <AnimatedTabContent activeKey={activeTab}>
+          {activeTab === 'recipes' && (
+            <RecipesTab recipes={unlockedRecipes} caves={unlockedCaves} />
+          )}
+          {activeTab === 'caves' && (
+            <CavesTab caves={unlockedCaves} activeJobs={activeJobs} />
+          )}
+          {activeTab === 'inventory' && (
+            <InventoryTab inventory={cheeseInventory} />
+          )}
+          {activeTab === 'collection' && (
+            <CheeseCollectionView />
+          )}
+        </AnimatedTabContent>
       </div>
     </div>
   );

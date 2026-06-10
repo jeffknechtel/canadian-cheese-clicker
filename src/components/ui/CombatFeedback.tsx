@@ -179,6 +179,7 @@ interface ComboCounterProps {
 }
 
 export function ComboCounter({ count, maxCombo }: ComboCounterProps) {
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
   if (count < 2) return null;
 
   const intensity = count >= 10 ? 'max' : count >= 5 ? 'high' : 'normal';
@@ -188,7 +189,7 @@ export function ComboCounter({ count, maxCombo }: ComboCounterProps) {
       className={`
         absolute top-2 right-2 px-3 py-1 rounded-lg font-bold
         ${intensity === 'max'
-          ? 'bg-linear-to-r from-orange-500 to-red-500 text-white animate-pulse'
+          ? `bg-linear-to-r from-orange-500 to-red-500 text-white ${!reducedMotion ? 'animate-pulse' : ''}`
           : intensity === 'high'
             ? 'bg-linear-to-r from-yellow-400 to-orange-500 text-white'
             : 'bg-linear-to-r from-blue-400 to-blue-500 text-white'

@@ -484,7 +484,7 @@ function App() {
                     rightPanelView === 'combat'
                       ? 'bg-white/40 border-white/40'
                       : combat.isInCombat
-                        ? 'bg-red-500/30 border-red-400/40 animate-pulse'
+                        ? `bg-red-500/30 border-red-400/40 ${!accessibility.reducedMotion ? 'animate-pulse' : ''}`
                         : 'bg-white/20 hover:bg-white/30 border-white/20'
                   }`}
                   title="Combat"
@@ -521,7 +521,7 @@ function App() {
                     rightPanelView === 'prestige'
                       ? 'bg-white/40 border-white/40'
                       : prestigeAvailable
-                        ? 'bg-amber-500/30 border-amber-400/40 animate-pulse'
+                        ? `bg-amber-500/30 border-amber-400/40 ${!accessibility.reducedMotion ? 'animate-pulse' : ''}`
                         : 'bg-white/20 hover:bg-white/30 border-white/20'
                   }`}
                   title="Prestige (Cheese Aging)"
@@ -673,7 +673,7 @@ function App() {
                 ${mobileTab === 'combat'
                   ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
                   : combat.isInCombat
-                    ? 'text-red-600 bg-red-50/50 animate-pulse'
+                    ? `text-red-600 bg-red-50/50 ${!accessibility.reducedMotion ? 'animate-pulse' : ''}`
                     : 'text-rind hover:text-cheddar-600 hover:bg-white/30'
                 }
               `}
@@ -728,7 +728,7 @@ function App() {
                 ${mobileTab === 'prestige'
                   ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
                   : prestigeAvailable
-                    ? 'text-amber-600 bg-amber-50/50 animate-pulse'
+                    ? `text-amber-600 bg-amber-50/50 ${!accessibility.reducedMotion ? 'animate-pulse' : ''}`
                     : 'text-rind hover:text-cheddar-600 hover:bg-white/30'
                 }
               `}

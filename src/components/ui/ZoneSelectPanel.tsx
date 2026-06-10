@@ -115,7 +115,7 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
                     onClick={() => canAttempt && onSelectStage(zone.id, stage.stageNumber)}
                     disabled={!canAttempt}
                     className={`
-                      py-2 px-1 rounded text-xs font-medium transition-all duration-200
+                      py-2 px-1 rounded text-xs font-medium transition-all duration-200 btn-scale
                       ${isCleared
                         ? 'bg-cheddar-100 text-cheddar-700 border border-cheddar-300'
                         : canAttempt
@@ -139,7 +139,7 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
                 }}
                 disabled={(progress?.highestStageCleared || 0) < zone.stages.length}
                 className={`
-                  py-2 px-1 rounded text-xs font-medium transition-all duration-200
+                  py-2 px-1 rounded text-xs font-medium transition-all duration-200 btn-scale
                   ${progress?.bossDefeated
                     ? 'bg-cheddar-100 text-cheddar-700 border border-cheddar-300'
                     : (progress?.highestStageCleared || 0) >= zone.stages.length

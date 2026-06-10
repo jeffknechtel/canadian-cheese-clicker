@@ -43,6 +43,7 @@ interface HeroCardProps {
 }
 
 function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, isInCombat }: HeroCardProps) {
+  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
   // Memoize stats calculation to prevent recalculating on every render
   const stats = useMemo(
     () => calculateHeroStats(hero.id, heroState),
@@ -71,7 +72,7 @@ function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, 
               {hero.class}
             </span>
             {isInCombat && isInParty && (
-              <span className="text-xs px-1.5 py-0.5 rounded bg-red-100 text-red-700 border border-red-300 animate-pulse">
+              <span className={`text-xs px-1.5 py-0.5 rounded bg-red-100 text-red-700 border border-red-300 ${!reducedMotion ? 'animate-pulse' : ''}`}>
                 ⚔️ Fighting
               </span>
             )}
@@ -124,12 +125,11 @@ function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, 
               key={slot}
               onClick={() => onEquipmentClick(hero.id, slot)}
               className={`
-                flex-1 p-2 sm:p-1.5 rounded text-xs transition-all duration-200
+                flex-1 p-2 sm:p-1.5 rounded text-xs transition-all duration-200 btn-scale
                 ${equipped
                   ? 'bg-cheddar-100 border border-cheddar-300 hover:bg-cheddar-200 hover:border-cheddar-400 hover:shadow-xs'
                   : 'bg-gray-100 border border-gray-200 hover:bg-gray-200 hover:border-gray-300'
                 }
-                active:scale-95
               `}
               title={`${SLOT_LABELS[slot]}${equipped ? ' (equipped)' : ''}`}
               aria-label={equipped
@@ -138,7 +138,7 @@ function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, 
             >
               <div className="text-center">
                 <span className="transition-transform duration-200 inline-block hover:scale-110">{SLOT_ICONS[slot]}</span>
-                {equipped && <span className="block text-cheddar-600 animate-pulse">✓</span>}
+                {equipped && <span className={`block text-cheddar-600 ${!reducedMotion ? 'animate-pulse' : ''}`}>✓</span>}
               </div>
             </button>
           );
@@ -150,12 +150,12 @@ function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, 
         onClick={() => onAddToParty(hero.id)}
         disabled={isInParty || isInCombat}
         className={`
-          mt-2 w-full py-1.5 rounded text-sm font-medium transition-all duration-200
+          mt-2 w-full py-1.5 rounded text-sm font-medium transition-all duration-200 btn-scale
           ${isInCombat
             ? 'bg-gray-200 text-gray-700 border border-gray-300 cursor-not-allowed'
             : isInParty
               ? 'bg-maple-100 text-maple-600 border border-maple-300 cursor-default'
-              : 'bg-linear-to-r from-maple-600 to-maple-700 hover:from-maple-700 hover:to-maple-800 text-white shadow-xs hover:shadow-md active:scale-[0.98]'
+              : 'bg-linear-to-r from-maple-600 to-maple-700 hover:from-maple-700 hover:to-maple-800 text-white shadow-xs hover:shadow-md'
           }
         `}
       >
@@ -263,9 +263,9 @@ function HeroRecruitCard({ hero }: HeroRecruitCardProps) {
         onClick={handleRecruit}
         disabled={!canAfford}
         className={`
-          mt-2 w-full py-2 rounded font-medium text-sm transition-all duration-200
+          mt-2 w-full py-2 rounded font-medium text-sm transition-all duration-200 btn-scale
           ${canAfford
-            ? 'bg-linear-to-r from-maple-500 to-maple-600 hover:from-maple-600 hover:to-maple-700 text-white shadow-xs hover:shadow-md active:scale-[0.98]'
+            ? 'bg-linear-to-r from-maple-500 to-maple-600 hover:from-maple-600 hover:to-maple-700 text-white shadow-xs hover:shadow-md'
             : 'bg-gray-200 text-gray-700 cursor-not-allowed'
           }
         `}
@@ -288,6 +288,7 @@ export function HeroPanel({ onEquipmentClick }: HeroPanelProps) {
   const assignToParty = useGameStore((state) => state.assignToParty);
   const getHeroMultiplier = useGameStore((state) => state.getHeroMultiplier);
   const isInCombat = useGameStore((state) => state.combat.isInCombat);
+  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
 
   const recruitedHeroes = HEROES.filter((h) => heroes[h.id] !== undefined);
   const availableHeroes = HEROES.filter((h) => heroes[h.id] === undefined);
@@ -326,7 +327,7 @@ export function HeroPanel({ onEquipmentClick }: HeroPanelProps) {
           <span>🦸</span>
           <span>Heroes</span>
           {isInCombat && (
-            <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded border border-red-200 animate-pulse">
+            <span className={`text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded border border-red-200 ${!reducedMotion ? 'animate-pulse' : ''}`}>
               ⚔️ In Battle
             </span>
           )}

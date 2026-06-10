@@ -994,6 +994,16 @@
   animation: fade-in 0.3s ease-out forwards;
 }
 
+/* Tooltip entrance animation */
+.tooltip-enter {
+  animation: fade-in 0.15s ease-out forwards;
+}
+
+[data-tooltip]:hover::after {
+  animation: fade-in 0.15s ease-out 0.1s forwards;
+  animation-fill-mode: both;
+}
+
 /* Scale and fade in for modals */
 @keyframes modal-in {
   from {

@@ -3,6 +3,7 @@ import { useGameStore } from '../../../stores';
 import { formatAgingDuration } from '../../../data/cheeseRecipes';
 import { recipeRegistry } from '../../../domain';
 import { playPurchaseSound } from '../../../systems/audioSystem';
+import { ProgressBar } from '../shared/ProgressBar';
 import type { AffinageCave, CraftingJob } from '../../../types/game';
 
 interface CaveCardProps {
@@ -141,14 +142,14 @@ function AgingJobRow({ job }: AgingJobRowProps) {
 
           {/* Progress bar */}
           <div className="mt-1">
-            <div className="h-2 bg-timber-100 rounded-full overflow-hidden">
-              <div
-                className={`h-full transition-all duration-1000 ${
-                  isComplete ? 'bg-green-500' : 'bg-cheddar-400'
-                }`}
-                style={{ width: `${Math.min(100, progress)}%` }}
-              />
-            </div>
+            <ProgressBar
+              percent={progress}
+              height="h-2"
+              bgColor="bg-timber-100"
+              fillColor={isComplete ? 'bg-green-500' : 'bg-cheddar-400'}
+              showShimmer={!isComplete}
+              glowOnNearComplete
+            />
             <div className="flex justify-between text-xs mt-0.5">
               <span className="text-timber-500">
                 {isComplete ? 'Ready!' : remainingStr}
@@ -165,7 +166,7 @@ function AgingJobRow({ job }: AgingJobRowProps) {
           {!isComplete && (
             <button
               onClick={handleTurn}
-              className="px-2 py-1 text-xs bg-timber-100 hover:bg-timber-200 text-timber-700 rounded transition-colors"
+              className="px-2 py-1 text-xs bg-timber-100 hover:bg-timber-200 text-timber-700 rounded transition-colors btn-scale"
               title="Turn cheese (+1% quality)"
             >
               Turn
@@ -174,7 +175,7 @@ function AgingJobRow({ job }: AgingJobRowProps) {
           {isComplete && (
             <button
               onClick={handleCollect}
-              className="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded font-medium transition-colors"
+              className="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded font-medium transition-colors btn-scale btn-ripple"
             >
               Collect
             </button>

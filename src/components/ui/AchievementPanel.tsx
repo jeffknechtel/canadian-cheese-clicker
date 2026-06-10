@@ -1,6 +1,7 @@
 import { useState, useMemo, memo } from 'react';
 import { useGameStore } from '../../stores';
 import { ACHIEVEMENTS } from '../../data/achievements';
+import { AnimatedTabContent } from './shared/AnimatedTabContent';
 import type { Achievement } from '../../types/game';
 
 type CategoryFilter = Achievement['category'] | 'all';
@@ -159,7 +160,7 @@ export function AchievementPanel() {
             key={cat.value}
             onClick={() => setCategoryFilter(cat.value)}
             className={`
-              px-2 py-1 text-xs rounded font-medium transition-colors border
+              px-2 py-1 text-xs rounded font-medium transition-colors border btn-scale
               ${categoryFilter === cat.value
                 ? 'bg-cheddar-500 text-white border-cheddar-600'
                 : 'bg-cheddar-100 text-cheddar-700 border-cheddar-300 hover:bg-cheddar-200'
@@ -173,19 +174,21 @@ export function AchievementPanel() {
 
       {/* Achievement List */}
       <div className="flex-1 overflow-y-auto space-y-2 scrollbar-thin">
-        {sortedAchievements.length > 0 ? (
-          sortedAchievements.map((achievement) => (
-            <AchievementCard
-              key={achievement.id}
-              achievement={achievement}
-              isUnlocked={unlockedIds.has(achievement.id)}
-            />
-          ))
-        ) : (
-          <div className="text-center text-gray-500 py-8">
-            <p className="text-sm">No achievements in this category</p>
-          </div>
-        )}
+        <AnimatedTabContent activeKey={categoryFilter}>
+          {sortedAchievements.length > 0 ? (
+            sortedAchievements.map((achievement) => (
+              <AchievementCard
+                key={achievement.id}
+                achievement={achievement}
+                isUnlocked={unlockedIds.has(achievement.id)}
+              />
+            ))
+          ) : (
+            <div className="text-center text-gray-500 py-8">
+              <p className="text-sm">No achievements in this category</p>
+            </div>
+          )}
+        </AnimatedTabContent>
       </div>
     </div>
   );
