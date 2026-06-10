@@ -106,12 +106,15 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b" style={{ borderColor: '#E5DCC8', backgroundColor: '#F5F0E1' }}>
+        <div
+          className="flex border-b overflow-x-auto scrollbar-thin"
+          style={{ borderColor: '#E5DCC8', backgroundColor: '#F5F0E1' }}
+        >
           {(['audio', 'graphics', 'accessibility', 'game', 'data'] as SettingsTab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className="flex-1 py-3 px-4 text-sm font-medium capitalize transition-colors"
+              className="shrink-0 py-3 px-4 text-sm font-medium capitalize transition-colors"
               style={{
                 color: activeTab === tab ? '#8B7355' : '#6B5B45',
                 backgroundColor: activeTab === tab ? '#FFFFFF' : 'transparent',

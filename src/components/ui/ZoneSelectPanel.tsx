@@ -105,7 +105,7 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
         <div className="px-3 pb-3">
           <div className="border-t border-timber-200 pt-2 mt-1">
             <p className="text-xs text-gray-600 mb-2">{zone.description}</p>
-            <div className="grid grid-cols-4 gap-1">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
               {zone.stages.map((stage) => {
                 const isCleared = (progress?.highestStageCleared || 0) >= stage.stageNumber;
                 const canAttempt = stage.stageNumber <= (progress?.highestStageCleared || 0) + 1;

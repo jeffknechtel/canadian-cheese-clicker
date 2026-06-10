@@ -156,7 +156,7 @@ export function CompactCombatLog({ entries, maxEntries = 5 }: CompactCombatLogPr
             `}
           >
             <span className="w-4 text-center">{icon}</span>
-            <span className={`flex-1 truncate ${colorClass}`}>{entry.message}</span>
+            <span className={`flex-1 truncate ${colorClass}`} title={entry.message}>{entry.message}</span>
           </div>
         );
       })}
