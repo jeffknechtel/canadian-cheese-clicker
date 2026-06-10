@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import type { Achievement } from '../../types/game';
-import { setAchievementUnlockCallback } from '../../stores';
+import { useAchievementEvents } from '../../hooks/useAchievementEvents';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { playAchievementFanfare } from '../../systems/audioSystem';
 import {
@@ -220,14 +220,8 @@ export function AchievementToastContainer() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  // Register the callback with the game store
-  useEffect(() => {
-    setAchievementUnlockCallback(addToast);
-
-    return () => {
-      setAchievementUnlockCallback(null);
-    };
-  }, [addToast]);
+  // Subscribe to achievement unlock events
+  useAchievementEvents(addToast);
 
   if (toasts.length === 0) return null;
 

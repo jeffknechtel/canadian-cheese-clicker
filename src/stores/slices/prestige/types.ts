@@ -22,6 +22,7 @@ export interface PrestigeSliceActions {
   performVintage: () => { wheelsGained: number; newTotal: number };
   canPerformLegacy: () => boolean;
   performLegacy: () => { legacyGained: number };
+  spendRennet: (amount: number) => boolean;
 }
 
 export type PrestigeSlice = PrestigeSliceState & PrestigeSliceActions;

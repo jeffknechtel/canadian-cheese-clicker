@@ -8,14 +8,8 @@ import { ACHIEVEMENTS } from '../../../data/achievements';
 import { GENERATORS } from '../../../data/generators';
 import { CHEESE_RECIPES } from '../../../data/cheeseRecipes';
 import { trackAchievementUnlock } from '../../../systems/analyticsService';
+import { publish } from '../../../domain/events';
 import type { Achievement, GameState } from '../../../types/game';
-
-type AchievementUnlockCallback = (achievement: Achievement) => void;
-let achievementUnlockCallback: AchievementUnlockCallback | null = null;
-
-export function setAchievementUnlockCallback(callback: AchievementUnlockCallback | null): void {
-  achievementUnlockCallback = callback;
-}
 
 function checkAchievementRequirement(
   achievement: Achievement,
@@ -135,15 +129,12 @@ export const createAchievementSlice: SliceCreator<AchievementSlice> = (set, get)
 
     set({ achievements: newAchievements });
 
-    get().recalculateClickValue();
-    get().recalculateCps();
+    publish({ type: 'CpsInputsChanged' });
 
     // Notify about unlocked achievements and track analytics
     const totalUnlocked = get().achievements.length;
     for (const achievement of newlyUnlocked) {
-      if (achievementUnlockCallback) {
-        achievementUnlockCallback(achievement);
-      }
+      publish({ type: 'AchievementUnlocked', achievement });
       trackAchievementUnlock(achievement.id, totalUnlocked);
     }
   },

@@ -1,10 +1,8 @@
-import Decimal from 'decimal.js';
 import type { SliceCreator } from '../../types';
 import type { PrestigeSlice } from './types';
+import { publish } from '../../../domain/events';
 import {
   calculatePotentialRennet,
-  calculateStartingCurds,
-  calculateStartingGenerators,
   calculatePrestigeProductionMultiplier,
   calculatePrestigeClickMultiplier,
   calculatePrestigeCostReduction,
@@ -67,23 +65,14 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
       return { rennetGained: 0, newTotal: state.prestige.rennet };
     }
 
-    const startingCurds = calculateStartingCurds(state.prestige);
-    const startingGenerators = calculateStartingGenerators(state.prestige);
-
     // Get reset states FROM OTHER SLICES (not hardcoded here)
+    const productionReset = state.getPrestigeProductionReset();
     const combatReset = state.getPrestigeCombatReset();
     const craftingReset = state.getPrestigeCraftingReset('aging');
 
     set({
-      // Production reset
-      curds: startingCurds,
-      whey: new Decimal(0),
-      totalCurdsEarned: new Decimal(0),
-      totalClicks: 0,
-      generators: startingGenerators,
-      upgrades: [],
-      curdPerClick: new Decimal(1),
-      curdPerSecond: new Decimal(0),
+      // Production reset - DELEGATED to production slice
+      ...productionReset,
 
       // Combat reset - DELEGATED to combat slice
       combat: combatReset,
@@ -102,7 +91,7 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
       lastSaved: Date.now(),
     });
 
-    get().recalculateCps();
+    publish({ type: 'CpsInputsChanged' });
     trackPrestige('aging', rennetGained);
 
     return { rennetGained, newTotal: get().prestige.rennet };
@@ -123,7 +112,7 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
       },
     });
 
-    get().recalculateCps();
+    publish({ type: 'CpsInputsChanged' });
 
     return true;
   },
@@ -212,5 +201,18 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
     });
 
     return { legacyGained };
+  },
+
+  spendRennet: (amount: number) => {
+    const state = get();
+    if (state.prestige.rennet < amount) return false;
+
+    set({
+      prestige: {
+        ...state.prestige,
+        rennet: state.prestige.rennet - amount,
+      },
+    });
+    return true;
   },
 });

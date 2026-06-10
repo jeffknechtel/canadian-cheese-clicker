@@ -1,3 +1,6 @@
+// Events
+export * from './events';
+
 // Aggregates
 export * from './aggregates';
 

@@ -1,5 +1,6 @@
 import type Decimal from 'decimal.js';
 import type { Upgrade } from '../../../types/game';
+import type { ProductionResetState } from './resetFactory';
 
 export interface ProductionState {
   curds: Decimal;
@@ -39,6 +40,7 @@ export interface ProductionActions {
   getGlobalMultiplier: () => number;
   recalculateCps: () => void;
   recalculateClickValue: () => void;
+  getPrestigeProductionReset: () => ProductionResetState;
 }
 
 export type ProductionSlice = ProductionState & ProductionActions;

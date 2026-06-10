@@ -1,9 +1,10 @@
-import Decimal from 'decimal.js';
 import type { SliceCreator } from '../../types';
 import type { PersistenceSlice } from './types';
 import { saveGame, loadGame, calculateOfflineProgress } from '../../../systems/saveSystem';
+import { createInitialProductionState } from '../production/resetFactory';
 import { createEmptyCombatState } from '../combat/resetFactory';
 import { createInitialCraftingState } from '../crafting/resetFactory';
+import { publish } from '../../../domain/events';
 
 export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get) => ({
   // State
@@ -19,6 +20,10 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
 
   load: () => {
     const savedState = loadGame();
+
+    // Always check event activation, even for fresh games
+    get().checkEventActivation();
+
     if (!savedState) return null;
 
     const offlineProgress = calculateOfflineProgress(
@@ -34,26 +39,15 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
     });
 
     // Recalculate CPS and click value with proper Eh multiplier inclusion
-    get().recalculateCps();
-    get().recalculateClickValue();
-
-    // Check for seasonal event auto-activation after loading
-    get().checkEventActivation();
+    publish({ type: 'CpsInputsChanged' });
 
     return offlineProgress;
   },
 
   reset: () => {
     set({
-      // Production state
-      curds: new Decimal(0),
-      whey: new Decimal(0),
-      totalCurdsEarned: new Decimal(0),
-      totalClicks: 0,
-      curdPerClick: new Decimal(1),
-      curdPerSecond: new Decimal(0),
-      generators: {},
-      upgrades: [],
+      // Production state - DELEGATED to factory
+      ...createInitialProductionState(),
       ehCount: 0,
       lastMilestone: 0,
 
@@ -67,7 +61,7 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
       },
       equipmentInventory: [],
 
-      // Combat state
+      // Combat state - DELEGATED to factory
       combat: createEmptyCombatState(),
       zoneProgress: {},
 
@@ -100,7 +94,7 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
         legacyResetCount: 0,
       },
 
-      // Crafting state
+      // Crafting state - DELEGATED to factory
       crafting: createInitialCraftingState(),
 
       // Event state

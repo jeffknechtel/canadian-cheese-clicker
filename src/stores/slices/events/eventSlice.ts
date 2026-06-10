@@ -1,6 +1,7 @@
 import type { SliceCreator } from '../../types';
 import type { EventSlice } from './types';
 import { getEventById, calculateEventBonusMultiplier, getAutoActiveEventIds } from '../../../data/events';
+import { publish } from '../../../domain/events';
 import type { EventBonus } from '../../../types/game';
 
 export const createEventSlice: SliceCreator<EventSlice> = (set, get) => ({
@@ -62,11 +63,22 @@ export const createEventSlice: SliceCreator<EventSlice> = (set, get) => ({
     const autoActiveIds = getAutoActiveEventIds();
     const currentIds = get().activeEvents;
 
-    // Merge auto-active events with any manually-activated events
-    const newIds = [...new Set([...currentIds, ...autoActiveIds])];
+    // Proper activation: set to exactly what should be active now
+    const newIds = autoActiveIds;
 
-    // Only update if different to avoid unnecessary re-renders
-    if (newIds.length !== currentIds.length || !newIds.every((id) => currentIds.includes(id))) {
+    // Check if anything changed
+    const added = newIds.filter((id) => !currentIds.includes(id));
+    const removed = currentIds.filter((id) => !newIds.includes(id));
+
+    if (added.length > 0 || removed.length > 0) {
+      // Publish events for UI notifications
+      for (const id of added) {
+        publish({ type: 'SeasonalEventActivated', eventId: id });
+      }
+      for (const id of removed) {
+        publish({ type: 'SeasonalEventDeactivated', eventId: id });
+      }
+
       set({ activeEvents: newIds });
     }
   },

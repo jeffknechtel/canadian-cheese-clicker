@@ -6,20 +6,13 @@ import {
   calculateHeroCpsMultiplier,
   calculateFormationMultiplier,
 } from '../../../systems/productionEngine';
-import { heroRegistry, equipmentRegistry, Party } from '../../../domain';
+import { heroRegistry, equipmentRegistry, Party, publish } from '../../../domain';
 import { HEROES, getXpForLevel, HERO_MAX_LEVEL } from '../../../data/heroes';
 import {
   trackHeroRecruit,
   trackHeroLevelUp,
 } from '../../../systems/analyticsService';
-import type { FormationPosition, HeroState, HeroStats, HeroDefinition } from '../../../types/game';
-
-type HeroLevelUpCallback = (hero: HeroDefinition, newLevel: number) => void;
-let heroLevelUpCallback: HeroLevelUpCallback | null = null;
-
-export function setHeroLevelUpCallback(callback: HeroLevelUpCallback | null): void {
-  heroLevelUpCallback = callback;
-}
+import type { FormationPosition, HeroState, HeroStats } from '../../../types/game';
 
 export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
   // State
@@ -54,7 +47,7 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
       heroes: { ...state.heroes, [heroId]: newHeroState },
     });
 
-    get().recalculateCps();
+    publish({ type: 'CpsInputsChanged' });
 
     const totalRecruited = Object.keys(get().heroes).length;
     trackHeroRecruit(heroId, totalRecruited);
@@ -100,7 +93,7 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
     }
 
     set({ party: updated.toFormation() });
-    get().recalculateCps();
+    publish({ type: 'CpsInputsChanged' });
 
     return true;
   },
@@ -112,7 +105,7 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
     const updated = party.removeHero(position);
 
     set({ party: updated.toFormation() });
-    get().recalculateCps();
+    publish({ type: 'CpsInputsChanged' });
   },
 
   swapPartyPositions: (pos1: FormationPosition, pos2: FormationPosition) => {
@@ -122,7 +115,7 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
     const updated = party.swap(pos1, pos2);
 
     set({ party: updated.toFormation() });
-    get().recalculateCps();
+    publish({ type: 'CpsInputsChanged' });
   },
 
   getPartyHeroes: () => {
@@ -186,7 +179,7 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
       heroes: { ...state.heroes, [heroId]: newHeroState },
     });
 
-    get().recalculateCps();
+    publish({ type: 'CpsInputsChanged' });
 
     return true;
   },
@@ -210,7 +203,7 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
       heroes: { ...state.heroes, [heroId]: newHeroState },
     });
 
-    get().recalculateCps();
+    publish({ type: 'CpsInputsChanged' });
   },
 
   getHeroEquipment: (heroId: string) => {
@@ -263,13 +256,13 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
       heroes: { ...state.heroes, [heroId]: newHero },
     });
 
-    get().recalculateCps();
+    publish({ type: 'CpsInputsChanged' });
 
     if (levelUps.length > 0) {
       const heroDef = heroRegistry.get(heroId);
       for (const { level: lvl } of levelUps) {
-        if (heroDef && heroLevelUpCallback) {
-          heroLevelUpCallback(heroDef, lvl);
+        if (heroDef) {
+          publish({ type: 'HeroLeveledUp', heroId, hero: heroDef, newLevel: lvl });
         }
         trackHeroLevelUp(heroId, lvl);
       }
