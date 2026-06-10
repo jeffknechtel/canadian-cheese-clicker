@@ -36,13 +36,6 @@ export class Equipment extends BaseEntity<EquipmentData> implements EquipmentDat
   }
 
   /**
-   * Get stat bonus for a specific stat.
-   */
-  getStatBonus(stat: keyof HeroStats): number {
-    return this.stats[stat] ?? 0;
-  }
-
-  /**
    * Apply this equipment's stats to base stats.
    */
   applyTo(baseStats: HeroStats): HeroStats {

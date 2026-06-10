@@ -18,7 +18,6 @@ import {
   getCultureByType,
   getRennetByType,
 } from '../data/ingredients';
-import { BUFF_QUALITY_BASE, BUFF_QUALITY_SCALE } from '../data/constants';
 import { Quality } from '../domain/valueObjects';
 
 /**
@@ -242,6 +241,21 @@ export function calculateCheeseQuality(
 }
 
 /**
+ * Calculate final quality from a job that has pre-computed qualityBonus.
+ * This is the primary entry point for collectCheese.
+ */
+export function calculateCheeseQualityFromJob(
+  recipe: CheeseRecipe,
+  job: CraftingJob
+): number {
+  let quality = recipe.baseQuality + job.qualityBonus;
+  for (const interaction of job.interactions) {
+    quality += interaction.qualityEffect;
+  }
+  return Quality.of(quality).toNumber();
+}
+
+/**
  * Calculate quality bonus from ingredients only (for preview before starting)
  */
 export function calculateIngredientQualityBonus(
@@ -359,18 +373,14 @@ export function formatRemainingTime(remainingMs: number): string {
 // ===== Buff Effect Calculations =====
 
 /**
- * Calculate a quality-scaled buff effect
- *
- * Quality scaling:
- * - Quality 1 = BUFF_QUALITY_BASE effect strength
- * - Quality 100 = BUFF_QUALITY_BASE + BUFF_QUALITY_SCALE effect strength
+ * Calculate a quality-scaled buff effect.
+ * Delegates scaling to Quality value object.
  */
 export function calculateBuffEffect(
   effect: CheeseEffect,
   quality: number
 ): CheeseEffect {
-  const qualityMultiplier =
-    BUFF_QUALITY_BASE + (quality / 100) * BUFF_QUALITY_SCALE;
+  const qualityMultiplier = Quality.of(quality).toBuffScale();
 
   const scaledEffect = { ...effect };
 

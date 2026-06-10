@@ -1,6 +1,5 @@
 import Decimal from 'decimal.js';
 import type { ZoneDefinition, Province } from '../types/game';
-import { zoneRegistry } from '../domain';
 
 /**
  * Province zones for the combat system
@@ -1192,21 +1191,4 @@ export function getProvinceDisplayName(province: Province): string {
     nunavut: 'Nunavut',
   };
   return names[province];
-}
-
-/**
- * Get a stage by zone ID and stage number
- */
-export function getStage(zoneId: string, stageNumber: number) {
-  const zone = zoneRegistry.get(zoneId);
-  if (!zone) return undefined;
-
-  if (stageNumber === zone.bossStage.stageNumber) {
-    return { type: 'boss' as const, bossStage: zone.bossStage };
-  }
-
-  const stage = zone.stages.find((s) => s.stageNumber === stageNumber);
-  if (!stage) return undefined;
-
-  return { type: 'regular' as const, stage };
 }

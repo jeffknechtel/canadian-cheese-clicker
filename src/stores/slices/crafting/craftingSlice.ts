@@ -22,9 +22,8 @@ import {
   calculateCheeseValue,
   calculateBuffEffect,
   getCaveAvailableSlots as engineGetCaveAvailableSlots,
-  calculateAgingProgress,
 } from '../../../systems/craftingEngine';
-import { Quality } from '../../../domain/valueObjects';
+import { CraftingJob as CraftingJobModule } from '../../../domain/modules/CraftingJob';
 import type {
   CraftingJob,
   CraftingInteraction,
@@ -228,7 +227,7 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
 
     // Find jobs that just completed but haven't been notified
     const newlyCompleted = state.crafting.activeJobs.filter(
-      (job) => now >= job.endTime && !job.notificationSent
+      (job) => CraftingJobModule.isComplete(job, now) && !job.notificationSent
     );
 
     if (newlyCompleted.length === 0) return;
@@ -268,24 +267,11 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     const job = state.crafting.activeJobs.find((j) => j.id === jobId);
     if (!job) return null;
 
-    if (now < job.endTime) return null;
+    const cheese = CraftingJobModule.collect(job, now);
+    if (!cheese) return null;
 
     const recipe = recipeRegistry.get(job.recipeId);
     if (!recipe) return null;
-
-    let rawQuality = recipe.baseQuality + job.qualityBonus;
-    for (const interaction of job.interactions) {
-      rawQuality += interaction.qualityEffect;
-    }
-    const finalQuality = Quality.of(rawQuality).toNumber();
-
-    const cheese: CraftedCheese = {
-      id: `cheese_${now}_${Math.random().toString(36).substring(2, 11)}`,
-      recipeId: job.recipeId,
-      quality: finalQuality,
-      craftedAt: now,
-      ingredients: job.ingredients,
-    };
 
     set((s) => {
       const currentJobIndex = s.crafting.activeJobs.findIndex((j) => j.id === jobId);
@@ -309,7 +295,7 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
 
     publish({ type: 'CheeseCollected', cheese, recipe });
 
-    trackCraftingComplete(job.recipeId, finalQuality);
+    trackCraftingComplete(job.recipeId, cheese.quality);
     get().checkAchievements();
 
     return cheese;
@@ -502,6 +488,6 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     const state = get();
     const job = state.crafting.activeJobs.find((j) => j.id === jobId);
     if (!job) return 0;
-    return calculateAgingProgress(job, Date.now());
+    return CraftingJobModule.getProgress(job);
   },
 });

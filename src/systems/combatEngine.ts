@@ -14,10 +14,8 @@ import type {
   PartyFormation,
   HeroAbilityDefinition,
   AbilityEffect,
-  EnemyAbility,
 } from '../types/game';
 import { scaleEnemyStats } from '../data/enemies';
-import { getStage } from '../data/zones';
 import { getHeroAbility, getHeroLimitBreak, heroHasLimitBreak } from '../data/heroes';
 import { heroRegistry, zoneRegistry, getAnyEnemy, enemyRegistry, bossRegistry } from '../domain';
 import { calculateHeroStats } from './productionEngine';
@@ -50,24 +48,6 @@ export {
   HP_MEDIUM_THRESHOLD,
   BOSS_PHASE_HEAL_PERCENT,
 };
-
-// ===== Enemy Ability Selection =====
-
-/**
- * Select an ability that is off cooldown, or return null if all are on cooldown.
- */
-function selectAbilityFromCooldowns(
-  abilities: EnemyAbility[],
-  cooldowns: Record<string, number>
-): EnemyAbility | null {
-  for (const ability of abilities) {
-    const cooldown = cooldowns[ability.id] ?? 0;
-    if (cooldown <= 0) {
-      return ability;
-    }
-  }
-  return null;
-}
 
 // ===== Combat Result Type =====
 
@@ -555,9 +535,6 @@ export function initializeCombat(
   const zone = zoneRegistry.get(zoneId);
   if (!zone) return null;
 
-  const stageInfo = getStage(zoneId, stageNumber);
-  if (!stageInfo) return null;
-
   // Initialize hero combat states
   const heroStates: Record<string, HeroCombatState> = {};
   const partyHeroIds = [
@@ -576,14 +553,16 @@ export function initializeCombat(
 
   // Initialize enemies
   const enemies: CombatEnemy[] = [];
+  const isBossStageNumber = stageNumber === zone.bossStage.stageNumber;
 
-  if (stageInfo.type === 'boss') {
-    const boss = bossRegistry.get(stageInfo.bossStage.bossId);
+  if (isBossStageNumber) {
+    const boss = bossRegistry.get(zone.bossStage.bossId);
     if (boss) {
       enemies.push(createCombatEnemy(boss, 0));
     }
   } else {
-    const stage = stageInfo.stage;
+    const stage = zone.stages.find((s) => s.stageNumber === stageNumber);
+    if (!stage) return null;
     stage.enemies.forEach((enemyId, index) => {
       const enemy = enemyRegistry.get(enemyId);
       if (enemy) {
@@ -616,372 +595,6 @@ export function initializeCombat(
     combatSpeed: 1,
     limitBreakGauge: 0,
     battleResult: 'ongoing',
-  };
-}
-
-// ===== Combat Tick =====
-
-/**
- * @deprecated Use Battle aggregate instead: Battle.from(state).tick(deltaMs, partyStats)
- * This function is retained temporarily for reference but should not be called.
- * Main combat tick function - called from game loop
- */
-export function tickCombat(
-  state: CombatState,
-  deltaMs: number,
-  partyStats: Record<string, HeroStats>
-): CombatTickResult {
-  if (!state.isInCombat || state.battleResult !== 'ongoing') {
-    return { stateUpdates: {}, newLogEntries: [] };
-  }
-
-  const deltaSeconds = deltaMs / 1000;
-  const newLogEntries: CombatLogEntry[] = [];
-  let totalDamageDealt = 0;
-  let totalDamageTaken = 0;
-
-  // Create deep mutable copies to avoid mutating original state
-  const updatedHeroStates: Record<string, HeroCombatState> = {};
-  for (const [id, heroState] of Object.entries(state.heroStates)) {
-    updatedHeroStates[id] = {
-      ...heroState,
-      statusEffects: heroState.statusEffects.map(e => ({ ...e })),
-      abilityCooldowns: { ...heroState.abilityCooldowns },
-    };
-  }
-  const updatedEnemies = state.enemies.map((e) => ({
-    ...e,
-    statusEffects: e.statusEffects.map(se => ({ ...se })),
-    abilityCooldowns: { ...e.abilityCooldowns },
-  }));
-  let updatedLimitBreakGauge = state.limitBreakGauge;
-
-  // 1. Update ATB gauges for all alive heroes
-  for (const heroId of Object.keys(updatedHeroStates)) {
-    const heroState = updatedHeroStates[heroId];
-    if (!heroState.isAlive) continue;
-
-    const heroStats = partyStats[heroId];
-    if (!heroStats) continue;
-
-    const speedModifier = getStatModifierFromEffects(heroState.statusEffects, 'speed');
-    const effectiveSpeed = Math.max(1, heroStats.speed + speedModifier);
-
-    heroState.atbGauge = updateAtbGauge(
-      heroState.atbGauge,
-      effectiveSpeed,
-      state.combatSpeed,
-      deltaSeconds
-    );
-  }
-
-  // 2. Update ATB gauges for all alive enemies
-  for (const enemy of updatedEnemies) {
-    if (!enemy.isAlive) continue;
-
-    const enemyDef = getAnyEnemy(enemy.id);
-    if (!enemyDef) continue;
-
-    // Get effective stats (handles boss phase modifiers)
-    let baseSpeed = enemyDef.stats.speed;
-    if (enemy.isBoss) {
-      const bossDef = bossRegistry.get(enemy.id);
-      if (bossDef) {
-        baseSpeed = getBossEffectiveStats(enemy, bossDef).speed;
-      }
-    }
-
-    const speedModifier = getStatModifierFromEffects(enemy.statusEffects, 'speed');
-    const effectiveSpeed = Math.max(1, baseSpeed + speedModifier);
-
-    enemy.atbGauge = updateAtbGauge(
-      enemy.atbGauge,
-      effectiveSpeed,
-      state.combatSpeed,
-      deltaSeconds
-    );
-  }
-
-  // 3. Process hero actions (ATB at 100%)
-  for (const heroId of Object.keys(updatedHeroStates)) {
-    const heroState = updatedHeroStates[heroId];
-    if (!heroState.isAlive || heroState.atbGauge < ATB_MAX) continue;
-
-    const heroStats = partyStats[heroId];
-    if (!heroStats) continue;
-
-    const heroDef = heroRegistry.get(heroId);
-    if (!heroDef) continue;
-
-    // Find a target
-    const target = selectEnemyTarget(updatedEnemies);
-    if (!target) continue;
-
-    // Calculate damage
-    const attackModifier = getStatModifierFromEffects(heroState.statusEffects, 'attack');
-    const effectiveAttack = Math.max(1, heroStats.attack + attackModifier);
-
-    const enemyDef = getAnyEnemy(target.id);
-
-    // Get effective defense (handles boss phase modifiers)
-    let baseDefense = enemyDef?.stats.defense || 10;
-    if (target.isBoss) {
-      const bossDef = bossRegistry.get(target.id);
-      if (bossDef) {
-        baseDefense = getBossEffectiveStats(target, bossDef).defense;
-      }
-    }
-
-    const defenseModifier = getStatModifierFromEffects(target.statusEffects, 'defense');
-    const effectiveDefense = Math.max(0, baseDefense + defenseModifier);
-
-    const damage = calculateDamage(effectiveAttack, effectiveDefense);
-    target.currentHp = applyDamage(target.currentHp, damage);
-    totalDamageDealt += damage;
-
-    // Log the attack
-    newLogEntries.push({
-      timestamp: Date.now(),
-      type: 'attack',
-      source: heroDef.name,
-      target: enemyDef?.name || target.id,
-      value: damage,
-      message: `${heroDef.name} attacks ${enemyDef?.name || target.id} for ${damage} damage!`,
-    });
-
-    // Check for enemy defeat
-    if (target.currentHp <= 0) {
-      target.isAlive = false;
-      newLogEntries.push({
-        timestamp: Date.now(),
-        type: 'defeat',
-        source: heroDef.name,
-        target: enemyDef?.name || target.id,
-        message: `${enemyDef?.name || target.id} has been defeated!`,
-      });
-    } else if (target.isBoss) {
-      // Check for boss phase transition
-      const bossDef = bossRegistry.get(target.id);
-      if (bossDef) {
-        const phaseResult = checkBossPhaseTransition(target, bossDef);
-        if (phaseResult.phaseChanged && phaseResult.newPhase) {
-          // Apply the phase transition
-          const updatedBoss = applyBossPhaseTransition(target, phaseResult.newPhase, bossDef);
-          // Update the target in place
-          Object.assign(target, updatedBoss);
-
-          if (phaseResult.logEntry) {
-            newLogEntries.push(phaseResult.logEntry);
-          }
-
-          // Log the heal from phase transition
-          newLogEntries.push({
-            timestamp: Date.now(),
-            type: 'heal',
-            source: bossDef.name,
-            target: bossDef.name,
-            value: Math.floor(target.maxHp * BOSS_PHASE_HEAL_PERCENT),
-            message: `${bossDef.name} regenerates some health as they enter phase ${phaseResult.newPhase}!`,
-          });
-        }
-      }
-    }
-
-    // Reset hero ATB
-    heroState.atbGauge = 0;
-  }
-
-  // 4. Process enemy actions (ATB at 100%)
-  for (const enemy of updatedEnemies) {
-    if (!enemy.isAlive || enemy.atbGauge < ATB_MAX) continue;
-
-    const enemyDef = getAnyEnemy(enemy.id);
-    if (!enemyDef) continue;
-
-    // Find a target
-    const target = selectHeroTarget(updatedHeroStates);
-    if (!target) continue;
-
-    // Get effective stats and abilities (handles boss phase modifiers)
-    let effectiveEnemyStats = enemyDef.stats;
-    let availableAbilities = enemyDef.abilities;
-
-    if (enemy.isBoss) {
-      const bossDef = bossRegistry.get(enemy.id);
-      if (bossDef) {
-        effectiveEnemyStats = getBossEffectiveStats(enemy, bossDef);
-        availableAbilities = getBossCurrentAbilities(enemy, bossDef);
-      }
-    }
-
-    // Select ability respecting cooldowns, fall back to first if all on cooldown
-    const ability = selectAbilityFromCooldowns(availableAbilities, enemy.abilityCooldowns)
-      || availableAbilities[0];
-    const abilityMultiplier = ability?.damage || 1.0;
-
-    // Calculate damage with phase-adjusted stats
-    const attackModifier = getStatModifierFromEffects(enemy.statusEffects, 'attack');
-    const effectiveAttack = Math.max(1, effectiveEnemyStats.attack + attackModifier);
-
-    const heroStats = partyStats[target.heroId];
-    const defenseModifier = getStatModifierFromEffects(target.statusEffects, 'defense');
-    const effectiveDefense = Math.max(0, (heroStats?.defense || 10) + defenseModifier);
-
-    const damage = calculateDamage(effectiveAttack, effectiveDefense, abilityMultiplier);
-    target.currentHp = applyDamage(target.currentHp, damage);
-    totalDamageTaken += damage;
-
-    const heroDef = heroRegistry.get(target.heroId);
-
-    // Log the attack
-    newLogEntries.push({
-      timestamp: Date.now(),
-      type: 'attack',
-      source: enemyDef.name,
-      target: heroDef?.name || target.heroId,
-      value: damage,
-      message: `${enemyDef.name} attacks ${heroDef?.name || target.heroId} for ${damage} damage!`,
-    });
-
-    // Check for hero defeat
-    if (target.currentHp <= 0) {
-      target.isAlive = false;
-      newLogEntries.push({
-        timestamp: Date.now(),
-        type: 'defeat',
-        source: enemyDef.name,
-        target: heroDef?.name || target.heroId,
-        message: `${heroDef?.name || target.heroId} has fallen!`,
-      });
-    }
-
-    // Set cooldown for the used ability
-    if (ability && ability.cooldown) {
-      enemy.abilityCooldowns[ability.id] = ability.cooldown;
-    }
-
-    // Reset enemy ATB
-    enemy.atbGauge = 0;
-  }
-
-  // 5. Process status effects for heroes
-  for (const heroId of Object.keys(updatedHeroStates)) {
-    const heroState = updatedHeroStates[heroId];
-    if (!heroState.isAlive || heroState.statusEffects.length === 0) continue;
-
-    const result = processStatusEffects(
-      heroState.currentHp,
-      heroState.maxHp,
-      heroState.statusEffects
-    );
-
-    heroState.currentHp = result.newHp;
-    heroState.statusEffects = removeExpiredEffects(heroState.statusEffects, result.expiredEffects);
-
-    if (result.damage > 0) {
-      totalDamageTaken += result.damage;
-    }
-
-    if (heroState.currentHp <= 0) {
-      heroState.isAlive = false;
-      const heroDef = heroRegistry.get(heroId);
-      newLogEntries.push({
-        timestamp: Date.now(),
-        type: 'defeat',
-        source: 'status_effect',
-        target: heroDef?.name || heroId,
-        message: `${heroDef?.name || heroId} succumbed to status effects!`,
-      });
-    }
-  }
-
-  // 6. Process status effects for enemies
-  for (const enemy of updatedEnemies) {
-    if (!enemy.isAlive || enemy.statusEffects.length === 0) continue;
-
-    const enemyDef = getAnyEnemy(enemy.id);
-    const maxHp = enemyDef?.stats.hp || enemy.maxHp;
-
-    const result = processStatusEffects(
-      enemy.currentHp,
-      maxHp,
-      enemy.statusEffects
-    );
-
-    enemy.currentHp = result.newHp;
-    enemy.statusEffects = removeExpiredEffects(enemy.statusEffects, result.expiredEffects);
-
-    if (enemy.currentHp <= 0) {
-      enemy.isAlive = false;
-      newLogEntries.push({
-        timestamp: Date.now(),
-        type: 'defeat',
-        source: 'status_effect',
-        target: enemyDef?.name || enemy.id,
-        message: `${enemyDef?.name || enemy.id} succumbed to status effects!`,
-      });
-    }
-  }
-
-  // 7. Update limit break gauge
-  updatedLimitBreakGauge = updateLimitBreakGauge(
-    updatedLimitBreakGauge,
-    totalDamageDealt,
-    totalDamageTaken
-  );
-
-  // 8. Check victory/defeat conditions
-  const allEnemiesDead = updatedEnemies.every((e) => !e.isAlive);
-  const allHeroesDead = Object.values(updatedHeroStates).every((h) => !h.isAlive);
-
-  let battleResult: CombatState['battleResult'] = 'ongoing';
-
-  if (allEnemiesDead) {
-    battleResult = 'victory';
-    newLogEntries.push({
-      timestamp: Date.now(),
-      type: 'victory',
-      source: 'system',
-      target: '',
-      message: 'Victory! All enemies have been defeated!',
-    });
-  } else if (allHeroesDead) {
-    battleResult = 'defeat';
-    newLogEntries.push({
-      timestamp: Date.now(),
-      type: 'defeat',
-      source: 'system',
-      target: '',
-      message: 'Defeat... All heroes have fallen.',
-    });
-  }
-
-  // Decrement ability cooldowns
-  for (const heroId of Object.keys(updatedHeroStates)) {
-    const heroState = updatedHeroStates[heroId];
-    for (const abilityId of Object.keys(heroState.abilityCooldowns)) {
-      if (heroState.abilityCooldowns[abilityId] > 0) {
-        heroState.abilityCooldowns[abilityId] -= 1;
-      }
-    }
-  }
-
-  for (const enemy of updatedEnemies) {
-    for (const abilityId of Object.keys(enemy.abilityCooldowns)) {
-      if (enemy.abilityCooldowns[abilityId] > 0) {
-        enemy.abilityCooldowns[abilityId] -= 1;
-      }
-    }
-  }
-
-  return {
-    stateUpdates: {
-      heroStates: updatedHeroStates,
-      enemies: updatedEnemies,
-      limitBreakGauge: updatedLimitBreakGauge,
-      battleResult,
-    },
-    newLogEntries,
   };
 }
 

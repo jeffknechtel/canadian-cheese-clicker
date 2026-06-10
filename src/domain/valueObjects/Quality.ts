@@ -1,3 +1,10 @@
+import {
+  CHEESE_SELL_QUALITY_BASE,
+  CHEESE_SELL_QUALITY_SCALE,
+  BUFF_QUALITY_BASE,
+  BUFF_QUALITY_SCALE,
+} from '../../data/constants';
+
 /**
  * Quality value object - represents cheese quality bounded to [1, 100].
  * Immutable. All operations return new Quality instances.
@@ -60,19 +67,19 @@ export class Quality {
   }
 
   /**
-   * Sell value multiplier: 0.5 + (quality/100) * 1.5
-   * Range: 0.515 (quality 1) to 2.0 (quality 100)
+   * Sell value multiplier.
+   * Range: ~0.515 (quality 1) to 2.0 (quality 100)
    */
   toSellMultiplier(): number {
-    return 0.5 + (this.#value / 100) * 1.5;
+    return CHEESE_SELL_QUALITY_BASE + (this.#value / 100) * CHEESE_SELL_QUALITY_SCALE;
   }
 
   /**
-   * Buff effect scale: 0.5 + (quality/100)
-   * Range: 0.51 (quality 1) to 1.5 (quality 100)
+   * Buff effect scale.
+   * Range: ~0.51 (quality 1) to 1.5 (quality 100)
    */
   toBuffScale(): number {
-    return 0.5 + this.#value / 100;
+    return BUFF_QUALITY_BASE + (this.#value / 100) * BUFF_QUALITY_SCALE;
   }
 
   /**
