@@ -92,6 +92,7 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
     });
 
     publish({ type: 'CpsInputsChanged' });
+    publish({ type: 'PrestigePerformed', tier: 'aging', currencyGained: rennetGained });
     trackPrestige('aging', rennetGained);
 
     return { rennetGained, newTotal: get().prestige.rennet };
