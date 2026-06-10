@@ -6,7 +6,7 @@ import {
   calculateHeroCpsMultiplier,
   calculateFormationMultiplier,
 } from '../../../systems/productionEngine';
-import { heroRegistry, equipmentRegistry } from '../../../domain';
+import { heroRegistry, equipmentRegistry, Party } from '../../../domain';
 import { HEROES, getXpForLevel, HERO_MAX_LEVEL } from '../../../data/heroes';
 import {
   trackHeroRecruit,
@@ -92,19 +92,14 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
   assignToParty: (heroId: string, position: FormationPosition) => {
     const state = get();
 
-    if (!state.heroes[heroId]) return false;
+    const party = Party.from(state.party, state.heroes);
+    const updated = party.assignHero(heroId, position);
 
-    const currentPosition = Object.entries(state.party).find(
-      ([, id]) => id === heroId
-    )?.[0] as FormationPosition | undefined;
-
-    const newParty = { ...state.party };
-    if (currentPosition) {
-      newParty[currentPosition] = null;
+    if (!updated) {
+      return false;
     }
-    newParty[position] = heroId;
 
-    set({ party: newParty });
+    set({ party: updated.toFormation() });
     get().recalculateCps();
 
     return true;
@@ -112,21 +107,21 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
 
   removeFromParty: (position: FormationPosition) => {
     const state = get();
-    const newParty = { ...state.party, [position]: null };
 
-    set({ party: newParty });
+    const party = Party.from(state.party, state.heroes);
+    const updated = party.removeHero(position);
+
+    set({ party: updated.toFormation() });
     get().recalculateCps();
   },
 
   swapPartyPositions: (pos1: FormationPosition, pos2: FormationPosition) => {
     const state = get();
-    const newParty = {
-      ...state.party,
-      [pos1]: state.party[pos2],
-      [pos2]: state.party[pos1],
-    };
 
-    set({ party: newParty });
+    const party = Party.from(state.party, state.heroes);
+    const updated = party.swap(pos1, pos2);
+
+    set({ party: updated.toFormation() });
     get().recalculateCps();
   },
 
@@ -283,12 +278,9 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
 
   tickHeroXp: (deltaMs: number) => {
     const state = get();
-    const partyHeroIds = [
-      state.party.frontLeft,
-      state.party.frontRight,
-      state.party.backLeft,
-      state.party.backRight,
-    ].filter((id): id is string => id !== null);
+
+    const party = Party.from(state.party, state.heroes);
+    const partyHeroIds = party.getActiveHeroIds();
 
     if (partyHeroIds.length === 0) return;
 
@@ -315,12 +307,8 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
     const state = get();
     const stats: Record<string, HeroStats> = {};
 
-    const partyHeroIds = [
-      state.party.frontLeft,
-      state.party.frontRight,
-      state.party.backLeft,
-      state.party.backRight,
-    ].filter((id): id is string => id !== null && state.heroes[id] !== undefined);
+    const party = Party.from(state.party, state.heroes);
+    const partyHeroIds = party.getActiveHeroIds();
 
     for (const heroId of partyHeroIds) {
       const heroState = state.heroes[heroId];

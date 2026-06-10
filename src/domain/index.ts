@@ -1,3 +1,6 @@
+// Aggregates
+export * from './aggregates';
+
 // Entities
 export { BaseEntity } from './entities/BaseEntity';
 

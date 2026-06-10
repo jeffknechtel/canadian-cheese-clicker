@@ -4,14 +4,12 @@ import { createEmptyCombatState, createPrestigeCombatState } from './resetFactor
 import { COMBAT_LOG_MAX_ENTRIES } from '../../../data/constants';
 import {
   initializeCombat,
-  tickCombat,
   calculateCombatRewards,
   isBossStage,
-  executeHeroAbility,
-  executeHeroLimitBreak,
   canUseAbility,
   canUseLimitBreak,
 } from '../../../systems/combatEngine';
+import { Battle } from '../../../domain/aggregates';
 import {
   trackCombatStart,
   trackCombatEnd,
@@ -64,14 +62,14 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     if (!state.combat.isInCombat || state.combat.battleResult !== 'ongoing') return;
 
     const partyStats = state.getPartyStats();
-    const result = tickCombat(state.combat, deltaMs, partyStats);
+    const battle = Battle.from(state.combat);
+    const { battle: updated, logs } = battle.tick(deltaMs, partyStats);
 
-    if (Object.keys(result.stateUpdates).length > 0 || result.newLogEntries.length > 0) {
+    if (logs.length > 0 || updated.result !== state.combat.battleResult) {
       set({
         combat: {
-          ...state.combat,
-          ...result.stateUpdates,
-          combatLog: [...state.combat.combatLog, ...result.newLogEntries].slice(-COMBAT_LOG_MAX_ENTRIES),
+          ...updated.toState(),
+          combatLog: [...state.combat.combatLog, ...logs].slice(-COMBAT_LOG_MAX_ENTRIES),
         },
       });
     }
@@ -149,25 +147,21 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     }
 
     const partyStats = state.getPartyStats();
-    const result = executeHeroAbility(state.combat, heroId, partyStats, targetId);
+    const battle = Battle.from(state.combat);
+    const { battle: updated, logs, success } = battle.useAbility(heroId, partyStats, targetId);
 
-    if (!result.success) {
+    if (!success) {
       return false;
     }
 
     playAbilitySound();
 
-    const updatedCombat = {
-      ...state.combat,
-      ...result.stateUpdates,
-      combatLog: [...state.combat.combatLog, ...result.logEntries].slice(-COMBAT_LOG_MAX_ENTRIES),
-    };
-
-    if (result.stateUpdates.enemies?.every((e: { isAlive: boolean }) => !e.isAlive)) {
-      updatedCombat.battleResult = 'victory';
-    }
-
-    set({ combat: updatedCombat });
+    set({
+      combat: {
+        ...updated.toState(),
+        combatLog: [...state.combat.combatLog, ...logs].slice(-COMBAT_LOG_MAX_ENTRIES),
+      },
+    });
 
     return true;
   },
@@ -179,25 +173,21 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     }
 
     const partyStats = state.getPartyStats();
-    const result = executeHeroLimitBreak(state.combat, heroId, partyStats);
+    const battle = Battle.from(state.combat);
+    const { battle: updated, logs, success } = battle.useLimitBreak(heroId, partyStats);
 
-    if (!result.success) {
+    if (!success) {
       return false;
     }
 
     playLimitBreakSound();
 
-    const updatedCombat = {
-      ...state.combat,
-      ...result.stateUpdates,
-      combatLog: [...state.combat.combatLog, ...result.logEntries].slice(-COMBAT_LOG_MAX_ENTRIES),
-    };
-
-    if (result.stateUpdates.enemies?.every((e: { isAlive: boolean }) => !e.isAlive)) {
-      updatedCombat.battleResult = 'victory';
-    }
-
-    set({ combat: updatedCombat });
+    set({
+      combat: {
+        ...updated.toState(),
+        combatLog: [...state.combat.combatLog, ...logs].slice(-COMBAT_LOG_MAX_ENTRIES),
+      },
+    });
 
     return true;
   },
