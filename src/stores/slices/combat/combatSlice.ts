@@ -29,7 +29,7 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
   combat: createEmptyCombatState(),
   zoneProgress: {},
 
-  // Exported for prestige slice to call
+  // Exported for prestige slice to call - resets both combat state and zone progress
   getPrestigeCombatReset: () => createPrestigeCombatState(),
 
   startCombat: (zoneId: string, stageNumber: number) => {

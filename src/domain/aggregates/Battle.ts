@@ -15,7 +15,6 @@ import {
   selectEnemyTarget,
   selectHeroTarget,
   processStatusEffects,
-  removeExpiredEffects,
   getStatModifierFromEffects,
   checkBossPhaseTransition,
   applyBossPhaseTransition,
@@ -428,9 +427,6 @@ export class Battle {
       const enemyDef = getAnyEnemy(enemy.id);
       if (!enemyDef) continue;
 
-      const target = selectHeroTarget(heroStates);
-      if (!target) continue;
-
       let effectiveEnemyStats = enemyDef.stats;
       let availableAbilities = enemyDef.abilities;
 
@@ -451,34 +447,76 @@ export class Battle {
       const attackModifier = getStatModifierFromEffects(enemy.statusEffects, 'attack');
       const effectiveAttack = Math.max(1, effectiveEnemyStats.attack + attackModifier);
 
-      const heroStats = partyStats[target.heroId];
-      const defenseModifier = getStatModifierFromEffects(target.statusEffects, 'defense');
-      const effectiveDefense = Math.max(0, (heroStats?.defense || 10) + defenseModifier);
+      // Check for AoE targeting
+      if (ability?.targetType === 'all') {
+        // Damage all alive heroes
+        for (const heroState of Object.values(heroStates)) {
+          if (!heroState.isAlive) continue;
 
-      const damage = calculateDamage(effectiveAttack, effectiveDefense, abilityMultiplier);
-      target.currentHp = applyDamage(target.currentHp, damage);
-      damageTaken += damage;
+          const heroStats = partyStats[heroState.heroId];
+          const defenseModifier = getStatModifierFromEffects(heroState.statusEffects, 'defense');
+          const effectiveDefense = Math.max(0, (heroStats?.defense || 10) + defenseModifier);
 
-      const heroDef = heroRegistry.get(target.heroId);
+          const damage = calculateDamage(effectiveAttack, effectiveDefense, abilityMultiplier);
+          heroState.currentHp = applyDamage(heroState.currentHp, damage);
+          damageTaken += damage;
 
-      logs.push({
-        timestamp: Date.now(),
-        type: 'attack',
-        source: enemyDef.name,
-        target: heroDef?.name || target.heroId,
-        value: damage,
-        message: `${enemyDef.name} attacks ${heroDef?.name || target.heroId} for ${damage} damage!`,
-      });
+          const heroDef = heroRegistry.get(heroState.heroId);
 
-      if (target.currentHp <= 0) {
-        target.isAlive = false;
+          logs.push({
+            timestamp: Date.now(),
+            type: 'attack',
+            source: enemyDef.name,
+            target: heroDef?.name || heroState.heroId,
+            value: damage,
+            message: `${enemyDef.name}'s ${ability.name} hits ${heroDef?.name || heroState.heroId} for ${damage} damage!`,
+          });
+
+          if (heroState.currentHp <= 0) {
+            heroState.isAlive = false;
+            logs.push({
+              timestamp: Date.now(),
+              type: 'defeat',
+              source: enemyDef.name,
+              target: heroDef?.name || heroState.heroId,
+              message: `${heroDef?.name || heroState.heroId} has fallen!`,
+            });
+          }
+        }
+      } else {
+        // Single target (existing logic)
+        const target = selectHeroTarget(heroStates);
+        if (!target) continue;
+
+        const heroStats = partyStats[target.heroId];
+        const defenseModifier = getStatModifierFromEffects(target.statusEffects, 'defense');
+        const effectiveDefense = Math.max(0, (heroStats?.defense || 10) + defenseModifier);
+
+        const damage = calculateDamage(effectiveAttack, effectiveDefense, abilityMultiplier);
+        target.currentHp = applyDamage(target.currentHp, damage);
+        damageTaken += damage;
+
+        const heroDef = heroRegistry.get(target.heroId);
+
         logs.push({
           timestamp: Date.now(),
-          type: 'defeat',
+          type: 'attack',
           source: enemyDef.name,
           target: heroDef?.name || target.heroId,
-          message: `${heroDef?.name || target.heroId} has fallen!`,
+          value: damage,
+          message: `${enemyDef.name} attacks ${heroDef?.name || target.heroId} for ${damage} damage!`,
         });
+
+        if (target.currentHp <= 0) {
+          target.isAlive = false;
+          logs.push({
+            timestamp: Date.now(),
+            type: 'defeat',
+            source: enemyDef.name,
+            target: heroDef?.name || target.heroId,
+            message: `${heroDef?.name || target.heroId} has fallen!`,
+          });
+        }
       }
 
       // Apply ability status effect if present
@@ -502,42 +540,47 @@ export class Battle {
             message: `${ability.name} grants ${ability.effect.stat} buff!`,
           });
         } else {
-          // Check immunity before applying debuff
-          // Immunity effects have type 'immunity' and stat set to the debuff type they block
-          // Also check for 'allDebuffs' immunity
-          const isImmune = target.statusEffects.some(
-            (e) => e.type === 'immunity' &&
-                   (e.stat === ability.effect!.stat || e.stat === 'allDebuffs') &&
-                   e.duration > 0
-          );
+          // Debuff targets: all heroes for AoE, single target for single-target
+          const debuffTargets = ability.targetType === 'all'
+            ? Object.values(heroStates).filter((h) => h.isAlive)
+            : [selectHeroTarget(heroStates)].filter((h): h is HeroCombatState => h !== null);
 
-          if (!isImmune) {
-            const statusEffect: StatusEffect = {
-              id: `enemy_${enemy.id}_${ability.name}_${Date.now()}`,
-              type: ability.effect.type,
-              stat: ability.effect.stat,
-              value: ability.effect.value,
-              duration: ability.effect.duration,
-              source: enemy.id,
-            };
-            target.statusEffects.push(statusEffect);
-            const heroDef = heroRegistry.get(target.heroId);
-            logs.push({
-              timestamp: Date.now(),
-              type: 'status',
-              source: enemyDef.name,
-              target: heroDef?.name || target.heroId,
-              message: `${ability.name} applies ${ability.effect.stat} ${ability.effect.type}!`,
-            });
-          } else {
-            const heroDef = heroRegistry.get(target.heroId);
-            logs.push({
-              timestamp: Date.now(),
-              type: 'status',
-              source: heroDef?.name || target.heroId,
-              target: enemyDef.name,
-              message: `${heroDef?.name || target.heroId} is immune to ${ability.effect.stat}!`,
-            });
+          for (const debuffTarget of debuffTargets) {
+            // Check immunity before applying debuff
+            const isImmune = debuffTarget.statusEffects.some(
+              (e) => e.type === 'immunity' &&
+                     (e.stat === ability.effect!.stat || e.stat === 'allDebuffs') &&
+                     e.duration > 0
+            );
+
+            if (!isImmune) {
+              const statusEffect: StatusEffect = {
+                id: `enemy_${enemy.id}_${ability.name}_${debuffTarget.heroId}_${Date.now()}`,
+                type: ability.effect.type,
+                stat: ability.effect.stat,
+                value: ability.effect.value,
+                duration: ability.effect.duration,
+                source: enemy.id,
+              };
+              debuffTarget.statusEffects.push(statusEffect);
+              const heroDef = heroRegistry.get(debuffTarget.heroId);
+              logs.push({
+                timestamp: Date.now(),
+                type: 'status',
+                source: enemyDef.name,
+                target: heroDef?.name || debuffTarget.heroId,
+                message: `${ability.name} applies ${ability.effect.stat} ${ability.effect.type}!`,
+              });
+            } else {
+              const heroDef = heroRegistry.get(debuffTarget.heroId);
+              logs.push({
+                timestamp: Date.now(),
+                type: 'status',
+                source: heroDef?.name || debuffTarget.heroId,
+                target: enemyDef.name,
+                message: `${heroDef?.name || debuffTarget.heroId} is immune to ${ability.effect.stat}!`,
+              });
+            }
           }
         }
       }
@@ -556,13 +599,17 @@ export class Battle {
     abilities: EnemyAbility[],
     cooldowns: Record<string, number>
   ): EnemyAbility | null {
-    for (const ability of abilities) {
+    // Collect all abilities not on cooldown
+    const available = abilities.filter((ability) => {
       const cooldown = cooldowns[ability.id] ?? 0;
-      if (cooldown <= 0) {
-        return ability;
-      }
-    }
-    return null;
+      return cooldown <= 0;
+    });
+
+    if (available.length === 0) return null;
+
+    // Random selection instead of always first
+    const index = Math.floor(Math.random() * available.length);
+    return available[index];
   }
 
   #processHeroStatusEffects(
@@ -582,7 +629,7 @@ export class Battle {
       );
 
       heroState.currentHp = result.newHp;
-      heroState.statusEffects = removeExpiredEffects(heroState.statusEffects, result.expiredEffects);
+      heroState.statusEffects = result.updatedEffects;
 
       if (result.damage > 0) {
         damageTaken += result.damage;
@@ -614,7 +661,7 @@ export class Battle {
       const result = processStatusEffects(enemy.currentHp, maxHp, enemy.statusEffects);
 
       enemy.currentHp = result.newHp;
-      enemy.statusEffects = removeExpiredEffects(enemy.statusEffects, result.expiredEffects);
+      enemy.statusEffects = result.updatedEffects;
 
       if (enemy.currentHp <= 0) {
         enemy.isAlive = false;

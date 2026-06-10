@@ -69,13 +69,17 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
     const productionReset = state.getPrestigeProductionReset();
     const combatReset = state.getPrestigeCombatReset();
     const craftingReset = state.getPrestigeCraftingReset('aging');
+    const heroReset = state.getPrestigeHeroReset();
 
     set({
       // Production reset - DELEGATED to production slice
       ...productionReset,
 
-      // Combat reset - DELEGATED to combat slice
-      combat: combatReset,
+      // Combat reset - DELEGATED to combat slice (includes zoneProgress)
+      ...combatReset,
+
+      // Hero reset - DELEGATED to hero slice
+      ...heroReset,
 
       // Crafting reset - DELEGATED to crafting slice
       crafting: craftingReset,
@@ -165,13 +169,17 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
     const productionReset = state.getPrestigeProductionReset();
     const combatReset = state.getPrestigeCombatReset();
     const craftingReset = state.getPrestigeCraftingReset('vintage');
+    const heroReset = state.getPrestigeHeroReset();
 
     set({
       // Production reset - DELEGATED to production slice
       ...productionReset,
 
-      // Combat reset - DELEGATED to combat slice
-      combat: combatReset,
+      // Combat reset - DELEGATED to combat slice (includes zoneProgress)
+      ...combatReset,
+
+      // Hero reset - DELEGATED to hero slice
+      ...heroReset,
 
       // Crafting reset - DELEGATED to crafting slice
       crafting: craftingReset,
@@ -217,13 +225,17 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
     const productionReset = state.getPrestigeProductionReset();
     const combatReset = state.getPrestigeCombatReset();
     const craftingReset = state.getPrestigeCraftingReset('legacy');
+    const heroReset = state.getPrestigeHeroReset();
 
     set({
       // Production reset - DELEGATED to production slice
       ...productionReset,
 
-      // Combat reset - DELEGATED to combat slice
-      combat: combatReset,
+      // Combat reset - DELEGATED to combat slice (includes zoneProgress)
+      ...combatReset,
+
+      // Hero reset - DELEGATED to hero slice
+      ...heroReset,
 
       // Crafting reset - DELEGATED to crafting slice
       crafting: craftingReset,

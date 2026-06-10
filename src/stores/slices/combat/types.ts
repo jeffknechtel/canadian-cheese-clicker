@@ -20,7 +20,7 @@ export interface CombatSliceActions {
   canUseLimitBreakAction: (heroId: string) => { canUse: boolean; reason?: string };
   claimCombatRewards: () => CombatRewards | null;
   getZoneProgress: (zoneId: string) => ZoneProgress | undefined;
-  getPrestigeCombatReset: () => CombatState;
+  getPrestigeCombatReset: () => CombatSliceState;
 }
 
 export type CombatSlice = CombatSliceState & CombatSliceActions;

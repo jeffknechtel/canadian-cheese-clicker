@@ -288,8 +288,48 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
 
     const xpPerHero = xpGained / partyHeroIds.length;
 
+    // Batch all hero XP updates into a single state change
+    const heroUpdates: Record<string, HeroState> = {};
+    const levelUps: Array<{ heroId: string; level: number }> = [];
+
     for (const heroId of partyHeroIds) {
-      get().grantXp(heroId, xpPerHero);
+      const heroState = state.heroes[heroId];
+      if (!heroState || heroState.level >= HERO_MAX_LEVEL) continue;
+
+      let xp = heroState.xp + xpPerHero;
+      let level = heroState.level;
+      let xpToNextLevel = heroState.xpToNextLevel;
+
+      while (xp >= xpToNextLevel && level < HERO_MAX_LEVEL) {
+        xp -= xpToNextLevel;
+        level += 1;
+        xpToNextLevel = getXpForLevel(level);
+        levelUps.push({ heroId, level });
+      }
+
+      if (level >= HERO_MAX_LEVEL) {
+        xp = 0;
+        xpToNextLevel = 0;
+      }
+
+      heroUpdates[heroId] = { ...heroState, xp, level, xpToNextLevel };
+    }
+
+    // Single state update for all heroes
+    if (Object.keys(heroUpdates).length > 0) {
+      set({ heroes: { ...state.heroes, ...heroUpdates } });
+    }
+
+    // Single CPS recalc if any level-ups occurred
+    if (levelUps.length > 0) {
+      publish({ type: 'CpsInputsChanged' });
+      for (const { heroId, level } of levelUps) {
+        const heroDef = heroRegistry.get(heroId);
+        if (heroDef) {
+          publish({ type: 'HeroLeveledUp', heroId, hero: heroDef, newLevel: level });
+        }
+        trackHeroLevelUp(heroId, level);
+      }
     }
   },
 
@@ -316,4 +356,15 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
 
     return stats;
   },
+
+  getPrestigeHeroReset: () => ({
+    heroes: {},
+    party: {
+      frontLeft: null,
+      frontRight: null,
+      backLeft: null,
+      backRight: null,
+    },
+    equipmentInventory: [],
+  }),
 });

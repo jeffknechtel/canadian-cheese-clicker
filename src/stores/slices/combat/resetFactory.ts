@@ -1,4 +1,5 @@
 import type { CombatState } from '../../../types/game';
+import type { CombatSliceState } from './types';
 
 /**
  * Creates empty combat state for:
@@ -22,8 +23,11 @@ export function createEmptyCombatState(): CombatState {
 
 /**
  * Creates reset state for prestige tier.
- * Combat fully resets on any prestige.
+ * Combat fully resets on any prestige, including zone progress.
  */
-export function createPrestigeCombatState(): CombatState {
-  return createEmptyCombatState();
+export function createPrestigeCombatState(): CombatSliceState {
+  return {
+    combat: createEmptyCombatState(),
+    zoneProgress: {},
+  };
 }
