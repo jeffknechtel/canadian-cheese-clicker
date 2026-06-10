@@ -307,7 +307,7 @@ export function PrestigePanel() {
       {/* Prestige Animation Overlay */}
       {showPrestigeAnimation && (
         <div className="absolute inset-0 pointer-events-none z-10">
-          <div className="absolute inset-0 bg-linear-to-t from-amber-400/40 to-transparent animate-pulse" />
+          <div className={`absolute inset-0 bg-linear-to-t from-amber-400/40 to-transparent ${!reducedMotion ? 'animate-pulse' : ''}`} />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <span className="text-6xl animate-bounce">🧀</span>
           </div>

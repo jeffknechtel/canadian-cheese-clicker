@@ -34,7 +34,7 @@ export function TabButton({
     <button
       onClick={onClick}
       className={`
-        flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
+        flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border btn-scale
         ${active ? styles.active : styles.inactive}
         ${className}
       `}

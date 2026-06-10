@@ -93,7 +93,7 @@ const HeroCombatCard = memo(function HeroCombatCard({ heroState, isSelected = fa
           >
             {hero.name}
             {isReady && heroState.isAlive && (
-              <span className="ml-1 text-xs bg-cheddar-100 text-cheddar-700 px-1 rounded animate-pulse" aria-hidden="true">
+              <span className={`ml-1 text-xs bg-cheddar-100 text-cheddar-700 px-1 rounded ${!useGameStore.getState().settings.reducedMotion ? 'animate-pulse' : ''}`} aria-hidden="true">
                 READY
               </span>
             )}
@@ -203,7 +203,7 @@ const SpeedControl = memo(function SpeedControl({ currentSpeed, onSpeedChange }:
           aria-pressed={currentSpeed === speed}
           aria-label={`${speed}x speed${currentSpeed === speed ? ' (selected)' : ''}`}
           className={`
-            px-2 py-1 text-xs font-bold rounded transition-all
+            px-2 py-1 text-xs font-bold rounded transition-all btn-scale
             ${currentSpeed === speed
               ? 'bg-maple-600 text-white shadow-xs'
               : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
@@ -515,9 +515,9 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
           aria-label="Flee from battle"
           aria-disabled={combat.battleResult !== 'ongoing'}
           className={`
-            flex-1 py-2 rounded font-medium text-sm transition-all
+            flex-1 py-2 rounded font-medium text-sm transition-all btn-scale
             ${combat.battleResult === 'ongoing'
-              ? 'bg-gray-200 text-gray-700 hover:bg-gray-300 active:scale-[0.98]'
+              ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
             }
           `}

@@ -43,9 +43,9 @@ export function HeroAbilityButton({ heroState, size = 'md' }: HeroAbilityButtonP
         title={!canUse ? reason : ability.description}
         className={`
           ${sizeClasses[size]}
-          rounded font-medium transition-all duration-200 w-full
+          rounded font-medium transition-all duration-200 w-full btn-scale
           ${abilityIsReady && !isDisabled
-            ? 'bg-linear-to-r from-maple-500 to-maple-600 text-white shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
+            ? 'bg-linear-to-r from-maple-500 to-maple-600 text-white shadow-md hover:shadow-lg'
             : isDisabled
               ? 'bg-gray-200 text-gray-700 cursor-not-allowed'
               : 'bg-maple-200 text-maple-700 cursor-not-allowed'
@@ -80,6 +80,7 @@ interface LimitBreakButtonProps {
 export function LimitBreakButton({ heroId, size = 'md' }: LimitBreakButtonProps) {
   const canUseLimitBreakAction = useGameStore((state) => state.canUseLimitBreakAction);
   const combat = useGameStore((state) => state.combat);
+  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
 
   const hero = heroRegistry.get(heroId);
   const limitBreak = getHeroLimitBreak(heroId);
@@ -108,9 +109,9 @@ export function LimitBreakButton({ heroId, size = 'md' }: LimitBreakButtonProps)
       title={!canUse ? reason : limitBreak.description}
       className={`
         ${sizeClasses[size]}
-        rounded font-bold transition-all duration-200 w-full
+        rounded font-bold transition-all duration-200 w-full btn-scale
         ${canUse && !isDisabled
-          ? 'bg-linear-to-r from-amber-500 via-orange-500 to-red-500 text-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] animate-pulse'
+          ? `bg-linear-to-r from-amber-500 via-orange-500 to-red-500 text-white shadow-lg hover:shadow-xl ${!reducedMotion ? 'animate-pulse' : ''}`
           : 'bg-gray-200 text-gray-700 cursor-not-allowed'
         }
       `}
