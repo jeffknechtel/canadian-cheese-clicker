@@ -50,6 +50,7 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
   upgrades: [],
   ehCount: 0,
   lastMilestone: 0,
+  currencyAnimationTrigger: 0,
 
   // Actions
   click: () => {
@@ -63,6 +64,7 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
       curds: state.curds.plus(clickValue),
       totalCurdsEarned: state.totalCurdsEarned.plus(clickValue),
       totalClicks: state.totalClicks + 1,
+      currencyAnimationTrigger: state.currencyAnimationTrigger + 1,
     });
     get().checkAchievements();
   },
@@ -106,6 +108,7 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
     set({
       curds: state.curds.minus(cost),
       generators: { ...state.generators, [id]: currentOwned + count },
+      currencyAnimationTrigger: state.currencyAnimationTrigger + 1,
     });
 
     publish({ type: 'CpsInputsChanged' });
@@ -154,6 +157,7 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
       curds: upgrade.costCurrency === 'curds' ? state.curds.minus(upgrade.cost) : state.curds,
       whey: upgrade.costCurrency === 'whey' ? state.whey.minus(upgrade.cost) : state.whey,
       upgrades: newUpgrades,
+      currencyAnimationTrigger: state.currencyAnimationTrigger + 1,
     });
 
     publish({ type: 'CpsInputsChanged' });

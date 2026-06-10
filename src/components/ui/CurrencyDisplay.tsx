@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { useGameStore } from '../../stores';
 import { useGameStoreShallow } from '../../utils/zustandOptimization';
+import { useSettingsStore } from '../../stores/settingsStore';
 import { formatNumber } from '../../utils/formatNumber';
 import { RennetDisplay } from './RennetDisplay';
 
@@ -15,13 +16,15 @@ const LoonieIcon = memo(function LoonieIcon() {
 
 export function CurrencyDisplay() {
   // Optimized selectors - only re-render when these specific values change
-  const { curds, curdPerSecond, prestigeRennet, agingResetCount } = useGameStoreShallow((state) => ({
+  const { curds, curdPerSecond, prestigeRennet, agingResetCount, currencyAnimationTrigger } = useGameStoreShallow((state) => ({
     curds: state.curds,
     curdPerSecond: state.curdPerSecond,
     prestigeRennet: state.prestige.rennet,
     agingResetCount: state.prestige.agingResetCount,
+    currencyAnimationTrigger: state.currencyAnimationTrigger,
   }));
   const getPotentialRennet = useGameStore((state) => state.getPotentialRennet);
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
   const hasPrestiged = agingResetCount > 0 || prestigeRennet > 0;
   const potentialRennet = getPotentialRennet();
@@ -35,6 +38,8 @@ export function CurrencyDisplay() {
         >
           <LoonieIcon />
           <span
+            key={currencyAnimationTrigger}
+            className={!reducedMotion ? 'animate-number-pop' : ''}
             role="status"
             aria-live="polite"
             aria-label={`${formatNumber(curds)} curds`}
