@@ -194,7 +194,7 @@ function AchievementToastItem({ item, onDismiss }: AchievementToastItemProps) {
       </div>
 
       {/* Dismiss hint */}
-      <div className="text-xs text-gray-400 shrink-0 relative z-10">
+      <div className="text-xs text-gray-500 shrink-0 relative z-10">
         Click to dismiss
       </div>
     </div>

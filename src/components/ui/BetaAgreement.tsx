@@ -111,7 +111,7 @@ export function BetaAgreement({ onAccept, onDecline }: BetaAgreementProps) {
 
         {/* Scroll indicator */}
         {!hasScrolledToBottom && (
-          <div className="px-6 py-2 bg-cheddar-100 text-center text-xs text-cheddar-500 animate-pulse">
+          <div className="px-6 py-2 bg-cheddar-100 text-center text-xs text-cheddar-700 animate-pulse">
             Scroll down to read the full agreement
           </div>
         )}
@@ -132,7 +132,7 @@ export function BetaAgreement({ onAccept, onDecline }: BetaAgreementProps) {
             className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${
               hasScrolledToBottom
                 ? 'bg-maple-600 hover:bg-maple-700 text-white'
-                : 'bg-cheddar-200 text-cheddar-400 cursor-not-allowed'
+                : 'bg-gray-200 text-gray-600 cursor-not-allowed'
             }`}
             title={hasScrolledToBottom ? undefined : 'Please read the full agreement first'}
           >

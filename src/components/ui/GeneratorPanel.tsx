@@ -101,28 +101,25 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
           <span
-            className={`font-semibold transition-all duration-200 ${isHovered ? 'whitespace-normal' : 'truncate'}`}
-            style={{ color: '#8b7355' }}
+            className={`font-semibold transition-all duration-200 text-rind ${isHovered ? 'whitespace-normal' : 'truncate'}`}
             title={generator.name}
           >
             {generator.name}
           </span>
           <span
-            className="text-sm font-medium tabular-nums shrink-0"
-            style={{ color: isCanadianTier ? '#dc2626' : '#b45309' }}
+            className={`text-sm font-medium tabular-nums shrink-0 ${isCanadianTier ? 'text-red-600' : 'text-amber-700'}`}
             aria-label={`${owned} owned`}
           >
             ×{owned}
           </span>
         </div>
         <p
-          className={`text-xs transition-all duration-200 ${isHovered ? 'whitespace-normal' : 'truncate'}`}
-          style={{ color: '#4b5563' }}
+          className={`text-xs transition-all duration-200 text-gray-600 ${isHovered ? 'whitespace-normal' : 'truncate'}`}
           title={generator.description}
         >
           {generator.description}
         </p>
-        <p className="text-xs" style={{ color: isCanadianTier ? '#dc2626' : '#d97706' }}>
+        <p className={`text-xs ${isCanadianTier ? 'text-red-600' : 'text-amber-600'}`}>
           +{formatNumber(generator.baseCps)} cps each
         </p>
       </div>
@@ -131,14 +128,13 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
         disabled={!canAfford}
         aria-label={buyButtonLabel}
         aria-disabled={!canAfford}
-        className="px-4 py-2 rounded-lg font-medium text-sm transition-all btn-ripple btn-scale shadow-md hover:shadow-lg"
-        style={{
-          backgroundColor: canAfford
-            ? isCanadianTier ? '#dc2626' : '#d97706'  // maple-600 and cheddar-600 for WCAG AA contrast
-            : '#e5e7eb',
-          color: canAfford ? '#ffffff' : '#374151',
-          cursor: canAfford ? 'pointer' : 'not-allowed',
-        }}
+        className={`px-4 py-2 rounded-lg font-medium text-sm transition-all btn-ripple btn-scale shadow-md hover:shadow-lg ${
+          canAfford
+            ? isCanadianTier
+              ? 'bg-red-600 hover:bg-red-700 text-white cursor-pointer'
+              : 'bg-amber-600 hover:bg-amber-700 text-white cursor-pointer'
+            : 'bg-gray-200 text-gray-700 cursor-not-allowed'
+        }`}
       >
         <div className="text-center" aria-hidden="true">
           <div>Buy {buyAmount === 'max' ? `×${effectiveAmount || 0}` : `×${buyAmount}`}</div>
@@ -158,7 +154,7 @@ export function GeneratorPanel() {
   return (
     <section className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain" aria-labelledby="generators-heading">
       <div className="flex items-center justify-between mb-3">
-        <h2 id="generators-heading" className="text-lg font-bold flex items-center gap-2" style={{ color: '#5f4810' }}>
+        <h2 id="generators-heading" className="text-lg font-bold flex items-center gap-2 text-timber-700">
           <span>Generators</span>
         </h2>
         <div className="flex gap-1" role="group" aria-label="Buy quantity selector">
@@ -168,11 +164,11 @@ export function GeneratorPanel() {
               onClick={() => setBuyAmount(amount)}
               aria-pressed={buyAmount === amount}
               aria-label={amount === 'max' ? 'Buy maximum affordable' : `Buy ${amount} at a time`}
-              className="px-2 py-1 text-xs rounded font-medium transition-colors"
-              style={{
-                backgroundColor: buyAmount === amount ? '#8b6914' : 'rgba(255,255,255,0.5)',
-                color: buyAmount === amount ? '#ffffff' : '#5f4810',
-              }}
+              className={`px-2 py-1 text-xs rounded font-medium transition-colors ${
+                buyAmount === amount
+                  ? 'bg-timber-500 text-white'
+                  : 'bg-white/50 text-timber-700'
+              }`}
             >
               {amount === 'max' ? 'MAX' : `×${amount}`}
             </button>

@@ -51,7 +51,7 @@ function CombatLogEntryItem({ entry, isNew = false }: CombatLogEntryItemProps) {
       `}
     >
       <span className="shrink-0 w-4 text-center">{icon}</span>
-      <span className="text-gray-400 shrink-0 tabular-nums">[{formatTime(entry.timestamp)}]</span>
+      <span className="text-gray-500 shrink-0 tabular-nums">[{formatTime(entry.timestamp)}]</span>
       <span className={`flex-1 ${colorClass}`}>{entry.message}</span>
       {entry.value !== undefined && (
         <span className="shrink-0 font-bold text-red-600">-{entry.value}</span>
@@ -112,7 +112,7 @@ export function CombatLog({
           style={{ maxHeight }}
         >
           {entries.length === 0 ? (
-            <div className="p-4 text-center text-gray-400 text-sm">
+            <div className="p-4 text-center text-gray-500 text-sm">
               No battle events yet...
             </div>
           ) : (

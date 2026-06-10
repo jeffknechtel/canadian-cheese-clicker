@@ -213,7 +213,7 @@ export function FeedbackWidget({ className = '' }: FeedbackWidgetProps) {
             </label>
 
             {/* Version info */}
-            <p className="text-xs text-cheddar-400">
+            <p className="text-xs text-gray-500">
               Version: {GAME_VERSION}
             </p>
 
@@ -236,7 +236,7 @@ export function FeedbackWidget({ className = '' }: FeedbackWidgetProps) {
               disabled={isSubmitting || !description.trim()}
               className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
                 isSubmitting || !description.trim()
-                  ? 'bg-cheddar-200 text-cheddar-400 cursor-not-allowed'
+                  ? 'bg-gray-200 text-gray-600 cursor-not-allowed'
                   : 'bg-maple-600 hover:bg-maple-700 text-white'
               }`}
             >
