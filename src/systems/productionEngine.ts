@@ -36,17 +36,27 @@ export function calculateCps(
 }
 
 /**
- * Calculate the cost to buy N generators, accounting for scaling
+ * Calculate the cost to buy N generators, accounting for scaling and prestige reductions
  * Cost formula: baseCost * costMultiplier^owned * (costMultiplier^count - 1) / (costMultiplier - 1)
+ * Then apply prestige cost reduction
  */
 export function calculateGeneratorCost(
   generatorId: string,
   owned: number,
-  count: number
+  count: number,
+  prestige?: PrestigeState
 ): Decimal {
   const generator = generatorRegistry.get(generatorId);
   if (!generator) return new Decimal(Infinity);
-  return generator.getCost(owned, count);
+
+  const baseCost = generator.getCost(owned, count);
+
+  if (prestige) {
+    const costReduction = calculatePrestigeCostReduction(prestige);
+    return baseCost.mul(1 - costReduction);
+  }
+
+  return baseCost;
 }
 
 /**
@@ -55,10 +65,18 @@ export function calculateGeneratorCost(
 export function calculateMaxAffordable(
   generatorId: string,
   owned: number,
-  curds: Decimal
+  curds: Decimal,
+  prestige?: PrestigeState
 ): number {
   const generator = generatorRegistry.get(generatorId);
   if (!generator) return 0;
+
+  if (prestige) {
+    const costReduction = calculatePrestigeCostReduction(prestige);
+    const effectiveCurds = curds.div(1 - costReduction);
+    return generator.getMaxAffordable(owned, effectiveCurds);
+  }
+
   return generator.getMaxAffordable(owned, curds);
 }
 

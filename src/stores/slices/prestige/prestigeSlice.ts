@@ -205,15 +205,19 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
   },
 
   spendRennet: (amount: number) => {
-    const state = get();
-    if (state.prestige.rennet < amount) return false;
-
-    set({
-      prestige: {
-        ...state.prestige,
-        rennet: state.prestige.rennet - amount,
-      },
+    let success = false;
+    set((s) => {
+      if (s.prestige.rennet < amount) {
+        return s;
+      }
+      success = true;
+      return {
+        prestige: {
+          ...s.prestige,
+          rennet: s.prestige.rennet - amount,
+        },
+      };
     });
-    return true;
+    return success;
   },
 });
