@@ -221,7 +221,7 @@ export function EquipmentModal({ heroId, slot, onClose }: EquipmentModalProps) {
       onClick={onClose}
     >
       <div
-        className={`bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] flex flex-col panel-wood-solid ${!reducedMotion ? 'animate-modal-in' : ''}`}
+        className={`bg-white rounded-lg shadow-xl max-w-md w-full min-w-[320px] max-h-[80vh] flex flex-col panel-wood-solid ${!reducedMotion ? 'animate-modal-in' : ''}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

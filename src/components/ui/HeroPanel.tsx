@@ -124,7 +124,7 @@ function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, 
               key={slot}
               onClick={() => onEquipmentClick(hero.id, slot)}
               className={`
-                flex-1 p-1.5 rounded text-xs transition-all duration-200
+                flex-1 p-2 sm:p-1.5 rounded text-xs transition-all duration-200
                 ${equipped
                   ? 'bg-cheddar-100 border border-cheddar-300 hover:bg-cheddar-200 hover:border-cheddar-400 hover:shadow-xs'
                   : 'bg-gray-100 border border-gray-200 hover:bg-gray-200 hover:border-gray-300'

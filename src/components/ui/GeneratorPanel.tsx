@@ -30,8 +30,7 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
   const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
   const [purchaseAnimation, setPurchaseAnimation] = useState<'success' | 'failure' | null>(null);
-  const [isHovered, setIsHovered] = useState(false);
-
+  
   // Ref for animation timeout cleanup to prevent memory leaks
   const animationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -91,8 +90,6 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
       `}
       style={{ animationDelay: `${staggerDelay}ms` }}
       aria-label={`${generator.name}: ${owned} owned, produces ${formatNumber(generator.baseCps)} curds per second each`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Generator Icon */}
       <div className="shrink-0 text-2xl w-10 h-10 flex items-center justify-center bg-white/50 rounded-lg" aria-hidden="true">
@@ -101,7 +98,7 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
           <span
-            className={`font-semibold transition-all duration-200 text-rind ${isHovered ? 'whitespace-normal' : 'truncate'}`}
+            className="font-semibold text-rind truncate"
             title={generator.name}
           >
             {generator.name}
@@ -114,7 +111,7 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
           </span>
         </div>
         <p
-          className={`text-xs transition-all duration-200 text-gray-600 ${isHovered ? 'whitespace-normal' : 'truncate'}`}
+          className="text-xs text-gray-600 truncate"
           title={generator.description}
         >
           {generator.description}
