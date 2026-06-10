@@ -69,7 +69,7 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
               )}
             </div>
             <p className="text-xs text-gray-500">{getProvinceDisplayName(zone.province)}</p>
-            <p className="text-xs text-gray-400 mt-0.5">Recommended Lv. {zone.recommendedLevel}</p>
+            <p className="text-xs text-gray-500 mt-0.5">Recommended Lv. {zone.recommendedLevel}</p>
           </div>
           <div className="shrink-0 text-right">
             {isUnlocked ? (
@@ -80,7 +80,7 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
                 </div>
               </>
             ) : (
-              <div className="text-xs text-gray-400">🔒 Locked</div>
+              <div className="text-xs text-gray-500">🔒 Locked</div>
             )}
           </div>
         </div>
@@ -120,7 +120,7 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
                         ? 'bg-cheddar-100 text-cheddar-700 border border-cheddar-300'
                         : canAttempt
                           ? 'bg-maple-100 text-maple-700 border border-maple-300 hover:bg-maple-200 hover:shadow-xs'
-                          : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                          : 'bg-gray-200 text-gray-600 border border-gray-300 cursor-not-allowed'
                       }
                     `}
                   >
@@ -144,7 +144,7 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
                     ? 'bg-cheddar-100 text-cheddar-700 border border-cheddar-300'
                     : (progress?.highestStageCleared || 0) >= zone.stages.length
                       ? 'bg-red-100 text-red-700 border border-red-300 hover:bg-red-200 hover:shadow-xs'
-                      : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                      : 'bg-gray-200 text-gray-600 border border-gray-300 cursor-not-allowed'
                   }
                 `}
               >

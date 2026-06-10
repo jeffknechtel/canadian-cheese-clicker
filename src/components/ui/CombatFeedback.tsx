@@ -198,7 +198,7 @@ export function ComboCounter({ count, maxCombo }: ComboCounterProps) {
       <div className="text-xs opacity-80">COMBO</div>
       <div className="text-xl leading-none">{count}</div>
       {count === maxCombo && (
-        <div className="text-[10px] text-yellow-200">MAX!</div>
+        <div className="text-[10px] text-white font-bold drop-shadow-sm">MAX!</div>
       )}
     </div>
   );

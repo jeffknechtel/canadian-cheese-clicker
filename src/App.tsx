@@ -531,7 +531,7 @@ function App() {
                     <span className="text-sm font-medium">{prestige.rennet}</span>
                   )}
                   {prestigeAvailable && rightPanelView !== 'prestige' && (
-                    <span className="text-xs text-amber-200">+{potentialRennet}</span>
+                    <span className="text-xs text-white font-medium">+{potentialRennet}</span>
                   )}
                 </button>
                 <button

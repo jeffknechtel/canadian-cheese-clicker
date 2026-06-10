@@ -221,7 +221,7 @@ function HeroRecruitCard({ hero }: HeroRecruitCardProps) {
           <p className="text-xs text-gray-600 mt-1">{hero.province.replace('_', ' ')}</p>
         </div>
         <div className="shrink-0 text-right">
-          <div className={`text-sm font-bold ${canAfford ? 'text-maple-600' : 'text-gray-400'}`}>
+          <div className={`text-sm font-bold ${canAfford ? 'text-maple-600' : 'text-gray-500'}`}>
             {formatNumber(hero.recruitCost)}
           </div>
           <div className="text-xs text-gray-500">curds</div>
@@ -237,23 +237,23 @@ function HeroRecruitCard({ hero }: HeroRecruitCardProps) {
       {/* Base Stats Preview */}
       <div className="mt-2 grid grid-cols-5 gap-1 text-xs">
         <div className="text-center">
-          <div className="text-gray-400">HP</div>
+          <div className="text-gray-500">HP</div>
           <div className="text-gray-500">{hero.baseStats.hp}</div>
         </div>
         <div className="text-center">
-          <div className="text-gray-400">ATK</div>
+          <div className="text-gray-500">ATK</div>
           <div className="text-gray-500">{hero.baseStats.attack}</div>
         </div>
         <div className="text-center">
-          <div className="text-gray-400">DEF</div>
+          <div className="text-gray-500">DEF</div>
           <div className="text-gray-500">{hero.baseStats.defense}</div>
         </div>
         <div className="text-center">
-          <div className="text-gray-400">SPD</div>
+          <div className="text-gray-500">SPD</div>
           <div className="text-gray-500">{hero.baseStats.speed}</div>
         </div>
         <div className="text-center">
-          <div className="text-gray-400">🧀</div>
+          <div className="text-gray-500">🧀</div>
           <div className="text-gray-500">{hero.baseStats.cheeseAffinity}</div>
         </div>
       </div>

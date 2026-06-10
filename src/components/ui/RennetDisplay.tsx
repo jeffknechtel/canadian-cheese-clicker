@@ -31,14 +31,14 @@ export function RennetDisplay({ showPotential = false, className = '' }: RennetD
       {/* Tooltip */}
       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-rind text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-30 shadow-lg">
         <div className="font-semibold mb-1">Prestige Bonuses</div>
-        <div className="space-y-0.5 text-gray-200">
+        <div className="space-y-0.5 text-white">
           <div>Production: x{multipliers.production.toFixed(2)}</div>
           {multipliers.click > 1 && <div>Click: x{multipliers.click.toFixed(2)}</div>}
           {multipliers.costReduction > 0 && <div>Cost Reduction: {(multipliers.costReduction * 100).toFixed(0)}%</div>}
           {multipliers.xp > 1 && <div>XP Bonus: x{multipliers.xp.toFixed(2)}</div>}
           {multipliers.combat > 1 && <div>Combat: x{multipliers.combat.toFixed(2)}</div>}
         </div>
-        <div className="text-gray-300 mt-1 pt-1 border-t border-gray-500">
+        <div className="text-white/90 mt-1 pt-1 border-t border-white/30">
           Aging Resets: {prestige.agingResetCount}
         </div>
         {/* Tooltip arrow */}
