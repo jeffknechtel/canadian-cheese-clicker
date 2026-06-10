@@ -344,6 +344,23 @@ export function calculatePrestigeProductionMultiplier(prestige: PrestigeState): 
 }
 
 /**
+ * Calculate generator efficiency bonus from prestige upgrades.
+ * Returns a percentage bonus per generator owned (e.g., 0.01 = +1% per generator).
+ */
+export function calculatePrestigeGeneratorEfficiency(prestige: PrestigeState): number {
+  let efficiencyPerGenerator = 0;
+
+  for (const upgradeId of prestige.agingUpgrades) {
+    const upgrade = getAgingUpgradeById(upgradeId);
+    if (upgrade && upgrade.effect.type === 'generatorEfficiency') {
+      efficiencyPerGenerator += upgrade.effect.value;
+    }
+  }
+
+  return efficiencyPerGenerator;
+}
+
+/**
  * Calculate prestige click multiplier from Aging upgrades
  */
 export function calculatePrestigeClickMultiplier(prestige: PrestigeState): number {

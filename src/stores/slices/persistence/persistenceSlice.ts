@@ -20,10 +20,11 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
   load: () => {
     const savedState = loadGame();
 
-    // Always check event activation, even for fresh games
-    get().checkEventActivation();
-
-    if (!savedState) return null;
+    if (!savedState) {
+      // No save exists - check events for fresh game
+      get().checkEventActivation();
+      return null;
+    }
 
     // Merge saved state first so recalculateCps has correct inputs
     set({
@@ -34,6 +35,9 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
     // Recalculate CPS with proper inputs (generators, upgrades, prestige, heroes, etc.)
     get().recalculateCps();
     get().recalculateClickValue();
+
+    // NOW check events AFTER loading saved state - will update activeEvents based on current date
+    get().checkEventActivation();
 
     // Now calculate offline progress with the correct CPS
     const { curdPerSecond } = get();

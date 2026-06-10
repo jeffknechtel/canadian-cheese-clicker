@@ -607,16 +607,33 @@ export function initializeCombat(
  * - Bonus XP for party members
  * - Whey currency (boss-only)
  * - Guaranteed drops from boss loot tables
+ *
+ * @param heroStates - Optional hero states to check for drop rate bonuses
  */
 export function calculateCombatRewards(
   enemies: CombatEnemy[],
   partyHeroIds: string[],
-  isBoss: boolean
+  isBoss: boolean,
+  heroStates?: Record<string, HeroCombatState>
 ): CombatRewards {
   let totalCurds = new Decimal(0);
   let totalXp = 0;
   const drops: CombatDrop[] = [];
   let bossMultiplier = DEFAULT_BOSS_REWARD_MULTIPLIER;
+
+  // Calculate drop rate bonus from party status effects
+  let dropRateBonus = 0;
+  if (heroStates) {
+    for (const hero of Object.values(heroStates)) {
+      const dropBuff = hero.statusEffects.find(
+        (e) => e.stat === 'dropRate' && e.duration > 0
+      );
+      if (dropBuff && typeof dropBuff.value === 'number') {
+        dropRateBonus += dropBuff.value;
+      }
+    }
+  }
+  const dropMultiplier = 1 + dropRateBonus / 100;
 
   for (const enemy of enemies) {
     const enemyDef = getAnyEnemy(enemy.id);
@@ -634,16 +651,21 @@ export function calculateCombatRewards(
     totalXp += enemyDef.xpReward;
 
     // Roll for drops - bosses have guaranteed drops for items with chance >= 0.5
+    // Apply drop rate bonus to improve chances
     for (const drop of enemyDef.drops) {
-      const effectiveChance = enemy.isBoss && drop.chance >= 0.5 ? 1.0 : drop.chance;
+      const baseChance = enemy.isBoss && drop.chance >= 0.5 ? 1.0 : drop.chance;
+      const effectiveChance = Math.min(1.0, baseChance * dropMultiplier);
 
       if (Math.random() < effectiveChance) {
         const quantity = drop.minQuantity && drop.maxQuantity
           ? Math.floor(Math.random() * (drop.maxQuantity - drop.minQuantity + 1)) + drop.minQuantity
           : 1;
 
-        // Boss drops give bonus quantity
-        const bonusQuantity = enemy.isBoss ? Math.ceil(quantity * 1.5) : quantity;
+        // Boss drops give bonus quantity, drop rate bonus also adds quantity
+        let bonusQuantity = enemy.isBoss ? Math.ceil(quantity * 1.5) : quantity;
+        if (dropRateBonus > 0) {
+          bonusQuantity = Math.ceil(bonusQuantity * dropMultiplier);
+        }
 
         drops.push({
           itemId: drop.itemId,
@@ -920,6 +942,8 @@ function applyAbilityEffect(
     }
 
     case 'immunity': {
+      if (!effect.immunityType) break;
+
       // Apply immunity to allies
       const immunityTargets = targetType === 'allAllies'
         ? Object.values(targetHeroStates).filter((h) => h.isAlive)
@@ -930,9 +954,9 @@ function applyAbilityEffect(
       for (const ally of immunityTargets) {
         const statusEffect: StatusEffect = {
           id: `immunity_${effect.immunityType}_${Date.now()}`,
-          type: 'buff',
-          stat: 'defense', // Using defense as placeholder for immunity
-          value: 999, // High value to indicate immunity
+          type: 'immunity',
+          stat: effect.immunityType as StatusEffect['stat'], // The debuff type this grants immunity to
+          value: 1, // Binary: immune or not
           duration: effect.duration,
           source: source.heroId,
         };
@@ -944,15 +968,28 @@ function applyAbilityEffect(
           type: 'status',
           source: heroName,
           target: allyDef?.name || ally.heroId,
-          message: `${allyDef?.name || ally.heroId} gains immunity to ${effect.immunityType}!`,
+          message: `${allyDef?.name || ally.heroId} is immune to ${effect.immunityType} for ${effect.duration} turns!`,
         });
       }
       break;
     }
 
     case 'dropRateBonus': {
-      // Drop rate bonus is handled at reward calculation time
-      // Just log the effect
+      // Store as a status effect on party members so calculateCombatRewards can find it
+      const party = Object.values(targetHeroStates).filter((h) => h.isAlive);
+
+      for (const hero of party) {
+        const statusEffect: StatusEffect = {
+          id: `droprate_${Date.now()}_${hero.heroId}`,
+          type: 'buff',
+          stat: 'dropRate',
+          value: effect.value,
+          duration: effect.duration,
+          source: source.heroId,
+        };
+        hero.statusEffects.push(statusEffect);
+      }
+
       logEntries.push({
         timestamp: Date.now(),
         type: 'status',

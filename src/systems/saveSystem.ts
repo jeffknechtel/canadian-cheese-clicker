@@ -197,8 +197,18 @@ export function loadGame(): GameState | null {
 
     const data: SaveData = JSON.parse(raw);
 
+    // Check for future versions - refuse to load to prevent data corruption
+    if (data.version > CURRENT_VERSION) {
+      console.error(
+        `Save version ${data.version} is from a newer game version. ` +
+        `Current version is ${CURRENT_VERSION}. Cannot load - this would risk data corruption.`
+      );
+      // Return null to start fresh rather than corrupt the save
+      return null;
+    }
+
     // Run migrations if version is outdated
-    if (data.version !== CURRENT_VERSION) {
+    if (data.version < CURRENT_VERSION) {
       console.log(`Migrating save from v${data.version} to v${CURRENT_VERSION}`);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const migratedState = runMigrations(data.state as any, data.version);

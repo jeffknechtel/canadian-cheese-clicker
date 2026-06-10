@@ -161,7 +161,22 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
 
     const wheelsGained = Math.floor(state.prestige.rennet / 100);
 
+    // Get reset states FROM OTHER SLICES (same pattern as performAging)
+    const productionReset = state.getPrestigeProductionReset();
+    const combatReset = state.getPrestigeCombatReset();
+    const craftingReset = state.getPrestigeCraftingReset('vintage');
+
     set({
+      // Production reset - DELEGATED to production slice
+      ...productionReset,
+
+      // Combat reset - DELEGATED to combat slice
+      combat: combatReset,
+
+      // Crafting reset - DELEGATED to crafting slice
+      crafting: craftingReset,
+
+      // Prestige update - also reset aging upgrades and aging reset count
       prestige: {
         ...state.prestige,
         rennet: state.prestige.rennet % 100,
@@ -169,8 +184,15 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
         totalVintageWheels: state.prestige.totalVintageWheels + wheelsGained,
         vintageResetCount: state.prestige.vintageResetCount + 1,
         agingUpgrades: [],
+        agingResetCount: 0, // Reset aging count for vintage tier
       },
+
+      lastSaved: Date.now(),
     });
+
+    publish({ type: 'CpsInputsChanged' });
+    publish({ type: 'PrestigePerformed', tier: 'vintage', currencyGained: wheelsGained });
+    trackPrestige('vintage', wheelsGained);
 
     return {
       wheelsGained,
@@ -191,15 +213,40 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
 
     const legacyGained = state.prestige.vintageWheels;
 
+    // Get reset states FROM OTHER SLICES (same pattern as performAging)
+    const productionReset = state.getPrestigeProductionReset();
+    const combatReset = state.getPrestigeCombatReset();
+    const craftingReset = state.getPrestigeCraftingReset('legacy');
+
     set({
+      // Production reset - DELEGATED to production slice
+      ...productionReset,
+
+      // Combat reset - DELEGATED to combat slice
+      combat: combatReset,
+
+      // Crafting reset - DELEGATED to crafting slice
+      crafting: craftingReset,
+
+      // Prestige update - reset vintage and aging state
       prestige: {
         ...state.prestige,
         vintageWheels: 0,
         legacy: state.prestige.legacy + legacyGained,
         legacyResetCount: state.prestige.legacyResetCount + 1,
         vintageUnlocks: [],
+        vintageResetCount: 0, // Reset vintage count for legacy tier
+        agingUpgrades: [],
+        agingResetCount: 0,
+        rennet: 0, // Reset rennet too
       },
+
+      lastSaved: Date.now(),
     });
+
+    publish({ type: 'CpsInputsChanged' });
+    publish({ type: 'PrestigePerformed', tier: 'legacy', currencyGained: legacyGained });
+    trackPrestige('legacy', legacyGained);
 
     return { legacyGained };
   },

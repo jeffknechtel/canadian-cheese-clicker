@@ -283,7 +283,8 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
     const xpPerSecond = calculateXpPerSecond(state.curdPerSecond);
     const buffMultipliers = state.getActiveBuffMultipliers();
     const eventMultipliers = state.getEventMultipliers();
-    const xpGained = (xpPerSecond * buffMultipliers.xp * eventMultipliers.xp * deltaMs) / 1000;
+    const prestigeMultipliers = state.getPrestigeMultipliers();
+    const xpGained = (xpPerSecond * buffMultipliers.xp * eventMultipliers.xp * prestigeMultipliers.xp * deltaMs) / 1000;
 
     const xpPerHero = xpGained / partyHeroIds.length;
 

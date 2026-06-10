@@ -5,6 +5,7 @@ import type {
   CombatLogEntry,
   HeroStats,
   EnemyAbility,
+  StatusEffect,
 } from '../../types/game';
 import {
   updateAtbGauge,
@@ -478,6 +479,67 @@ export class Battle {
           target: heroDef?.name || target.heroId,
           message: `${heroDef?.name || target.heroId} has fallen!`,
         });
+      }
+
+      // Apply ability status effect if present
+      if (ability?.effect) {
+        if (ability.effect.type === 'buff') {
+          // Self-buff on enemy
+          const statusEffect: StatusEffect = {
+            id: `enemy_${enemy.id}_${ability.name}_${Date.now()}`,
+            type: ability.effect.type,
+            stat: ability.effect.stat,
+            value: ability.effect.value,
+            duration: ability.effect.duration,
+            source: enemy.id,
+          };
+          enemy.statusEffects.push(statusEffect);
+          logs.push({
+            timestamp: Date.now(),
+            type: 'status',
+            source: enemyDef.name,
+            target: enemyDef.name,
+            message: `${ability.name} grants ${ability.effect.stat} buff!`,
+          });
+        } else {
+          // Check immunity before applying debuff
+          // Immunity effects have type 'immunity' and stat set to the debuff type they block
+          // Also check for 'allDebuffs' immunity
+          const isImmune = target.statusEffects.some(
+            (e) => e.type === 'immunity' &&
+                   (e.stat === ability.effect!.stat || e.stat === 'allDebuffs') &&
+                   e.duration > 0
+          );
+
+          if (!isImmune) {
+            const statusEffect: StatusEffect = {
+              id: `enemy_${enemy.id}_${ability.name}_${Date.now()}`,
+              type: ability.effect.type,
+              stat: ability.effect.stat,
+              value: ability.effect.value,
+              duration: ability.effect.duration,
+              source: enemy.id,
+            };
+            target.statusEffects.push(statusEffect);
+            const heroDef = heroRegistry.get(target.heroId);
+            logs.push({
+              timestamp: Date.now(),
+              type: 'status',
+              source: enemyDef.name,
+              target: heroDef?.name || target.heroId,
+              message: `${ability.name} applies ${ability.effect.stat} ${ability.effect.type}!`,
+            });
+          } else {
+            const heroDef = heroRegistry.get(target.heroId);
+            logs.push({
+              timestamp: Date.now(),
+              type: 'status',
+              source: heroDef?.name || target.heroId,
+              target: enemyDef.name,
+              message: `${heroDef?.name || target.heroId} is immune to ${ability.effect.stat}!`,
+            });
+          }
+        }
       }
 
       if (ability?.cooldown) {
