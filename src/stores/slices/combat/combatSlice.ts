@@ -233,7 +233,7 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
       state.party.backRight,
     ].filter((id): id is string => id !== null && state.heroes[id] !== undefined);
 
-    const rewards = calculateCombatRewards(state.combat.enemies, partyHeroIds, isBoss);
+    const rewards = calculateCombatRewards(state.combat.enemies, partyHeroIds, isBoss, state.combat.heroStates);
 
     // Publish event for cross-context handlers (production and heroes subscribe)
     publish({

@@ -300,10 +300,12 @@ export interface CombatEnemy {
   phaseTriggered?: Record<number, boolean>; // Track which phases have been triggered
 }
 
+export type ImmunityType = 'freeze' | 'slow' | 'allDebuffs' | 'damageOverTime';
+
 export interface StatusEffect {
   id: string;
-  type: 'buff' | 'debuff';
-  stat: keyof HeroStats | 'damageOverTime' | 'healOverTime' | 'taunt';
+  type: 'buff' | 'debuff' | 'immunity';
+  stat: keyof HeroStats | 'damageOverTime' | 'healOverTime' | 'taunt' | 'dropRate' | ImmunityType;
   value: number;
   duration: number; // Remaining ticks
   source: string; // Hero or enemy ID that applied this

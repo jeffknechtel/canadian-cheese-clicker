@@ -401,6 +401,33 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
 
     if (now >= job.endTime) return false;
 
+    // Per-type interaction limits
+    const INTERACTION_LIMITS: Record<string, number> = {
+      rind_wash: 3,
+      turn: 10,
+      flavor_addition: 2,
+      brine: 5,
+      smoke: 2,
+      press: 3,
+    };
+
+    // Check interaction limit for this type
+    const limit = INTERACTION_LIMITS[interaction.type] ?? Infinity;
+    const currentCount = job.interactions.filter((i) => i.type === interaction.type).length;
+    if (currentCount >= limit) {
+      console.log(`Interaction limit reached: ${interaction.type} (${currentCount}/${limit})`);
+      return false;
+    }
+
+    // Check timing constraints for certain interactions
+    if (interaction.type === 'flavor_addition') {
+      const progress = (now - job.startTime) / (job.endTime - job.startTime);
+      if (progress > 0.5) {
+        console.log('Too late to add flavors - cheese is past 50% aging');
+        return false;
+      }
+    }
+
     const fullInteraction: CraftingInteraction = {
       ...interaction,
       timestamp: now,

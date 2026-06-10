@@ -7,6 +7,7 @@ import {
   calculateHeroCpsMultiplier,
   calculateFormationMultiplier,
   calculatePrestigeProductionMultiplier,
+  calculatePrestigeGeneratorEfficiency,
   calculateClickMultiplier,
   calculateAchievementClickMultiplier,
   calculatePrestigeClickMultiplier,
@@ -27,13 +28,19 @@ export function computeCps(state: GameStore): Decimal {
   const prestigeMultiplier = calculatePrestigeProductionMultiplier(state.prestige);
   const ehMultiplier = state.getEhMultiplier();
 
+  // Generator efficiency: bonus % per generator owned
+  const efficiencyPerGenerator = calculatePrestigeGeneratorEfficiency(state.prestige);
+  const totalGenerators = Object.values(state.generators).reduce((sum, count) => sum + count, 0);
+  const efficiencyMultiplier = 1 + efficiencyPerGenerator * totalGenerators;
+
   const totalGlobalMultiplier =
     upgradeGlobalMultiplier *
     achievementGlobalMultiplier *
     heroMultiplier *
     formationMultiplier *
     prestigeMultiplier *
-    ehMultiplier;
+    ehMultiplier *
+    efficiencyMultiplier;
 
   return calculateCps(state.generators, generatorMultipliers, totalGlobalMultiplier);
 }
