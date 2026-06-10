@@ -17,7 +17,7 @@ import type { GameStore } from '../../types';
 /**
  * Single source of truth for CPS calculation.
  * Replaces 10+ copy-pasted blocks throughout the store.
- * NOW WIRES IN the Eh multiplier (fixes the bug where getEhMultiplier() was calculated but never used).
+ * Includes: Eh multiplier, event multipliers, prestige, heroes, achievements.
  */
 export function computeCps(state: GameStore): Decimal {
   const generatorMultipliers = calculateGeneratorMultipliers(state.upgrades);
@@ -27,6 +27,7 @@ export function computeCps(state: GameStore): Decimal {
   const formationMultiplier = calculateFormationMultiplier(state.party, state.heroes);
   const prestigeMultiplier = calculatePrestigeProductionMultiplier(state.prestige);
   const ehMultiplier = state.getEhMultiplier();
+  const eventMultipliers = state.getEventMultipliers();
 
   // Generator efficiency: bonus % per generator owned
   const efficiencyPerGenerator = calculatePrestigeGeneratorEfficiency(state.prestige);
@@ -40,7 +41,8 @@ export function computeCps(state: GameStore): Decimal {
     formationMultiplier *
     prestigeMultiplier *
     ehMultiplier *
-    efficiencyMultiplier;
+    efficiencyMultiplier *
+    eventMultipliers.production;
 
   return calculateCps(state.generators, generatorMultipliers, totalGlobalMultiplier);
 }
@@ -48,11 +50,14 @@ export function computeCps(state: GameStore): Decimal {
 /**
  * Single source of truth for click value calculation.
  * Replaces 3 copy-pasted blocks in productionSlice, achievementSlice, and saveSystem.
+ * Includes: Eh multiplier, event multipliers, prestige, achievements.
  */
 export function computeClickValue(state: GameStore): Decimal {
   const upgradeClickMultiplier = calculateClickMultiplier(state.upgrades);
   const achievementClickMultiplier = calculateAchievementClickMultiplier(state.achievements);
   const prestigeClickMultiplier = calculatePrestigeClickMultiplier(state.prestige);
-  const totalClickMultiplier = upgradeClickMultiplier * achievementClickMultiplier * prestigeClickMultiplier;
+  const ehMultiplier = state.getEhMultiplier();
+  const eventMultipliers = state.getEventMultipliers();
+  const totalClickMultiplier = upgradeClickMultiplier * achievementClickMultiplier * prestigeClickMultiplier * ehMultiplier * eventMultipliers.click;
   return new Decimal(1).mul(totalClickMultiplier);
 }

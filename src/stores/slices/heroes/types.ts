@@ -34,6 +34,7 @@ export interface HeroSliceActions {
   tickHeroXp: (deltaMs: number) => void;
   getHeroMultiplier: () => number;
   getPartyStats: () => Record<string, HeroStats>;
+  getPrestigeHeroReset: () => HeroSliceState;
 }
 
 export type HeroSlice = HeroSliceState & HeroSliceActions;

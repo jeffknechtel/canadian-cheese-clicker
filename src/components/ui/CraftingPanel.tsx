@@ -11,13 +11,11 @@ type CraftingTab = 'recipes' | 'caves' | 'inventory' | 'collection';
 
 export function CraftingPanel() {
   const [activeTab, setActiveTab] = useState<CraftingTab>('recipes');
-  const {
-    getUnlockedRecipes,
-    getUnlockedCaves,
-    getCheeseInventory,
-    getActiveJobs,
-    crafting,
-  } = useGameStore();
+  const crafting = useGameStore((state) => state.crafting);
+  const getUnlockedRecipes = useGameStore((state) => state.getUnlockedRecipes);
+  const getUnlockedCaves = useGameStore((state) => state.getUnlockedCaves);
+  const getCheeseInventory = useGameStore((state) => state.getCheeseInventory);
+  const getActiveJobs = useGameStore((state) => state.getActiveJobs);
 
   const unlockedRecipes = getUnlockedRecipes();
   const unlockedCaves = getUnlockedCaves();

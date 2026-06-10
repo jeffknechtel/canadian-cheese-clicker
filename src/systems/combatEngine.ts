@@ -184,15 +184,17 @@ export function selectHeroTarget(
 
 /**
  * Apply status effects (DoT, HoT, stat buffs/debuffs)
+ * Returns updated status effects with decremented durations (immutable - original array not modified)
  */
 export function processStatusEffects(
   currentHp: number,
   maxHp: number,
   statusEffects: StatusEffect[]
-): { newHp: number; damage: number; healing: number; expiredEffects: string[] } {
+): { newHp: number; damage: number; healing: number; expiredEffects: string[]; updatedEffects: StatusEffect[] } {
   let damage = 0;
   let healing = 0;
   const expiredEffects: string[] = [];
+  const updatedEffects: StatusEffect[] = [];
 
   for (const effect of statusEffects) {
     if (effect.stat === 'damageOverTime') {
@@ -201,15 +203,18 @@ export function processStatusEffects(
       healing += effect.value;
     }
 
-    // Decrement duration
-    effect.duration -= 1;
-    if (effect.duration <= 0) {
+    // Create new object with decremented duration (immutable)
+    const updated = { ...effect, duration: effect.duration - 1 };
+
+    if (updated.duration <= 0) {
       expiredEffects.push(effect.id);
+    } else {
+      updatedEffects.push(updated);
     }
   }
 
   const newHp = Math.min(maxHp, Math.max(0, currentHp - damage + healing));
-  return { newHp, damage, healing, expiredEffects };
+  return { newHp, damage, healing, expiredEffects, updatedEffects };
 }
 
 /**
