@@ -196,9 +196,9 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
             <div className="bg-timber-50 rounded p-2">
               <div className="text-xs font-medium text-timber-600 mb-1">Effects when consumed:</div>
               <div className="flex flex-wrap gap-1">
-                {recipe.effects.map((effect, idx) => (
+                {recipe.effects.map((effect) => (
                   <span
-                    key={idx}
+                    key={`${effect.type}-${effect.stat ?? 'none'}`}
                     className="text-xs px-1.5 py-0.5 bg-white rounded border border-timber-200 text-timber-700"
                   >
                     {formatEffect(effect)}

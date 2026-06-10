@@ -119,7 +119,7 @@ export function CombatLog({
             <div className="divide-y divide-gray-100">
               {entries.map((entry, index) => (
                 <CombatLogEntryItem
-                  key={`${entry.timestamp}-${index}`}
+                  key={entry.timestamp}
                   entry={entry}
                   isNew={index >= newEntryThreshold}
                 />
@@ -149,7 +149,7 @@ export function CompactCombatLog({ entries, maxEntries = 5 }: CompactCombatLogPr
 
         return (
           <div
-            key={`${entry.timestamp}-${index}`}
+            key={entry.timestamp}
             className={`
               flex items-center gap-1 px-2 py-0.5 rounded
               ${isLatest ? 'bg-cheddar-50' : 'opacity-70'}

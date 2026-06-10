@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, memo } from 'react';
 import { useGameStore } from '../../stores';
 import { getHeroAbility, heroHasLimitBreak } from '../../data/heroes';
 import { heroRegistry, zoneRegistry } from '../../domain';
@@ -16,10 +16,10 @@ interface HeroCombatCardProps {
   heroNumber?: number;
 }
 
-function HeroCombatCard({ heroState, isSelected = false, heroNumber }: HeroCombatCardProps) {
+const HeroCombatCard = memo(function HeroCombatCard({ heroState, isSelected = false, heroNumber }: HeroCombatCardProps) {
   const hero = heroRegistry.get(heroState.heroId);
   const ability = getHeroAbility(heroState.heroId);
-  const combat = useGameStore((state) => state.combat);
+  const battleResult = useGameStore((state) => state.combat.battleResult);
 
   if (!hero) return null;
 
@@ -151,7 +151,7 @@ function HeroCombatCard({ heroState, isSelected = false, heroNumber }: HeroComba
       )}
 
       {/* Ability Button */}
-      {heroState.isAlive && ability && combat.battleResult === 'ongoing' && (
+      {heroState.isAlive && ability && battleResult === 'ongoing' && (
         <div className="mt-1.5">
           <HeroAbilityButton heroState={heroState} size="sm" />
         </div>
@@ -183,20 +183,20 @@ function HeroCombatCard({ heroState, isSelected = false, heroNumber }: HeroComba
       )}
     </article>
   );
-}
+});
+
+const COMBAT_SPEEDS: Array<1 | 2 | 4> = [1, 2, 4];
 
 interface SpeedControlProps {
   currentSpeed: 1 | 2 | 4;
   onSpeedChange: (speed: 1 | 2 | 4) => void;
 }
 
-function SpeedControl({ currentSpeed, onSpeedChange }: SpeedControlProps) {
-  const speeds: Array<1 | 2 | 4> = [1, 2, 4];
-
+const SpeedControl = memo(function SpeedControl({ currentSpeed, onSpeedChange }: SpeedControlProps) {
   return (
     <div className="flex items-center gap-1" role="group" aria-label="Combat speed control">
       <span className="text-xs text-gray-500 mr-1" id="speed-label">Speed:</span>
-      {speeds.map((speed) => (
+      {COMBAT_SPEEDS.map((speed) => (
         <button
           key={speed}
           onClick={() => onSpeedChange(speed)}
@@ -215,7 +215,7 @@ function SpeedControl({ currentSpeed, onSpeedChange }: SpeedControlProps) {
       ))}
     </div>
   );
-}
+});
 
 interface CombatPanelProps {
   onFlee: () => void;

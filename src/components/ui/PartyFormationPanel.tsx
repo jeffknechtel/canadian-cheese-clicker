@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import { useGameStore } from '../../stores';
 import { heroRegistry } from '../../domain';
 import { calculateHeroStats } from '../../systems/productionEngine';
@@ -20,7 +20,7 @@ interface PartySlotProps {
   onRemove: () => void;
 }
 
-function PartySlot({ position, heroId, onClick, onRemove }: PartySlotProps) {
+const PartySlot = memo(function PartySlot({ position, heroId, onClick, onRemove }: PartySlotProps) {
   const heroes = useGameStore((state) => state.heroes);
 
   const hero = heroId ? heroRegistry.get(heroId) : null;
@@ -100,7 +100,7 @@ function PartySlot({ position, heroId, onClick, onRemove }: PartySlotProps) {
       )}
     </div>
   );
-}
+});
 
 interface PartyFormationPanelProps {
   onSlotClick?: (position: FormationPosition) => void;

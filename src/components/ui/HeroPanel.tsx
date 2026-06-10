@@ -303,28 +303,20 @@ export function HeroPanel({ onEquipmentClick }: HeroPanelProps) {
     );
   }, [party.frontLeft, party.frontRight, party.backLeft, party.backRight]);
 
-  // Find next empty party slot
-  const getNextEmptySlot = (): 'frontLeft' | 'frontRight' | 'backLeft' | 'backRight' | null => {
-    if (!party.frontLeft) return 'frontLeft';
-    if (!party.frontRight) return 'frontRight';
-    if (!party.backLeft) return 'backLeft';
-    if (!party.backRight) return 'backRight';
-    return null;
-  };
-
-  const handleAddToParty = (heroId: string) => {
+  const handleAddToParty = useCallback((heroId: string) => {
     if (isHeroInParty(heroId)) return;
-    const slot = getNextEmptySlot();
+    const slots: Array<'frontLeft' | 'frontRight' | 'backLeft' | 'backRight'> = [
+      'frontLeft', 'frontRight', 'backLeft', 'backRight'
+    ];
+    const slot = slots.find((s) => !party[s]);
     if (slot) {
       assignToParty(heroId, slot);
     }
-  };
+  }, [isHeroInParty, party, assignToParty]);
 
-  const handleEquipmentClick = (heroId: string, slot: EquipmentSlot) => {
-    if (onEquipmentClick) {
-      onEquipmentClick(heroId, slot);
-    }
-  };
+  const handleEquipmentClick = useCallback((heroId: string, slot: EquipmentSlot) => {
+    onEquipmentClick?.(heroId, slot);
+  }, [onEquipmentClick]);
 
   return (
     <div className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain">
