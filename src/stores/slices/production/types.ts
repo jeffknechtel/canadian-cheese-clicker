@@ -13,6 +13,7 @@ export interface ProductionState {
   upgrades: string[];
   ehCount: number;
   lastMilestone: number;
+  currencyAnimationTrigger: number;
 }
 
 export interface ProductionActions {
