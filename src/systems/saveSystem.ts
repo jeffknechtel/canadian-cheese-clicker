@@ -1,6 +1,7 @@
 import Decimal from 'decimal.js';
 import type { GameState, HeroState, PartyFormation, PrestigeState, ZoneProgress, CraftingState } from '../types/game';
 import { MAX_OFFLINE_SECONDS } from '../data/constants';
+import { CURRENT_VERSION, runMigrations } from './migrations';
 import type { AudioPreferences } from './audioSystem';
 import {
   getAudioPreferences,
@@ -9,7 +10,6 @@ import {
 
 const SAVE_KEY = 'canadian_cheese_quest_save';
 const AUDIO_PREFS_KEY = 'canadian_cheese_quest_audio';
-const SAVE_VERSION = 7; // Bumped for event system
 
 interface SaveData {
   version: number;
@@ -178,7 +178,7 @@ function deserializeState(serialized: SerializedGameState): GameState {
 export function saveGame(state: GameState): void {
   try {
     const data: SaveData = {
-      version: SAVE_VERSION,
+      version: CURRENT_VERSION,
       state: serializeState({
         ...state,
         lastSaved: Date.now(),
@@ -190,47 +190,6 @@ export function saveGame(state: GameState): void {
   }
 }
 
-function migrateEffectTypes(crafting: CraftingState): CraftingState {
-  const effectTypeMap: Record<string, string> = {
-    'production_boost': 'productionBoost',
-    'click_boost': 'clickBoost',
-    'xp_boost': 'xpBoost',
-    'hero_buff': 'heroBuff',
-  };
-
-  let result = crafting;
-
-  // Migrate active buffs effect types from snake_case to camelCase
-  if (crafting.activeBuffs?.length) {
-    const migratedBuffs = crafting.activeBuffs.map(buff => {
-      const oldType = buff.effect.type as string;
-      const newType = effectTypeMap[oldType];
-      if (newType) {
-        return {
-          ...buff,
-          effect: { ...buff.effect, type: newType } as typeof buff.effect,
-        };
-      }
-      return buff;
-    });
-    result = { ...result, activeBuffs: migratedBuffs };
-  }
-
-  // Migrate active jobs to include notificationSent flag (set to true for existing jobs
-  // so they don't spam notifications on load)
-  if (crafting.activeJobs?.length) {
-    const migratedJobs = crafting.activeJobs.map(job => {
-      if (job.notificationSent === undefined) {
-        return { ...job, notificationSent: true };
-      }
-      return job;
-    });
-    result = { ...result, activeJobs: migratedJobs };
-  }
-
-  return result;
-}
-
 export function loadGame(): GameState | null {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
@@ -238,15 +197,12 @@ export function loadGame(): GameState | null {
 
     const data: SaveData = JSON.parse(raw);
 
-    // Handle version migrations here in the future
-    if (data.version !== SAVE_VERSION) {
-      console.warn(`Save version mismatch: ${data.version} vs ${SAVE_VERSION}`);
-      // For now, try to load anyway - add migrations later if needed
-    }
-
-    // Migrate effect types from snake_case to camelCase
-    if (data.state.crafting) {
-      data.state.crafting = migrateEffectTypes(data.state.crafting);
+    // Run migrations if version is outdated
+    if (data.version !== CURRENT_VERSION) {
+      console.log(`Migrating save from v${data.version} to v${CURRENT_VERSION}`);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const migratedState = runMigrations(data.state as any, data.version);
+      return deserializeState(migratedState as SerializedGameState);
     }
 
     return deserializeState(data.state);

@@ -8,6 +8,8 @@ import {
 let lastTime: number | null = null;
 let animationFrameId: number | null = null;
 let isRunning = false;
+let lastEventCheckTime = 0;
+const EVENT_CHECK_INTERVAL_MS = 60 * 60 * 1000; // Check hourly
 
 // ===== Performance Configuration =====
 // Separate game logic tick rate from visual frame rate
@@ -65,6 +67,12 @@ function tick(currentTime: number) {
     // Combat is time-sensitive and needs frequent updates for visual feedback
     if (store.combat.isInCombat) {
       store.tickCombat(cappedDelta);
+    }
+
+    // Periodic event lifecycle check (hourly, not per-tick)
+    if (currentTime - lastEventCheckTime > EVENT_CHECK_INTERVAL_MS) {
+      store.checkEventActivation();
+      lastEventCheckTime = currentTime;
     }
   }
 

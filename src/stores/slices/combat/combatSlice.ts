@@ -1,6 +1,7 @@
 import type { SliceCreator } from '../../types';
 import type { CombatSlice } from './types';
 import { createEmptyCombatState, createPrestigeCombatState } from './resetFactory';
+import { publish } from '../../../domain/events';
 import { COMBAT_LOG_MAX_ENTRIES } from '../../../data/constants';
 import {
   initializeCombat,
@@ -231,19 +232,15 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
 
     const rewards = calculateCombatRewards(state.combat.enemies, partyHeroIds, isBoss);
 
-    // Cross-slice: add curds and whey
-    state.addCurds(rewards.curds);
-    set((s) => ({
-      whey: s.whey.plus(rewards.whey),
-      totalCurdsEarned: s.totalCurdsEarned.plus(rewards.curds),
-    }));
+    // Publish event for cross-context handlers (production and heroes subscribe)
+    publish({
+      type: 'BattleWon',
+      zoneId: state.combat.currentZone!,
+      stageIndex: state.combat.currentStage,
+      rewards,
+    });
 
-    // Cross-slice: grant XP to heroes
-    for (const [heroId, xpAmount] of Object.entries(rewards.xp)) {
-      get().grantXp(heroId, xpAmount);
-    }
-
-    // Reset to empty combat state
+    // Reset to empty combat state (combat-owned)
     set({ combat: createEmptyCombatState() });
 
     return rewards;

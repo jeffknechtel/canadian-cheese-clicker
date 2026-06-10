@@ -37,7 +37,8 @@ import { showRandomDialogue, showHeroLevelUpDialogue } from './systems/dialogueS
 import { AudioControls } from './components/ui/AudioControls';
 import { playMilestoneChime } from './systems/audioSystem';
 import { startGameLoop, stopGameLoop, setupVisibilityHandler } from './systems/gameLoop';
-import { useGameStore, setHeroLevelUpCallback } from './stores';
+import { useGameStore } from './stores';
+import { useHeroLevelUpEvents } from './hooks/useHeroEvents';
 import { useSettingsStore, initializeSettingsAudio } from './stores/settingsStore';
 import { ACHIEVEMENTS } from './data/achievements';
 import type { EquipmentSlot, CombatRewards } from './types/game';
@@ -260,14 +261,11 @@ function App() {
     return () => clearInterval(intervalId);
   }, [isLoaded, checkMilestone, incrementEh]);
 
-  // Hero level-up notifications
-  useEffect(() => {
-    setHeroLevelUpCallback((hero, level) => {
-      showHeroLevelUpDialogue(hero, level);
-      playMilestoneChime();
-    });
-    return () => setHeroLevelUpCallback(null);
-  }, []);
+  // Hero level-up notifications via domain events
+  useHeroLevelUpEvents(useCallback((hero, level) => {
+    showHeroLevelUpDialogue(hero, level);
+    playMilestoneChime();
+  }, []));
 
   // Save on visibility change (tab hidden) and before unload
   useEffect(() => {

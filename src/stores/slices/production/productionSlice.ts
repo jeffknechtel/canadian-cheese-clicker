@@ -2,6 +2,8 @@ import Decimal from 'decimal.js';
 import type { SliceCreator } from '../../types';
 import type { ProductionSlice } from './types';
 import { computeCps, computeClickValue } from './cpsCalculator';
+import { createPrestigeProductionState } from './resetFactory';
+import { publish } from '../../../domain/events';
 import {
   calculateGeneratorCost,
   calculateMaxAffordable,
@@ -106,7 +108,7 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
       generators: { ...state.generators, [id]: currentOwned + count },
     });
 
-    get().recalculateCps();
+    publish({ type: 'CpsInputsChanged' });
 
     trackGeneratorPurchase(id, count, currentOwned + count);
     get().checkAchievements();
@@ -154,8 +156,7 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
       upgrades: newUpgrades,
     });
 
-    get().recalculateClickValue();
-    get().recalculateCps();
+    publish({ type: 'CpsInputsChanged' });
 
     trackUpgradePurchase(id);
     get().checkAchievements();
@@ -215,7 +216,7 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
 
     // Recalculate CPS when crossing an Eh tier boundary (when multiplier changes)
     if (Math.floor(newEhCount / EH_DIVISOR) > Math.floor(oldEhCount / EH_DIVISOR)) {
-      get().recalculateCps();
+      publish({ type: 'CpsInputsChanged' });
     }
   },
 
@@ -275,5 +276,9 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
 
   recalculateClickValue: () => {
     set({ curdPerClick: computeClickValue(get()) });
+  },
+
+  getPrestigeProductionReset: () => {
+    return createPrestigeProductionState(get().prestige);
   },
 });

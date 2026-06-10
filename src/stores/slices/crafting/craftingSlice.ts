@@ -2,7 +2,7 @@ import Decimal from 'decimal.js';
 import type { SliceCreator } from '../../types';
 import type { CraftingSlice } from './types';
 import { createInitialCraftingState, createPrestigeCraftingState } from './resetFactory';
-import { recipeRegistry } from '../../../domain';
+import { recipeRegistry, publish } from '../../../domain';
 import { CHEESE_RECIPES } from '../../../data/cheeseRecipes';
 import { getCaveById, CAVES } from '../../../data/caves';
 import {
@@ -30,23 +30,7 @@ import type {
   CraftingInteraction,
   CraftedCheese,
   CheeseActiveBuff,
-  CheeseRecipe,
-  AffinageCave,
 } from '../../../types/game';
-
-export type CraftingEvent =
-  | { type: 'cheese_complete'; cheese: CraftedCheese; recipe: CheeseRecipe }
-  | { type: 'recipe_unlocked'; recipe: CheeseRecipe }
-  | { type: 'cave_unlocked'; cave: AffinageCave }
-  | { type: 'buff_activated'; buff: CheeseActiveBuff; recipe: CheeseRecipe }
-  | { type: 'buff_expired'; buff: CheeseActiveBuff };
-
-type CraftingEventCallback = (event: CraftingEvent) => void;
-let craftingEventCallback: CraftingEventCallback | null = null;
-
-export function setCraftingEventCallback(callback: CraftingEventCallback | null): void {
-  craftingEventCallback = callback;
-}
 
 function buildUnlockContext(state: {
   prestige: { totalRennet: number; totalVintageWheels: number };
@@ -110,9 +94,7 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
         unlockedRecipes: [...state.crafting.unlockedRecipes, recipeId],
       },
     });
-    if (craftingEventCallback) {
-      craftingEventCallback({ type: 'recipe_unlocked', recipe });
-    }
+    publish({ type: 'RecipeUnlocked', recipe });
     return true;
   },
 
@@ -128,19 +110,18 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
       if (!checkUnlockRequirement(cave.unlockRequirement, ctx)) return false;
     }
 
+    // Use published action instead of direct prestige write
+    const success = state.spendRennet(cave.cost);
+    if (!success) return false;
+
+    // Only write crafting-owned state
     set({
-      prestige: {
-        ...state.prestige,
-        rennet: state.prestige.rennet - cave.cost,
-      },
       crafting: {
         ...state.crafting,
         unlockedCaves: [...state.crafting.unlockedCaves, caveId],
       },
     });
-    if (craftingEventCallback) {
-      craftingEventCallback({ type: 'cave_unlocked', cave });
-    }
+    publish({ type: 'CaveUnlocked', cave });
     get().checkAchievements();
     return true;
   },
@@ -264,22 +245,18 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
       },
     }));
 
-    // Trigger notifications for completed jobs via existing event callback
-    if (craftingEventCallback) {
-      for (const job of newlyCompleted) {
-        const recipe = recipeRegistry.get(job.recipeId);
-        if (recipe) {
-          // Use existing cheese_complete event type to notify of ready-to-collect cheese
-          // The cheese object is a placeholder since it hasn't been collected yet
-          const placeholderCheese = {
-            id: `pending_${job.id}`,
-            recipeId: job.recipeId,
-            quality: recipe.baseQuality + job.qualityBonus,
-            craftedAt: now,
-            ingredients: job.ingredients,
-          };
-          craftingEventCallback({ type: 'cheese_complete', cheese: placeholderCheese, recipe });
-        }
+    // Trigger notifications for completed jobs via domain events
+    for (const job of newlyCompleted) {
+      const recipe = recipeRegistry.get(job.recipeId);
+      if (recipe) {
+        const placeholderCheese: CraftedCheese = {
+          id: `pending_${job.id}`,
+          recipeId: job.recipeId,
+          quality: recipe.baseQuality + job.qualityBonus,
+          craftedAt: now,
+          ingredients: job.ingredients,
+        };
+        publish({ type: 'CheeseCollected', cheese: placeholderCheese, recipe });
       }
     }
   },
@@ -330,9 +307,7 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
       };
     });
 
-    if (craftingEventCallback) {
-      craftingEventCallback({ type: 'cheese_complete', cheese, recipe });
-    }
+    publish({ type: 'CheeseCollected', cheese, recipe });
 
     trackCraftingComplete(job.recipeId, finalQuality);
     get().checkAchievements();
@@ -377,8 +352,8 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
       };
     });
 
-    if (craftingEventCallback && newBuffs.length > 0) {
-      craftingEventCallback({ type: 'buff_activated', buff: newBuffs[0], recipe });
+    if (newBuffs.length > 0) {
+      publish({ type: 'BuffActivated', buff: newBuffs[0], recipe });
     }
 
     return true;
@@ -471,10 +446,8 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
         },
       });
 
-      if (craftingEventCallback) {
-        for (const buff of expiredBuffs) {
-          craftingEventCallback({ type: 'buff_expired', buff });
-        }
+      for (const buff of expiredBuffs) {
+        publish({ type: 'BuffExpired', buff });
       }
     }
   },
