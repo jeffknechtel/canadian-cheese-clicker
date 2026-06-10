@@ -161,11 +161,13 @@ export function runMigrations(
   fromVersion: number
 ): SerializedGameState {
   let current = data;
+  let currentVersion = fromVersion;
 
   for (const migration of migrations) {
-    if (fromVersion < migration.toVersion && fromVersion >= migration.fromVersion) {
+    if (currentVersion >= migration.fromVersion && currentVersion < migration.toVersion) {
       console.log(`Running migration v${migration.fromVersion} → v${migration.toVersion}`);
       current = migration.migrate(current);
+      currentVersion = migration.toVersion;
     }
   }
 

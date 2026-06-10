@@ -106,6 +106,9 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
             [zoneId]: newProgress,
           },
         });
+
+        // Check for zone/boss achievements after updating progress
+        get().checkAchievements();
       }
     }
 

@@ -165,35 +165,51 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     }
 
     const finalCost = totalCurdsCost.plus(specialtyCost);
-    if (state.curds.lt(finalCost)) return false;
-
     const ingredientQualityBonus = calculateIngredientQualityBonus(ingredients);
     const qualityBonus = cave.qualityBonus + ingredientQualityBonus;
 
-    const now = Date.now();
-    const job: CraftingJob = {
-      id: `job_${now}_${Math.random().toString(36).substring(2, 11)}`,
-      recipeId,
-      caveId,
-      startTime: now,
-      endTime: now + recipe.agingDuration,
-      ingredients,
-      qualityBonus,
-      interactions: [],
-      notificationSent: false,
-    };
+    // Use callback form to atomically check balance and deduct
+    let success = false;
+    set((s) => {
+      // Re-check balance with fresh state
+      if (s.curds.lt(finalCost)) {
+        return s;
+      }
 
-    set({
-      curds: state.curds.minus(finalCost),
-      crafting: {
-        ...state.crafting,
-        activeJobs: [...state.crafting.activeJobs, job],
-      },
+      // Re-check slot availability with fresh state
+      const currentSlots = engineGetCaveAvailableSlots(caveId, s.crafting.activeJobs);
+      if (currentSlots <= 0) {
+        return s;
+      }
+
+      const now = Date.now();
+      const job: CraftingJob = {
+        id: `job_${now}_${Math.random().toString(36).substring(2, 11)}`,
+        recipeId,
+        caveId,
+        startTime: now,
+        endTime: now + recipe.agingDuration,
+        ingredients,
+        qualityBonus,
+        interactions: [],
+        notificationSent: false,
+      };
+
+      success = true;
+      return {
+        curds: s.curds.minus(finalCost),
+        crafting: {
+          ...s.crafting,
+          activeJobs: [...s.crafting.activeJobs, job],
+        },
+      };
     });
 
-    trackCraftingStart(recipeId, caveId);
+    if (success) {
+      trackCraftingStart(recipeId, caveId);
+    }
 
-    return true;
+    return success;
   },
 
   canStartCrafting: (recipeId: string, caveId: string) => {
@@ -413,28 +429,33 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   tickBuffs: (_deltaMs: number) => {
-    const state = get();
     const now = Date.now();
+    const expiredBuffs: CheeseActiveBuff[] = [];
 
-    const expiredBuffs = state.crafting.activeBuffs.filter(
-      (buff) => now >= buff.endTime
-    );
-
-    const activeBuffs = state.crafting.activeBuffs.filter(
-      (buff) => now < buff.endTime
-    );
-
-    if (activeBuffs.length !== state.crafting.activeBuffs.length) {
-      set({
-        crafting: {
-          ...state.crafting,
-          activeBuffs,
-        },
+    set((s) => {
+      const activeBuffs = s.crafting.activeBuffs.filter((buff) => {
+        if (now >= buff.endTime) {
+          expiredBuffs.push(buff);
+          return false;
+        }
+        return true;
       });
 
-      for (const buff of expiredBuffs) {
-        publish({ type: 'BuffExpired', buff });
+      if (activeBuffs.length === s.crafting.activeBuffs.length) {
+        return s;
       }
+
+      return {
+        crafting: {
+          ...s.crafting,
+          activeBuffs,
+        },
+      };
+    });
+
+    // Publish events outside of set() to avoid nested state updates
+    for (const buff of expiredBuffs) {
+      publish({ type: 'BuffExpired', buff });
     }
   },
 

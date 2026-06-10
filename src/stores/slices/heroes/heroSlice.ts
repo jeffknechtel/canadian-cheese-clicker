@@ -52,6 +52,9 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
     const totalRecruited = Object.keys(get().heroes).length;
     trackHeroRecruit(heroId, totalRecruited);
 
+    // Check for hero recruitment achievements
+    get().checkAchievements();
+
     return true;
   },
 

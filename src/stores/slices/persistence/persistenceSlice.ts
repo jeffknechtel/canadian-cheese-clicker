@@ -4,7 +4,6 @@ import { saveGame, loadGame, calculateOfflineProgress } from '../../../systems/s
 import { createInitialProductionState } from '../production/resetFactory';
 import { createEmptyCombatState } from '../combat/resetFactory';
 import { createInitialCraftingState } from '../crafting/resetFactory';
-import { publish } from '../../../domain/events';
 
 export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get) => ({
   // State
@@ -26,20 +25,25 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
 
     if (!savedState) return null;
 
-    const offlineProgress = calculateOfflineProgress(
-      savedState.curdPerSecond,
-      savedState.lastSaved
-    );
-
+    // Merge saved state first so recalculateCps has correct inputs
     set({
       ...savedState,
-      curds: savedState.curds.plus(offlineProgress.curdsEarned),
-      totalCurdsEarned: savedState.totalCurdsEarned.plus(offlineProgress.curdsEarned),
       lastSaved: Date.now(),
     });
 
-    // Recalculate CPS and click value with proper Eh multiplier inclusion
-    publish({ type: 'CpsInputsChanged' });
+    // Recalculate CPS with proper inputs (generators, upgrades, prestige, heroes, etc.)
+    get().recalculateCps();
+    get().recalculateClickValue();
+
+    // Now calculate offline progress with the correct CPS
+    const { curdPerSecond } = get();
+    const offlineProgress = calculateOfflineProgress(curdPerSecond, savedState.lastSaved);
+
+    // Apply offline earnings
+    set((s) => ({
+      curds: s.curds.plus(offlineProgress.curdsEarned),
+      totalCurdsEarned: s.totalCurdsEarned.plus(offlineProgress.curdsEarned),
+    }));
 
     return offlineProgress;
   },

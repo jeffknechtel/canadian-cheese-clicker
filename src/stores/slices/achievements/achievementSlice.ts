@@ -8,8 +8,28 @@ import { ACHIEVEMENTS } from '../../../data/achievements';
 import { GENERATORS } from '../../../data/generators';
 import { CHEESE_RECIPES } from '../../../data/cheeseRecipes';
 import { trackAchievementUnlock } from '../../../systems/analyticsService';
-import { publish } from '../../../domain/events';
+import { publish, heroRegistry } from '../../../domain';
 import type { Achievement, GameState } from '../../../types/game';
+
+const PROVINCIAL_ZONES = [
+  'ontario_cheese_trail',
+  'quebec_fromage_frontier',
+  'alberta_stampede_range',
+  'manitoba_prairie_curds',
+  'saskatchewan_wheat_wheels',
+  'bc_pacific_creamery',
+  'nova_scotia_maritime',
+  'new_brunswick_bridges',
+  'pei_annes_island',
+  'newfoundland_viking_shores',
+  'yukon_gold_rush',
+  'nwt_aurora_territories',
+  'nunavut_frozen_crown',
+];
+
+const MYTHOLOGY_ZONES = ['thunderbird_saga', 'wendigo_warning', 'chasse_galerie'];
+
+const LEGENDARY_HERO_IDS = ['nanabozho', 'sedna_ally', 'wisakedjak', 'glooscap'];
 
 function checkAchievementRequirement(
   achievement: Achievement,
@@ -98,6 +118,69 @@ function checkAchievementRequirement(
     case 'legendary_cheese_crafted': {
       const legendaryRecipes = CHEESE_RECIPES.filter((r) => r.category === 'legendary');
       return legendaryRecipes.some((recipe) => state.crafting.cheeseCollection[recipe.id] > 0);
+    }
+
+    case 'zoneCompleted': {
+      const zoneId = requirement.zoneId;
+      const progress = state.zoneProgress[zoneId];
+      return progress?.bossDefeated === true;
+    }
+
+    case 'zonesCompleted': {
+      const zones = requirement.zones;
+      return zones.every((zoneId: string) => state.zoneProgress[zoneId]?.bossDefeated === true);
+    }
+
+    case 'allProvincialZonesCompleted': {
+      return PROVINCIAL_ZONES.every(
+        (zoneId) => state.zoneProgress[zoneId]?.bossDefeated === true
+      );
+    }
+
+    case 'allMythologyZonesCompleted': {
+      return MYTHOLOGY_ZONES.every(
+        (zoneId) => state.zoneProgress[zoneId]?.bossDefeated === true
+      );
+    }
+
+    case 'bossDefeated': {
+      const bossId = requirement.bossId;
+      for (const [zoneId, progress] of Object.entries(state.zoneProgress)) {
+        if (progress.bossDefeated && zoneId.includes(bossId.replace('_boss', ''))) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    case 'bossesDefeated': {
+      const defeatedCount = Object.values(state.zoneProgress).filter(
+        (progress) => progress.bossDefeated
+      ).length;
+      return defeatedCount >= requirement.count;
+    }
+
+    case 'heroesRecruited': {
+      const recruitedCount = Object.keys(state.heroes).length;
+      return recruitedCount >= requirement.count;
+    }
+
+    case 'legendaryHeroesRecruited': {
+      const recruitedLegendaries = LEGENDARY_HERO_IDS.filter(
+        (id) => state.heroes[id] !== undefined
+      ).length;
+      return recruitedLegendaries >= requirement.count;
+    }
+
+    case 'provincesRepresented': {
+      const provinces = new Set<string>();
+      for (const heroId of Object.keys(state.heroes)) {
+        const hero = heroRegistry.get(heroId);
+        if (hero?.province) {
+          provinces.add(hero.province);
+        }
+      }
+      return provinces.size >= requirement.count;
     }
 
     default:

@@ -97,7 +97,7 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
 
   buyGenerator: (id: string, count: number) => {
     const state = get();
-    const cost = calculateGeneratorCost(id, state.generators[id] ?? 0, count);
+    const cost = calculateGeneratorCost(id, state.generators[id] ?? 0, count, state.prestige);
 
     if (state.curds.lt(cost)) {
       return false;
@@ -120,19 +120,19 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
   },
 
   getGeneratorCost: (id: string, count: number) => {
-    const { generators } = get();
-    return calculateGeneratorCost(id, generators[id] ?? 0, count);
+    const { generators, prestige } = get();
+    return calculateGeneratorCost(id, generators[id] ?? 0, count, prestige);
   },
 
   canAffordGenerator: (id: string, count: number) => {
-    const { curds, generators } = get();
-    const cost = calculateGeneratorCost(id, generators[id] ?? 0, count);
+    const { curds, generators, prestige } = get();
+    const cost = calculateGeneratorCost(id, generators[id] ?? 0, count, prestige);
     return curds.gte(cost);
   },
 
   getMaxAffordable: (id: string) => {
-    const { curds, generators } = get();
-    return calculateMaxAffordable(id, generators[id] ?? 0, curds);
+    const { curds, generators, prestige } = get();
+    return calculateMaxAffordable(id, generators[id] ?? 0, curds, prestige);
   },
 
   getGeneratorCount: (id: string) => {
