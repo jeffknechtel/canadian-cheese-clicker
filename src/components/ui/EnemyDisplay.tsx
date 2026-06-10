@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { CombatEnemy, StatusEffect } from '../../types/game';
 import { getAnyEnemy } from '../../domain';
 import { CombatATBBar } from './CombatATBBar';
@@ -38,7 +39,7 @@ interface EnemyCardProps {
   showATB?: boolean;
 }
 
-export function EnemyCard({ enemy, showATB = true }: EnemyCardProps) {
+export const EnemyCard = memo(function EnemyCard({ enemy, showATB = true }: EnemyCardProps) {
   const enemyDef = getAnyEnemy(enemy.id);
   if (!enemyDef) return null;
 
@@ -159,7 +160,7 @@ export function EnemyCard({ enemy, showATB = true }: EnemyCardProps) {
       )}
     </div>
   );
-}
+});
 
 interface EnemyDisplayProps {
   enemies: CombatEnemy[];

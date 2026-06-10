@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useGameStore } from '../../stores';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { getEquipmentBySlot } from '../../data/equipment';
@@ -167,53 +167,49 @@ export function EquipmentModal({ heroId, slot, onClose }: EquipmentModalProps) {
   // Get all equipment for this slot
   const slotEquipment = getEquipmentBySlot(slot);
 
-  // Check if equipment is owned by another hero
-  const isEquippedByOtherHero = (equipmentId: string): boolean => {
+  const isEquippedByOtherHero = useCallback((equipmentId: string): boolean => {
     for (const [otherId, otherHero] of Object.entries(heroes)) {
       if (otherId !== heroId && Object.values(otherHero.equipment).includes(equipmentId)) {
         return true;
       }
     }
     return false;
-  };
+  }, [heroes, heroId]);
 
-  // Filter equipment
-  const filteredEquipment = slotEquipment.filter((eq) => {
-    if (filter === 'owned') return equipmentInventory.includes(eq.id);
-    if (filter === 'buyable') return !equipmentInventory.includes(eq.id);
-    return true;
-  });
+  const sortedEquipment = useMemo(() => {
+    const filtered = slotEquipment.filter((eq) => {
+      if (filter === 'owned') return equipmentInventory.includes(eq.id);
+      if (filter === 'buyable') return !equipmentInventory.includes(eq.id);
+      return true;
+    });
 
-  // Sort by: currently equipped first, then owned, then by cost
-  const sortedEquipment = [...filteredEquipment].sort((a, b) => {
-    // Currently equipped first
-    if (a.id === currentEquipmentId) return -1;
-    if (b.id === currentEquipmentId) return 1;
+    return [...filtered].sort((a, b) => {
+      if (a.id === currentEquipmentId) return -1;
+      if (b.id === currentEquipmentId) return 1;
 
-    // Then owned
-    const aOwned = equipmentInventory.includes(a.id);
-    const bOwned = equipmentInventory.includes(b.id);
-    if (aOwned && !bOwned) return -1;
-    if (!aOwned && bOwned) return 1;
+      const aOwned = equipmentInventory.includes(a.id);
+      const bOwned = equipmentInventory.includes(b.id);
+      if (aOwned && !bOwned) return -1;
+      if (!aOwned && bOwned) return 1;
 
-    // Then by cost
-    return a.cost.comparedTo(b.cost);
-  });
+      return a.cost.comparedTo(b.cost);
+    });
+  }, [slotEquipment, filter, equipmentInventory, currentEquipmentId]);
 
-  const handleBuy = (equipmentId: string) => {
+  const handleBuy = useCallback((equipmentId: string) => {
     const success = buyEquipment(equipmentId);
     if (success) {
       playPurchaseSound();
     }
-  };
+  }, [buyEquipment]);
 
-  const handleEquip = (equipmentId: string) => {
+  const handleEquip = useCallback((equipmentId: string) => {
     equipItem(heroId, equipmentId);
-  };
+  }, [heroId, equipItem]);
 
-  const handleUnequip = () => {
+  const handleUnequip = useCallback(() => {
     unequipItem(heroId, slot);
-  };
+  }, [heroId, slot, unequipItem]);
 
   if (!hero || !heroState) {
     return null;

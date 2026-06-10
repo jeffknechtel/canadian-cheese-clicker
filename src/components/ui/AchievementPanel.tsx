@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, memo } from 'react';
 import { useGameStore } from '../../stores';
 import { ACHIEVEMENTS } from '../../data/achievements';
 import type { Achievement } from '../../types/game';
@@ -24,7 +24,7 @@ function getRewardText(achievement: Achievement): string | null {
   return null;
 }
 
-function AchievementCard({ achievement, isUnlocked }: AchievementCardProps) {
+const AchievementCard = memo(function AchievementCard({ achievement, isUnlocked }: AchievementCardProps) {
   const rewardText = getRewardText(achievement);
 
   return (
@@ -85,7 +85,7 @@ function AchievementCard({ achievement, isUnlocked }: AchievementCardProps) {
       </div>
     </div>
   );
-}
+});
 
 export function AchievementPanel() {
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
@@ -96,23 +96,27 @@ export function AchievementPanel() {
   } = useGameStore();
 
   const unlockedAchievements = getUnlockedAchievements();
-  const unlockedIds = new Set(unlockedAchievements.map((a) => a.id));
   const achievementGlobalMult = getAchievementGlobalMultiplier();
   const achievementClickMult = getAchievementClickMultiplier();
 
-  // Filter achievements by category
-  const filteredAchievements = categoryFilter === 'all'
-    ? ACHIEVEMENTS.filter((a) => a.category !== 'hidden' || unlockedIds.has(a.id))
-    : ACHIEVEMENTS.filter((a) => a.category === categoryFilter);
+  const unlockedIds = useMemo(
+    () => new Set(unlockedAchievements.map((a) => a.id)),
+    [unlockedAchievements]
+  );
 
-  // Sort: unlocked first, then by category order
-  const sortedAchievements = [...filteredAchievements].sort((a, b) => {
-    const aUnlocked = unlockedIds.has(a.id);
-    const bUnlocked = unlockedIds.has(b.id);
-    if (aUnlocked && !bUnlocked) return -1;
-    if (!aUnlocked && bUnlocked) return 1;
-    return 0;
-  });
+  const sortedAchievements = useMemo(() => {
+    const filtered = categoryFilter === 'all'
+      ? ACHIEVEMENTS.filter((a) => a.category !== 'hidden' || unlockedIds.has(a.id))
+      : ACHIEVEMENTS.filter((a) => a.category === categoryFilter);
+
+    return [...filtered].sort((a, b) => {
+      const aUnlocked = unlockedIds.has(a.id);
+      const bUnlocked = unlockedIds.has(b.id);
+      if (aUnlocked && !bUnlocked) return -1;
+      if (!aUnlocked && bUnlocked) return 1;
+      return 0;
+    });
+  }, [categoryFilter, unlockedIds]);
 
   const categories: { value: CategoryFilter; label: string }[] = [
     { value: 'all', label: 'All' },

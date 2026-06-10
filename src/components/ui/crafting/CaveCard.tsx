@@ -75,12 +75,15 @@ function AgingJobRow({ job }: AgingJobRowProps) {
   const recipe = recipeRegistry.get(job.recipeId);
   const isComplete = progress >= 100;
 
-  // Update progress periodically
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
+
+  // Single interval for both progress and time updates
   useEffect(() => {
     if (isComplete) return;
 
     const interval = setInterval(() => {
       setProgress(getJobProgress(job.id));
+      setCurrentTime(Date.now());
     }, 1000);
 
     return () => clearInterval(interval);
@@ -103,21 +106,6 @@ function AgingJobRow({ job }: AgingJobRowProps) {
       qualityEffect: 1,
     });
   };
-
-  // Calculate remaining time based on current progress
-  // We already have a state-driven `progress` that updates every second
-  const [currentTime, setCurrentTime] = useState(() => Date.now());
-
-  // Update current time to calculate remaining duration
-  useEffect(() => {
-    if (isComplete) return;
-
-    const timeInterval = setInterval(() => {
-      setCurrentTime(Date.now());
-    }, 1000);
-
-    return () => clearInterval(timeInterval);
-  }, [isComplete]);
 
   if (!recipe) return null;
 
@@ -197,9 +185,9 @@ function AgingJobRow({ job }: AgingJobRowProps) {
       {/* Interactions */}
       {job.interactions.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1">
-          {job.interactions.map((interaction, idx) => (
+          {job.interactions.map((interaction) => (
             <span
-              key={idx}
+              key={`${interaction.type}-${interaction.timestamp}`}
               className="text-xs px-1.5 py-0.5 bg-timber-50 rounded text-timber-600"
             >
               {interaction.type === 'turn' && ''}
