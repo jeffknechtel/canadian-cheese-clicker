@@ -7,6 +7,7 @@ import type { PrestigeSlice } from './slices/prestige/types';
 import type { AchievementSlice } from './slices/achievements/types';
 import type { EventSlice } from './slices/events/types';
 import type { PersistenceSlice } from './slices/persistence/types';
+import type { GoldenCheeseSlice } from './slices/goldenCheese';
 
 export type GameStore = ProductionSlice &
   HeroSlice &
@@ -15,6 +16,7 @@ export type GameStore = ProductionSlice &
   PrestigeSlice &
   AchievementSlice &
   EventSlice &
-  PersistenceSlice;
+  PersistenceSlice &
+  GoldenCheeseSlice;
 
 export type SliceCreator<T> = StateCreator<GameStore, [], [], T>;

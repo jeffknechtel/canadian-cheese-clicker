@@ -1664,6 +1664,113 @@ export function playPrestigeSound(): void {
   }
 }
 
+// ===== Golden Cheese Sound Effects =====
+
+// Play golden cheese appear sound - sparkly ascending shimmer
+export function playGoldenCheeseAppear(): void {
+  const volume = getEffectiveSfxVolume();
+  if (volume === 0) return;
+
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === 'suspended') return;
+
+    const now = ctx.currentTime;
+    const gainNode = ctx.createGain();
+    gainNode.connect(ctx.destination);
+
+    // Sparkly ascending shimmer: C5, E5, G5, C6 staggered
+    const notes = [
+      { freq: 523.25, time: 0 },      // C5
+      { freq: 659.26, time: 0.08 },   // E5
+      { freq: 783.99, time: 0.16 },   // G5
+      { freq: 1046.50, time: 0.24 },  // C6
+    ];
+
+    notes.forEach(({ freq, time }) => {
+      const osc = ctx.createOscillator();
+      const noteGain = ctx.createGain();
+      osc.connect(noteGain);
+      noteGain.connect(gainNode);
+
+      osc.frequency.setValueAtTime(freq, now + time);
+      osc.type = 'sine';
+
+      noteGain.gain.setValueAtTime(0, now + time);
+      noteGain.gain.linearRampToValueAtTime(volume * 0.06, now + time + 0.02);
+      noteGain.gain.exponentialRampToValueAtTime(0.001, now + time + 0.35);
+
+      osc.start(now + time);
+      osc.stop(now + time + 0.4);
+    });
+  } catch {
+    // Silently fail
+  }
+}
+
+// Play golden cheese collect fanfare - celebratory ascending arpeggio
+export function playGoldenCheeseCollect(): void {
+  const volume = getEffectiveSfxVolume();
+  if (volume === 0) return;
+
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === 'suspended') return;
+
+    const now = ctx.currentTime;
+    const gainNode = ctx.createGain();
+    gainNode.connect(ctx.destination);
+
+    // Quick arpeggio: C5→E5→G5→C6→E6
+    const arpeggio = [
+      { freq: 523.25, time: 0 },      // C5
+      { freq: 659.26, time: 0.06 },   // E5
+      { freq: 783.99, time: 0.12 },   // G5
+      { freq: 1046.50, time: 0.18 },  // C6
+      { freq: 1318.51, time: 0.24 },  // E6
+    ];
+
+    arpeggio.forEach(({ freq, time }) => {
+      const osc = ctx.createOscillator();
+      const noteGain = ctx.createGain();
+      osc.connect(noteGain);
+      noteGain.connect(gainNode);
+
+      osc.frequency.setValueAtTime(freq, now + time);
+      osc.type = 'triangle';
+
+      noteGain.gain.setValueAtTime(0, now + time);
+      noteGain.gain.linearRampToValueAtTime(volume * 0.08, now + time + 0.02);
+      noteGain.gain.setValueAtTime(volume * 0.08, now + time + 0.08);
+      noteGain.gain.exponentialRampToValueAtTime(0.001, now + time + 0.25);
+
+      osc.start(now + time);
+      osc.stop(now + time + 0.3);
+    });
+
+    // Sustained major chord finish
+    const chord = [523.25, 659.26, 783.99, 1046.50]; // C major
+    chord.forEach((freq) => {
+      const osc = ctx.createOscillator();
+      const noteGain = ctx.createGain();
+      osc.connect(noteGain);
+      noteGain.connect(gainNode);
+
+      osc.frequency.setValueAtTime(freq, now + 0.3);
+      osc.type = 'sine';
+
+      noteGain.gain.setValueAtTime(0, now + 0.3);
+      noteGain.gain.linearRampToValueAtTime(volume * 0.06, now + 0.35);
+      noteGain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+
+      osc.start(now + 0.3);
+      osc.stop(now + 1.0);
+    });
+  } catch {
+    // Silently fail
+  }
+}
+
 // Play Rennet gain sound - golden shimmer effect
 export function playRennetGainSound(): void {
   const volume = getEffectiveSfxVolume();

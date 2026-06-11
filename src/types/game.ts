@@ -101,6 +101,9 @@ export interface GameState {
 
   // Event system
   activeEvents: string[]; // IDs of currently active events
+
+  // Golden cheese system
+  goldenCheese: GoldenCheeseState;
 }
 
 export interface Generator {
@@ -593,6 +596,29 @@ export interface CheeseActiveBuff {
   startTime: number;
   endTime: number;
   sourceCheeseId: string;
+}
+
+// ===== Golden Cheese Event Types =====
+
+export type GoldenCheeseRewardType =
+  | 'cheeseFrenzy'      // 7x CPS for 77 seconds
+  | 'luckyCurds'        // Instant 15 min CPS grant
+  | 'clickStorm'        // 77x click for 13 seconds
+  | 'rareIngredient'    // Free crafting ingredient
+  | 'heroRally'         // 5x XP for 60 seconds
+  | 'curdTsunami';      // 777x CPS for 7 seconds
+
+export interface GoldenCheeseReward {
+  type: GoldenCheeseRewardType;
+  weight: number;
+}
+
+export interface GoldenCheeseState {
+  nextSpawnAt: number;       // Timestamp when next golden cheese appears (0 = not scheduled)
+  isVisible: boolean;        // Whether golden cheese is currently showing
+  expiresAt: number;         // Timestamp when visible golden cheese disappears (0 = N/A)
+  currentReward: GoldenCheeseRewardType | null; // Pre-rolled reward for current visible cheese
+  totalCollected: number;    // Lifetime counter (persists across prestige)
 }
 
 // ===== Event System Types =====

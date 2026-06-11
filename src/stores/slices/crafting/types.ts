@@ -6,6 +6,7 @@ import type {
   CraftedCheese,
   CheeseRecipe,
   AffinageCave,
+  CheeseActiveBuff,
 } from '../../../types/game';
 
 export interface CraftingSliceState {
@@ -36,6 +37,7 @@ export interface CraftingSliceActions {
     interaction: Omit<CraftingInteraction, 'timestamp'>
   ) => boolean;
   tickBuffs: (deltaMs: number) => void;
+  addBuff: (buff: CheeseActiveBuff) => void;
   getActiveBuffMultipliers: () => { production: number; click: number; xp: number };
   getUnlockedRecipes: () => CheeseRecipe[];
   getUnlockedCaves: () => AffinageCave[];

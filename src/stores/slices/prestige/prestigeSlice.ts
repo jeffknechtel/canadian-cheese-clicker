@@ -95,6 +95,9 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
       lastSaved: Date.now(),
     });
 
+    // Reset golden cheese timer (but preserve totalCollected)
+    get().resetGoldenCheeseOnPrestige();
+
     publish({ type: 'CpsInputsChanged' });
     publish({ type: 'PrestigePerformed', tier: 'aging', currencyGained: rennetGained });
     trackPrestige('aging', rennetGained);
@@ -198,6 +201,9 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
       lastSaved: Date.now(),
     });
 
+    // Reset golden cheese timer (but preserve totalCollected)
+    get().resetGoldenCheeseOnPrestige();
+
     publish({ type: 'CpsInputsChanged' });
     publish({ type: 'PrestigePerformed', tier: 'vintage', currencyGained: wheelsGained });
     trackPrestige('vintage', wheelsGained);
@@ -255,6 +261,9 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
 
       lastSaved: Date.now(),
     });
+
+    // Reset golden cheese timer (but preserve totalCollected)
+    get().resetGoldenCheeseOnPrestige();
 
     publish({ type: 'CpsInputsChanged' });
     publish({ type: 'PrestigePerformed', tier: 'legacy', currencyGained: legacyGained });

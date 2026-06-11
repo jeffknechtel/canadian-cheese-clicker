@@ -51,7 +51,7 @@ function tick(currentTime: number) {
     const gameLogicInterval = getGameLogicInterval();
 
     // Game logic tick: runs at reduced frequency (10fps default)
-    // This handles production, XP, crafting, and buffs
+    // This handles production, XP, crafting, buffs, and golden cheese
     if (accumulatedGameLogicTime >= gameLogicInterval) {
       // Process accumulated time in chunks
       while (accumulatedGameLogicTime >= gameLogicInterval) {
@@ -59,6 +59,7 @@ function tick(currentTime: number) {
         store.tickHeroXp(gameLogicInterval);
         store.tickCrafting(gameLogicInterval);
         store.tickBuffs(gameLogicInterval);
+        store.tickGoldenCheese(gameLogicInterval);
         accumulatedGameLogicTime -= gameLogicInterval;
       }
     }

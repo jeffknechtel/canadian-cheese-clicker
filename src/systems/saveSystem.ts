@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js';
-import type { GameState, HeroState, PartyFormation, PrestigeState, ZoneProgress, CraftingState } from '../types/game';
+import type { GameState, HeroState, PartyFormation, PrestigeState, ZoneProgress, CraftingState, GoldenCheeseState } from '../types/game';
 import { MAX_OFFLINE_SECONDS } from '../data/constants';
 import { CURRENT_VERSION, runMigrations } from './migrations';
 import type { AudioPreferences } from './audioSystem';
@@ -41,6 +41,8 @@ interface SerializedGameState {
   crafting?: CraftingState;
   // Event system
   activeEvents?: string[];
+  // Golden cheese system
+  goldenCheese?: GoldenCheeseState;
 }
 
 function serializeState(state: GameState): SerializedGameState {
@@ -68,6 +70,8 @@ function serializeState(state: GameState): SerializedGameState {
     crafting: state.crafting,
     // Event system
     activeEvents: state.activeEvents,
+    // Golden cheese system
+    goldenCheese: state.goldenCheese,
   };
 }
 
@@ -172,6 +176,14 @@ function deserializeState(serialized: SerializedGameState): GameState {
     crafting,
     // Event system - v7 migration with empty default
     activeEvents: serialized.activeEvents ?? [],
+    // Golden cheese system - default for migration from older saves
+    goldenCheese: serialized.goldenCheese ?? {
+      nextSpawnAt: 0,
+      isVisible: false,
+      expiresAt: 0,
+      currentReward: null,
+      totalCollected: 0,
+    },
   };
 }
 
