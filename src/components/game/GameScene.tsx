@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { CheeseWheel } from './CheeseWheel';
+import { GoldenCheeseWheel } from './GoldenCheeseWheel';
 import { ClickEffects } from './ClickEffects';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { useGameStore } from '../../stores';
@@ -203,6 +204,7 @@ export function GameScene() {
   const cylinderSegments = useMemo(() => getCylinderSegments(), []);
   const quality = useSettingsStore((state) => state.graphics.quality);
   const click = useGameStore((state) => state.click);
+  const goldenCheeseVisible = useGameStore((s) => s.goldenCheese.isVisible);
 
   // Adjust pixel ratio based on quality setting for better mobile performance
   const dpr = useMemo(() => {
@@ -266,6 +268,7 @@ export function GameScene() {
         <directionalLight position={[-3, 3, -3]} intensity={0.3} />
         <CanadianBackdrop />
         <CheeseWheel cylinderSegments={cylinderSegments} />
+        {goldenCheeseVisible && <GoldenCheeseWheel />}
         <OrbitControls
           enableZoom={false}
           enablePan={false}

@@ -42,19 +42,29 @@ function BuffChip({ buff, currentTime }: BuffChipProps) {
   const remainingMs = Math.max(0, buff.endTime - currentTime);
   const remainingStr = formatDuration(remainingMs);
 
+  // Check if this is a golden cheese buff
+  const isGoldenBuff = buff.sourceCheeseId === 'golden_cheese';
+
   // Get source cheese info for the icon
   const { effect } = buff;
-  const icon = getBuffIcon(effect.type);
-  const label = getBuffLabel(effect);
+  const icon = isGoldenBuff ? '⭐' : getBuffIcon(effect.type);
+  const label = getBuffLabel(effect, isGoldenBuff);
+
+  // Style based on golden vs regular
+  const bgClass = isGoldenBuff
+    ? 'bg-gradient-to-r from-amber-200 to-yellow-100 border-amber-400'
+    : 'bg-cheddar-100 border-cheddar-200';
+  const textClass = isGoldenBuff ? 'text-amber-800' : 'text-cheddar-700';
+  const timerClass = isGoldenBuff ? 'text-amber-600' : 'text-cheddar-500';
 
   return (
     <div
-      className="flex items-center gap-1 px-2 py-1 bg-cheddar-100 rounded-full border border-cheddar-200"
-      title={`${label} - ${remainingStr} remaining`}
+      className={`flex items-center gap-1 px-2 py-1 rounded-full border ${bgClass}`}
+      title={`${isGoldenBuff ? 'Golden: ' : ''}${label} - ${remainingStr} remaining`}
     >
       <span className="text-sm">{icon}</span>
-      <span className="text-xs font-medium text-cheddar-700">{label}</span>
-      <span className="text-xs text-cheddar-500">({remainingStr})</span>
+      <span className={`text-xs font-medium ${textClass}`}>{label}</span>
+      <span className={`text-xs ${timerClass}`}>({remainingStr})</span>
     </div>
   );
 }
@@ -74,18 +84,19 @@ function getBuffIcon(type: CheeseActiveBuff['effect']['type']): string {
   }
 }
 
-function getBuffLabel(effect: CheeseActiveBuff['effect']): string {
+function getBuffLabel(effect: CheeseActiveBuff['effect'], isGolden: boolean = false): string {
+  const prefix = isGolden ? 'Golden: ' : '';
   switch (effect.type) {
     case 'productionBoost':
-      return `+${Math.round((effect.multiplier - 1) * 100)}% Prod`;
+      return `${prefix}${effect.multiplier}x Prod`;
     case 'clickBoost':
-      return `+${Math.round((effect.multiplier - 1) * 100)}% Click`;
+      return `${prefix}${effect.multiplier}x Click`;
     case 'xpBoost':
-      return `+${Math.round((effect.multiplier - 1) * 100)}% XP`;
+      return `${prefix}${effect.multiplier}x XP`;
     case 'heroBuff':
-      return `+${effect.value} ${effect.stat}`;
+      return `${prefix}+${effect.value} ${effect.stat}`;
     default:
-      return 'Buff';
+      return `${prefix}Buff`;
   }
 }
 

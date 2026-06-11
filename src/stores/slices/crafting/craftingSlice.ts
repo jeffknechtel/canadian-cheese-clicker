@@ -486,6 +486,15 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     }
   },
 
+  addBuff: (buff: CheeseActiveBuff) => {
+    set((s) => ({
+      crafting: {
+        ...s.crafting,
+        activeBuffs: [...s.crafting.activeBuffs, buff],
+      },
+    }));
+  },
+
   getActiveBuffMultipliers: () => {
     const state = get();
     const now = Date.now();

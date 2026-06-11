@@ -9,6 +9,7 @@ import { createPrestigeSlice } from './slices/prestige/prestigeSlice';
 import { createAchievementSlice } from './slices/achievements/achievementSlice';
 import { createEventSlice } from './slices/events/eventSlice';
 import { createPersistenceSlice } from './slices/persistence/persistenceSlice';
+import { createGoldenCheeseSlice } from './slices/goldenCheese';
 import { initProductionEventSubscriber } from './slices/production/eventSubscriber';
 import { initHeroEventSubscriber } from './slices/heroes/eventSubscriber';
 
@@ -21,6 +22,7 @@ export const useGameStore = create<GameStore>()((...a) => ({
   ...createAchievementSlice(...a),
   ...createEventSlice(...a),
   ...createPersistenceSlice(...a),
+  ...createGoldenCheeseSlice(...a),
 }));
 
 // Initialize event subscribers

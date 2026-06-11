@@ -11,6 +11,7 @@ import { EquipmentModal } from './components/ui/EquipmentModal';
 import { OfflineProgressModal } from './components/ui/OfflineProgressModal';
 import { AchievementToastContainer } from './components/ui/AchievementToast';
 import { DialogueToastContainer } from './components/ui/DialogueToast';
+import { GoldenCheeseNotificationContainer } from './components/ui/GoldenCheeseNotification';
 import { ZoneSelectPanel } from './components/ui/ZoneSelectPanel';
 import { CombatResultsModal } from './components/ui/CombatResultsModal';
 import { ActiveBuffsBar } from './components/ui/crafting/ActiveBuffsBar';
@@ -797,6 +798,7 @@ function App() {
       {/* Toast Containers */}
       <AchievementToastContainer />
       <DialogueToastContainer />
+      <GoldenCheeseNotificationContainer />
 
       {/* Eh Counter (subtle display in corner) */}
       {ehCount > 0 && (
