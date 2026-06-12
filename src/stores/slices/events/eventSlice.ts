@@ -74,6 +74,24 @@ export const createEventSlice: SliceCreator<EventSlice> = (set, get) => ({
       // Publish events for UI notifications
       for (const id of added) {
         publish({ type: 'SeasonalEventActivated', eventId: id });
+        // Unlock exclusive content for newly activated events
+        const event = getEventById(id);
+        if (event?.exclusiveContent) {
+          if (event.exclusiveContent.cheeses) {
+            for (const recipeId of event.exclusiveContent.cheeses) {
+              get().unlockRecipe(recipeId);
+            }
+          }
+          if (event.exclusiveContent.equipment) {
+            for (const equipmentId of event.exclusiveContent.equipment) {
+              if (!get().equipmentInventory.includes(equipmentId)) {
+                set((s) => ({
+                  equipmentInventory: [...s.equipmentInventory, equipmentId],
+                }));
+              }
+            }
+          }
+        }
       }
       for (const id of removed) {
         publish({ type: 'SeasonalEventDeactivated', eventId: id });

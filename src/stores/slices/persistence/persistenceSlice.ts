@@ -21,8 +21,9 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
     const savedState = loadGame();
 
     if (!savedState) {
-      // No save exists - check events for fresh game
+      // No save exists - check events and initialize challenge for fresh game
       get().checkEventActivation();
+      get().initializeChallenge();
       return null;
     }
 
@@ -38,6 +39,8 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
 
     // NOW check events AFTER loading saved state - will update activeEvents based on current date
     get().checkEventActivation();
+    // Initialize or rollover weekly challenge
+    get().initializeChallenge();
 
     // Now calculate offline progress with the correct CPS
     const { curdPerSecond } = get();
@@ -114,9 +117,20 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
       // Synergy state - permanent, NOT reset
       synergy: get().synergy,
 
+      // Challenge state - reset to trigger re-initialization
+      challenge: {
+        activeChallengeId: null,
+        weekStartTimestamp: 0,
+        progress: 0,
+        completed: false,
+        claimed: false,
+      },
+
       // Persistence state
       lastSaved: Date.now(),
       gameStarted: Date.now(),
     });
+    // Initialize challenge after reset
+    get().initializeChallenge();
   },
 });

@@ -87,6 +87,12 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
       const zoneId = state.combat.currentZone;
       const stageNumber = state.combat.currentStage;
 
+      // Track defeated enemies for challenges
+      const defeatedCount = state.combat.enemies.filter((e) => !e.isAlive).length;
+      if (defeatedCount > 0) {
+        get().incrementChallengeProgress('defeatEnemies', defeatedCount);
+      }
+
       if (zoneId) {
         const currentProgress = state.zoneProgress[zoneId] || {
           zoneId,
@@ -111,6 +117,9 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
             [zoneId]: newProgress,
           },
         });
+
+        // Track stage completion for challenges
+        get().incrementChallengeProgress('completeZoneStage', 1);
 
         if (isFirstBossDefeat) {
           get().assignZoneGeneratorBonus(zoneId);

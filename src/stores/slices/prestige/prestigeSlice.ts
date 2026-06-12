@@ -101,6 +101,7 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
     publish({ type: 'CpsInputsChanged' });
     publish({ type: 'PrestigePerformed', tier: 'aging', currencyGained: rennetGained });
     trackPrestige('aging', rennetGained);
+    get().incrementChallengeProgress('prestigeReset', 1);
 
     return { rennetGained, newTotal: get().prestige.rennet };
   },
@@ -207,6 +208,7 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
     publish({ type: 'CpsInputsChanged' });
     publish({ type: 'PrestigePerformed', tier: 'vintage', currencyGained: wheelsGained });
     trackPrestige('vintage', wheelsGained);
+    get().incrementChallengeProgress('prestigeReset', 1);
 
     return {
       wheelsGained,
@@ -268,6 +270,7 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
     publish({ type: 'CpsInputsChanged' });
     publish({ type: 'PrestigePerformed', tier: 'legacy', currencyGained: legacyGained });
     trackPrestige('legacy', legacyGained);
+    get().incrementChallengeProgress('prestigeReset', 1);
 
     return { legacyGained };
   },

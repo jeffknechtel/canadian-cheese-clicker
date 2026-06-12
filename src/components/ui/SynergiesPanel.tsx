@@ -127,7 +127,7 @@ export function SynergiesPanel() {
   const canPurchaseSynergy = useGameStore((state) => state.canPurchaseSynergy);
 
   const handlePurchase = useCallback(
-    (id: string, _event: MouseEvent) => {
+    (id: string) => {
       purchaseSynergy(id as Parameters<typeof purchaseSynergy>[0]);
     },
     [purchaseSynergy]

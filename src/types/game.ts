@@ -133,6 +133,9 @@ export interface GameState {
 
   // Synergy system
   synergy: SynergyState;
+
+  // Challenge system
+  challenge: ChallengeState;
 }
 
 export interface SynergyState {
@@ -682,4 +685,44 @@ export interface GameEvent {
   startDay?: number;   // 1-31
   endMonth?: number;   // 1-12
   endDay?: number;     // 1-31
+}
+
+// ===== Weekly Challenge Types =====
+
+export type ChallengeGoalType =
+  | 'craftCheese'
+  | 'defeatEnemies'
+  | 'earnCurds'
+  | 'collectClicks'
+  | 'completeZoneStage'
+  | 'consumeCheese'
+  | 'prestigeReset';
+
+export interface ChallengeGoal {
+  type: ChallengeGoalType;
+  target: number;
+  description: string;
+}
+
+export type ChallengeRewardType =
+  | { type: 'curds'; amount: number }
+  | { type: 'ingredient'; ingredientId: string }
+  | { type: 'equipment'; equipmentId: string }
+  | { type: 'rennet'; amount: number };
+
+export interface WeeklyChallenge {
+  id: string;
+  name: string;
+  description: string;
+  goal: ChallengeGoal;
+  reward: ChallengeRewardType;
+  icon: string;
+}
+
+export interface ChallengeState {
+  activeChallengeId: string | null;
+  weekStartTimestamp: number;
+  progress: number;
+  completed: boolean;
+  claimed: boolean;
 }

@@ -315,6 +315,7 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     publish({ type: 'CheeseCollected', cheese, recipe });
 
     trackCraftingComplete(job.recipeId, cheese.quality);
+    get().incrementChallengeProgress('craftCheese', 1);
     get().checkAchievements();
 
     return cheese;
@@ -360,6 +361,8 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     if (newBuffs.length > 0) {
       publish({ type: 'BuffActivated', buff: newBuffs[0], recipe });
     }
+
+    get().incrementChallengeProgress('consumeCheese', 1);
 
     return true;
   },
