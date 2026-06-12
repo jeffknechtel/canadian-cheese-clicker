@@ -3,6 +3,7 @@ import { formatNumber } from '../../utils/formatNumber';
 import type { OfflineProgress } from '../../systems/saveSystem';
 import { getWelcomeBackMessage } from '../../data/canadianDialogue';
 import { useSettingsStore } from '../../stores/settingsStore';
+import { ModalOverlay } from './shared/ModalOverlay';
 
 interface OfflineProgressModalProps {
   progress: OfflineProgress;
@@ -28,9 +29,9 @@ export function OfflineProgressModal({
   const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
   return (
-    <div className={`fixed inset-0 bg-black/50 flex items-center justify-center z-50 ${!reducedMotion ? 'animate-backdrop-in' : ''}`}>
+    <ModalOverlay isOpen={true} onClose={onDismiss} ariaLabelledBy="offline-progress-title">
       <div className={`bg-white panel-wood-solid border-4 border-cheddar-500 rounded-lg p-8 max-w-md mx-4 shadow-2xl ${!reducedMotion ? 'animate-modal-in' : ''}`}>
-        <h2 className="text-2xl font-bold text-cheddar-700 mb-2 text-center">
+        <h2 id="offline-progress-title" className="text-2xl font-bold text-cheddar-700 mb-2 text-center">
           {welcomeMessage.split(':')[0]}
         </h2>
 
@@ -58,6 +59,6 @@ export function OfflineProgressModal({
           Collect Curds
         </button>
       </div>
-    </div>
+    </ModalOverlay>
   );
 }

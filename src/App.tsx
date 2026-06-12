@@ -10,6 +10,7 @@ import { PartyFormationPanel } from './components/ui/PartyFormationPanel';
 import { EquipmentModal } from './components/ui/EquipmentModal';
 import { OfflineProgressModal } from './components/ui/OfflineProgressModal';
 import { AchievementToastContainer } from './components/ui/AchievementToast';
+import { ParticleContainer } from './components/ui/ParticleContainer';
 import { DialogueToastContainer } from './components/ui/DialogueToast';
 import { GoldenCheeseNotificationContainer } from './components/ui/GoldenCheeseNotification';
 import { ZoneSelectPanel } from './components/ui/ZoneSelectPanel';
@@ -801,6 +802,9 @@ function App() {
           </div>
         </div>
       </div>
+
+      {/* Particle Container for visual effects */}
+      <ParticleContainer />
 
       {/* Toast Containers */}
       <AchievementToastContainer />

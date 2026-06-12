@@ -7,6 +7,13 @@ import type {
   EnemyAbility,
   StatusEffect,
 } from '../../types/game';
+
+export type CombatAudioEvent =
+  | { type: 'attack'; variant: 'physical' | 'magic' | 'critical' }
+  | { type: 'enemyDefeat' }
+  | { type: 'heal' }
+  | { type: 'buff' }
+  | { type: 'debuff' };
 import {
   updateAtbGauge,
   calculateDamage,
@@ -30,6 +37,7 @@ import { heroRegistry, bossRegistry, getAnyEnemy } from '../index';
 export interface BattleTickResult {
   battle: Battle;
   logs: readonly CombatLogEntry[];
+  audioEvents: readonly CombatAudioEvent[];
 }
 
 export interface BattleAbilityResult {
@@ -144,11 +152,12 @@ export class Battle {
    */
   tick(deltaMs: number, partyStats: Record<string, HeroStats>, heroDamageMultiplier = 1): BattleTickResult {
     if (!this.isActive) {
-      return { battle: this, logs: [] };
+      return { battle: this, logs: [], audioEvents: [] };
     }
 
     const deltaSeconds = deltaMs / 1000;
     const logs: CombatLogEntry[] = [];
+    const audioEvents: CombatAudioEvent[] = [];
     let damageDealt = 0;
     let damageTaken = 0;
 
@@ -164,15 +173,15 @@ export class Battle {
     this.#advanceEnemyAtb(enemies, deltaSeconds);
 
     // Phase 3: Execute hero actions
-    const heroActionResult = this.#executeHeroActions(heroStates, enemies, partyStats, logs, heroDamageMultiplier);
+    const heroActionResult = this.#executeHeroActions(heroStates, enemies, partyStats, logs, audioEvents, heroDamageMultiplier);
     damageDealt += heroActionResult.damageDealt;
 
     // Phase 4: Execute enemy actions
-    const enemyActionResult = this.#executeEnemyActions(enemies, heroStates, partyStats, logs);
+    const enemyActionResult = this.#executeEnemyActions(enemies, heroStates, partyStats, logs, audioEvents);
     damageTaken += enemyActionResult.damageTaken;
 
     // Phase 5: Process hero status effects
-    const heroStatusResult = this.#processHeroStatusEffects(heroStates, logs);
+    const heroStatusResult = this.#processHeroStatusEffects(heroStates, logs, audioEvents);
     damageTaken += heroStatusResult.damageTaken;
 
     // Phase 6: Process enemy status effects
@@ -199,6 +208,7 @@ export class Battle {
     return {
       battle: new Battle(newState, logs),
       logs,
+      audioEvents,
     };
   }
 
@@ -351,6 +361,7 @@ export class Battle {
     enemies: CombatEnemy[],
     partyStats: Record<string, HeroStats>,
     logs: CombatLogEntry[],
+    audioEvents: CombatAudioEvent[],
     heroDamageMultiplier = 1
   ): { damageDealt: number } {
     let damageDealt = 0;
@@ -388,6 +399,8 @@ export class Battle {
       target.currentHp = applyDamage(target.currentHp, damage);
       damageDealt += damage;
 
+      audioEvents.push({ type: 'attack', variant: 'physical' });
+
       logs.push({
         timestamp: Date.now(),
         type: 'attack',
@@ -399,6 +412,7 @@ export class Battle {
 
       if (target.currentHp <= 0) {
         target.isAlive = false;
+        audioEvents.push({ type: 'enemyDefeat' });
         logs.push({
           timestamp: Date.now(),
           type: 'defeat',
@@ -420,7 +434,8 @@ export class Battle {
     enemies: CombatEnemy[],
     heroStates: Record<string, HeroCombatState>,
     partyStats: Record<string, HeroStats>,
-    logs: CombatLogEntry[]
+    logs: CombatLogEntry[],
+    audioEvents: CombatAudioEvent[]
   ): { damageTaken: number } {
     let damageTaken = 0;
 
@@ -452,6 +467,7 @@ export class Battle {
 
       // Check for AoE targeting
       if (ability?.targetType === 'all') {
+        audioEvents.push({ type: 'attack', variant: 'physical' });
         // Damage all alive heroes
         for (const heroState of Object.values(heroStates)) {
           if (!heroState.isAlive) continue;
@@ -491,6 +507,8 @@ export class Battle {
         const target = selectHeroTarget(heroStates);
         if (!target) continue;
 
+        audioEvents.push({ type: 'attack', variant: 'physical' });
+
         const heroStats = partyStats[target.heroId];
         const defenseModifier = getStatModifierFromEffects(target.statusEffects, 'defense');
         const effectiveDefense = Math.max(0, (heroStats?.defense || 10) + defenseModifier);
@@ -525,6 +543,7 @@ export class Battle {
       // Apply ability status effect if present
       if (ability?.effect) {
         if (ability.effect.type === 'buff') {
+          audioEvents.push({ type: 'buff' });
           // Self-buff on enemy
           const statusEffect: StatusEffect = {
             id: `enemy_${enemy.id}_${ability.name}_${Date.now()}`,
@@ -557,6 +576,7 @@ export class Battle {
             );
 
             if (!isImmune) {
+              audioEvents.push({ type: 'debuff' });
               const statusEffect: StatusEffect = {
                 id: `enemy_${enemy.id}_${ability.name}_${debuffTarget.heroId}_${Date.now()}`,
                 type: ability.effect.type,
@@ -617,7 +637,8 @@ export class Battle {
 
   #processHeroStatusEffects(
     heroStates: Record<string, HeroCombatState>,
-    logs: CombatLogEntry[]
+    logs: CombatLogEntry[],
+    audioEvents: CombatAudioEvent[]
   ): { damageTaken: number } {
     let damageTaken = 0;
 
@@ -636,6 +657,10 @@ export class Battle {
 
       if (result.damage > 0) {
         damageTaken += result.damage;
+      }
+
+      if (result.healing > 0) {
+        audioEvents.push({ type: 'heal' });
       }
 
       if (heroState.currentHp <= 0) {

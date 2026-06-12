@@ -4,6 +4,7 @@ import { saveGame, loadGame, calculateOfflineProgress } from '../../../systems/s
 import { createInitialProductionState } from '../production/resetFactory';
 import { createEmptyCombatState } from '../combat/resetFactory';
 import { createInitialCraftingState } from '../crafting/resetFactory';
+import { useSettingsStore } from '../../settingsStore';
 
 export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get) => ({
   // State
@@ -42,9 +43,10 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
     // Initialize or rollover weekly challenge
     get().initializeChallenge();
 
-    // Now calculate offline progress with the correct CPS
+    // Now calculate offline progress with the correct CPS, respecting user's cap setting
     const { curdPerSecond } = get();
-    const offlineProgress = calculateOfflineProgress(curdPerSecond, savedState.lastSaved);
+    const offlineProgressCapHours = useSettingsStore.getState().game.offlineProgressCap;
+    const offlineProgress = calculateOfflineProgress(curdPerSecond, savedState.lastSaved, offlineProgressCapHours);
 
     // Apply offline earnings
     set((s) => ({
