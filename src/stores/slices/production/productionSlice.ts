@@ -66,6 +66,7 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
       totalClicks: state.totalClicks + 1,
       currencyAnimationTrigger: state.currencyAnimationTrigger + 1,
     });
+    get().incrementChallengeProgress('collectClicks', 1);
     get().checkAchievements();
   },
 

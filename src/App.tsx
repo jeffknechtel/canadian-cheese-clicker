@@ -23,6 +23,8 @@ import { BetaAgreement } from './components/ui/BetaAgreement';
 import { useBetaAgreement } from './hooks/useBetaAgreement';
 import { FeedbackWidget } from './components/ui/FeedbackWidget';
 import { DebugPanel } from './components/ui/DebugPanel';
+import { EventIndicator } from './components/ui/EventIndicator';
+import { ChallengeIndicator } from './components/ui/ChallengeIndicator';
 import { initializeAnnouncer, cleanupAnnouncer } from './systems/accessibilityAnnouncer';
 import { initializeErrorCapture } from './systems/bugReporter';
 import { analytics, trackMilestone } from './systems/analyticsService';
@@ -472,6 +474,11 @@ function App() {
               </h1>
             </div>
             <div className="flex items-center gap-3">
+              {/* Event and Challenge indicators */}
+              <div className="hidden lg:flex items-center gap-2">
+                <EventIndicator />
+                <ChallengeIndicator />
+              </div>
               <CurrencyDisplay />
               {/* Active cheese buffs display */}
               <div className="hidden md:block">

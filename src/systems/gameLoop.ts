@@ -73,6 +73,7 @@ function tick(currentTime: number) {
     // Periodic event lifecycle check (hourly, not per-tick)
     if (currentTime - lastEventCheckTime > EVENT_CHECK_INTERVAL_MS) {
       store.checkEventActivation();
+      store.checkWeekRollover();
       lastEventCheckTime = currentTime;
     }
   }

@@ -1,11 +1,14 @@
-import { useState, memo, useRef, useEffect } from 'react';
+import { useState, memo, useRef, useEffect, useMemo } from 'react';
 import { useGameStore } from '../../stores';
+import { useGameStoreShallow } from '../../utils/zustandOptimization';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { GENERATORS } from '../../data/generators';
 import { formatNumber } from '../../utils/formatNumber';
+import { calculateTimeToAfford } from '../../utils/timeToAfford';
 import { playPurchaseSound } from '../../systems/audioSystem';
 import { announceGeneratorPurchase } from '../../systems/accessibilityAnnouncer';
 import type { Generator } from '../../types/game';
+import { CpsBreakdownPanel } from './CpsBreakdownPanel';
 
 type BuyAmount = 1 | 10 | 100 | 'max';
 
@@ -27,6 +30,10 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
   const getGeneratorCost = useGameStore((state) => state.getGeneratorCost);
   const getMaxAffordable = useGameStore((state) => state.getMaxAffordable);
   const getGeneratorCount = useGameStore((state) => state.getGeneratorCount);
+  const { curds, curdPerSecond } = useGameStoreShallow((state) => ({
+    curds: state.curds,
+    curdPerSecond: state.curdPerSecond,
+  }));
   const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
   const [purchaseAnimation, setPurchaseAnimation] = useState<'success' | 'failure' | null>(null);
@@ -47,6 +54,11 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
   const effectiveAmount = buyAmount === 'max' ? getMaxAffordable(generator.id) : buyAmount;
   const cost = getGeneratorCost(generator.id, effectiveAmount || 1);
   const canAfford = effectiveAmount > 0 && canAffordGenerator(generator.id, effectiveAmount);
+
+  const timeToAfford = useMemo(() => {
+    if (canAfford) return null;
+    return calculateTimeToAfford(cost, curds, curdPerSecond);
+  }, [canAfford, cost, curds, curdPerSecond]);
 
   // Buy handler - React Compiler will optimize this automatically
   const handleBuy = () => {
@@ -120,24 +132,33 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
           +{formatNumber(generator.baseCps)} cps each
         </p>
       </div>
-      <button
-        onClick={handleBuy}
-        disabled={!canAfford}
-        aria-label={buyButtonLabel}
-        aria-disabled={!canAfford}
-        className={`px-4 py-2 rounded-lg font-medium text-sm transition-all btn-ripple btn-scale shadow-md hover:shadow-lg ${
-          canAfford
-            ? isCanadianTier
-              ? 'bg-red-600 hover:bg-red-700 text-white cursor-pointer'
-              : 'bg-amber-600 hover:bg-amber-700 text-white cursor-pointer'
-            : 'bg-gray-200 text-gray-700 cursor-not-allowed'
-        }`}
-      >
-        <div className="text-center" aria-hidden="true">
-          <div>Buy {buyAmount === 'max' ? `×${effectiveAmount || 0}` : `×${buyAmount}`}</div>
-          <div className="text-xs tabular-nums">{formatNumber(cost)}</div>
-        </div>
-      </button>
+      <div className="flex flex-col items-end">
+        <button
+          onClick={handleBuy}
+          disabled={!canAfford}
+          aria-label={buyButtonLabel}
+          aria-disabled={!canAfford}
+          className={`px-4 py-2 rounded-lg font-medium text-sm transition-all btn-ripple btn-scale shadow-md hover:shadow-lg ${
+            canAfford
+              ? isCanadianTier
+                ? 'bg-red-600 hover:bg-red-700 text-white cursor-pointer'
+                : 'bg-amber-600 hover:bg-amber-700 text-white cursor-pointer'
+              : 'bg-gray-200 text-gray-700 cursor-not-allowed'
+          }`}
+        >
+          <div className="text-center" aria-hidden="true">
+            <div>Buy {buyAmount === 'max' ? `×${effectiveAmount || 0}` : `×${buyAmount}`}</div>
+            <div className="text-xs tabular-nums">{formatNumber(cost)}</div>
+          </div>
+        </button>
+        {timeToAfford && !timeToAfford.canAfford && (
+          <div className="text-xs text-gray-500 mt-1 tabular-nums">
+            {timeToAfford.seconds !== null
+              ? `in ${timeToAfford.formatted}`
+              : 'Need CPS'}
+          </div>
+        )}
+      </div>
     </article>
   );
 });
@@ -149,7 +170,7 @@ export function GeneratorPanel() {
   const canadianGenerators = GENERATORS.slice(CANADIAN_TIER_START);
 
   return (
-    <section className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain" aria-labelledby="generators-heading">
+    <section className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain gap-3" aria-labelledby="generators-heading">
       <div className="flex items-center justify-between mb-3">
         <h2 id="generators-heading" className="text-lg font-bold flex items-center gap-2 text-timber-700">
           <span>Generators</span>
@@ -202,6 +223,7 @@ export function GeneratorPanel() {
           />
         ))}
       </div>
+      <CpsBreakdownPanel />
     </section>
   );
 }
