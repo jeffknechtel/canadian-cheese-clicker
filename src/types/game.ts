@@ -42,6 +42,32 @@ export type AgingUpgradeEffect =
   | { type: 'xpBonus'; value: number }              // +X% hero XP gain
   | { type: 'combatBonus'; value: number };         // +X% combat rewards
 
+// ===== Synergy Upgrade Types =====
+
+export type SynergyId =
+  | 'the_canadian_way'
+  | 'battle_hardened_vats'
+  | 'cheese_fueled_warriors'
+  | 'fromage_affinity'
+  | 'combat_harmony';
+
+export interface SynergyUpgrade {
+  id: SynergyId;
+  name: string;
+  description: string;
+  cost: number;
+  effect: SynergyEffect;
+  systemsConnected: [string, string];
+  icon: string;
+}
+
+export type SynergyEffect =
+  | { type: 'ehMultiplierBonus'; value: number }
+  | { type: 'zoneGeneratorBonus'; value: number }
+  | { type: 'buffCombatDamage'; value: number }
+  | { type: 'affinityCraftingSpeed'; divisor: number }
+  | { type: 'fullPartyFormationBonus'; value: number };
+
 export type AgingUpgradeRequirement =
   | { type: 'rennetSpent'; amount: number }         // Requires X Rennet spent
   | { type: 'agingResets'; count: number }          // Requires X Aging resets
@@ -104,6 +130,14 @@ export interface GameState {
 
   // Golden cheese system
   goldenCheese: GoldenCheeseState;
+
+  // Synergy system
+  synergy: SynergyState;
+}
+
+export interface SynergyState {
+  purchased: SynergyId[];
+  zoneGeneratorBonuses: Record<string, string>;
 }
 
 export interface Generator {

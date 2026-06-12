@@ -140,8 +140,9 @@ export class Battle {
   /**
    * Advance combat by deltaMs. Returns new Battle and any log entries.
    * This is the ONLY public mutation method for the tick loop.
+   * @param heroDamageMultiplier - Optional multiplier applied to all hero damage (for synergies)
    */
-  tick(deltaMs: number, partyStats: Record<string, HeroStats>): BattleTickResult {
+  tick(deltaMs: number, partyStats: Record<string, HeroStats>, heroDamageMultiplier = 1): BattleTickResult {
     if (!this.isActive) {
       return { battle: this, logs: [] };
     }
@@ -163,7 +164,7 @@ export class Battle {
     this.#advanceEnemyAtb(enemies, deltaSeconds);
 
     // Phase 3: Execute hero actions
-    const heroActionResult = this.#executeHeroActions(heroStates, enemies, partyStats, logs);
+    const heroActionResult = this.#executeHeroActions(heroStates, enemies, partyStats, logs, heroDamageMultiplier);
     damageDealt += heroActionResult.damageDealt;
 
     // Phase 4: Execute enemy actions
@@ -349,7 +350,8 @@ export class Battle {
     heroStates: Record<string, HeroCombatState>,
     enemies: CombatEnemy[],
     partyStats: Record<string, HeroStats>,
-    logs: CombatLogEntry[]
+    logs: CombatLogEntry[],
+    heroDamageMultiplier = 1
   ): { damageDealt: number } {
     let damageDealt = 0;
 
@@ -381,7 +383,8 @@ export class Battle {
       const defenseModifier = getStatModifierFromEffects(target.statusEffects, 'defense');
       const effectiveDefense = Math.max(0, baseDefense + defenseModifier);
 
-      const damage = calculateDamage(effectiveAttack, effectiveDefense);
+      const baseDamage = calculateDamage(effectiveAttack, effectiveDefense);
+      const damage = Math.floor(baseDamage * heroDamageMultiplier);
       target.currentHp = applyDamage(target.currentHp, damage);
       damageDealt += damage;
 

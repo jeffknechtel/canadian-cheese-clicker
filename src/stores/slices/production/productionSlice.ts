@@ -225,8 +225,11 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
   },
 
   getEhMultiplier: () => {
-    const { ehCount } = get();
-    return 1 + Math.floor(ehCount / EH_DIVISOR) * EH_BONUS_PER_TIER;
+    const state = get();
+    const synergyBonus = state.getSynergyEhBonus();
+    const baseBonus = EH_BONUS_PER_TIER + synergyBonus;
+    const ehTier = Math.floor(state.ehCount / EH_DIVISOR);
+    return 1 + ehTier * baseBonus;
   },
 
   checkMilestone: () => {

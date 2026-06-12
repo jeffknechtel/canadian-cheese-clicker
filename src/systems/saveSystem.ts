@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js';
-import type { GameState, HeroState, PartyFormation, PrestigeState, ZoneProgress, CraftingState, GoldenCheeseState } from '../types/game';
+import type { GameState, HeroState, PartyFormation, PrestigeState, ZoneProgress, CraftingState, GoldenCheeseState, SynergyState } from '../types/game';
 import { MAX_OFFLINE_SECONDS } from '../data/constants';
 import { CURRENT_VERSION, runMigrations } from './migrations';
 import type { AudioPreferences } from './audioSystem';
@@ -43,6 +43,8 @@ interface SerializedGameState {
   activeEvents?: string[];
   // Golden cheese system
   goldenCheese?: GoldenCheeseState;
+  // Synergy system
+  synergy?: SynergyState;
 }
 
 function serializeState(state: GameState): SerializedGameState {
@@ -72,6 +74,8 @@ function serializeState(state: GameState): SerializedGameState {
     activeEvents: state.activeEvents,
     // Golden cheese system
     goldenCheese: state.goldenCheese,
+    // Synergy system
+    synergy: state.synergy,
   };
 }
 
@@ -183,6 +187,11 @@ function deserializeState(serialized: SerializedGameState): GameState {
       expiresAt: 0,
       currentReward: null,
       totalCollected: 0,
+    },
+    // Synergy system - default for migration from older saves
+    synergy: serialized.synergy ?? {
+      purchased: [],
+      zoneGeneratorBonuses: {},
     },
   };
 }

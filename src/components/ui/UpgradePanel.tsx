@@ -5,8 +5,10 @@ import { formatNumber } from '../../utils/formatNumber';
 import { playPurchaseSound } from '../../systems/audioSystem';
 import type { Upgrade } from '../../types/game';
 import { generatorRegistry } from '../../domain';
+import { SynergiesPanel } from './SynergiesPanel';
 
-type TabType = 'available' | 'purchased';
+type MainTabType = 'upgrades' | 'synergies';
+type UpgradeTabType = 'available' | 'purchased';
 
 interface UpgradeCardProps {
   upgrade: Upgrade;
@@ -156,8 +158,10 @@ const UpgradeCard = memo(function UpgradeCard({ upgrade, isPurchased, index }: U
 });
 
 export function UpgradePanel() {
-  const [activeTab, setActiveTab] = useState<TabType>('available');
+  const [mainTab, setMainTab] = useState<MainTabType>('upgrades');
+  const [upgradeTab, setUpgradeTab] = useState<UpgradeTabType>('available');
   const { getAvailableUpgrades, getPurchasedUpgrades, getClickMultiplier } = useGameStore();
+  const synergyPurchased = useGameStore((state) => state.synergy.purchased);
 
   const availableUpgrades = getAvailableUpgrades();
   const purchasedUpgrades = getPurchasedUpgrades();
@@ -165,80 +169,114 @@ export function UpgradePanel() {
 
   return (
     <div className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain">
-      {/* Header with click multiplier info */}
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-lg font-bold text-timber-700">Upgrades</h2>
-        {clickMultiplier > 1 && (
-          <span className="text-xs bg-maple-100 text-maple-700 px-2 py-1 rounded border border-maple-200">
-            Click ×{clickMultiplier}
-          </span>
-        )}
-      </div>
-
-      {/* Tabs */}
+      {/* Main Tabs (Upgrades vs Synergies) */}
       <div className="flex gap-1 mb-3">
         <button
-          onClick={() => setActiveTab('available')}
+          onClick={() => setMainTab('upgrades')}
           className={`
             flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
-            ${activeTab === 'available'
+            ${mainTab === 'upgrades'
               ? 'bg-timber-500 text-white border-timber-600'
               : 'bg-timber-100 text-timber-700 border-timber-300 hover:bg-timber-200'
             }
           `}
         >
-          Available ({availableUpgrades.length})
+          Upgrades
         </button>
         <button
-          onClick={() => setActiveTab('purchased')}
+          onClick={() => setMainTab('synergies')}
           className={`
             flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
-            ${activeTab === 'purchased'
+            ${mainTab === 'synergies'
               ? 'bg-timber-500 text-white border-timber-600'
               : 'bg-timber-100 text-timber-700 border-timber-300 hover:bg-timber-200'
             }
           `}
         >
-          Owned ({purchasedUpgrades.length})
+          Synergies ({synergyPurchased.length}/5)
         </button>
       </div>
 
-      {/* Upgrade List */}
-      <div className="flex-1 overflow-y-auto space-y-2 scrollbar-thin">
-        {activeTab === 'available' ? (
-          availableUpgrades.length > 0 ? (
-            availableUpgrades.map((upgrade, index) => (
-              <UpgradeCard
-                key={upgrade.id}
-                upgrade={upgrade}
-                isPurchased={false}
-                index={index}
-              />
-            ))
-          ) : (
-            <div className="text-center text-gray-500 py-8">
-              <p className="text-sm">No upgrades available</p>
-              <p className="text-xs mt-1">Buy more generators to unlock upgrades!</p>
-            </div>
-          )
-        ) : (
-          purchasedUpgrades.length > 0 ? (
-            purchasedUpgrades.map((upgrade, index) => (
-              <UpgradeCard
-                key={upgrade.id}
-                upgrade={upgrade}
-                isPurchased={true}
-                index={index}
-              />
-            ))
-          ) : (
-            <div className="text-center text-gray-500 py-8">
-              <p className="text-sm">No upgrades purchased yet</p>
-              <p className="text-xs mt-1">Buy upgrades to boost your production!</p>
-            </div>
-          )
-        )}
-      </div>
+      {mainTab === 'synergies' ? (
+        <SynergiesPanel />
+      ) : (
+        <>
+          {/* Header with click multiplier info */}
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-lg font-bold text-timber-700">Upgrades</h2>
+            {clickMultiplier > 1 && (
+              <span className="text-xs bg-maple-100 text-maple-700 px-2 py-1 rounded border border-maple-200">
+                Click x{clickMultiplier}
+              </span>
+            )}
+          </div>
+
+          {/* Upgrade Sub-Tabs */}
+          <div className="flex gap-1 mb-3">
+            <button
+              onClick={() => setUpgradeTab('available')}
+              className={`
+                flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
+                ${upgradeTab === 'available'
+                  ? 'bg-timber-400 text-white border-timber-500'
+                  : 'bg-timber-50 text-timber-600 border-timber-200 hover:bg-timber-100'
+                }
+              `}
+            >
+              Available ({availableUpgrades.length})
+            </button>
+            <button
+              onClick={() => setUpgradeTab('purchased')}
+              className={`
+                flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
+                ${upgradeTab === 'purchased'
+                  ? 'bg-timber-400 text-white border-timber-500'
+                  : 'bg-timber-50 text-timber-600 border-timber-200 hover:bg-timber-100'
+                }
+              `}
+            >
+              Owned ({purchasedUpgrades.length})
+            </button>
+          </div>
+
+          {/* Upgrade List */}
+          <div className="flex-1 overflow-y-auto space-y-2 scrollbar-thin">
+            {upgradeTab === 'available' ? (
+              availableUpgrades.length > 0 ? (
+                availableUpgrades.map((upgrade, index) => (
+                  <UpgradeCard
+                    key={upgrade.id}
+                    upgrade={upgrade}
+                    isPurchased={false}
+                    index={index}
+                  />
+                ))
+              ) : (
+                <div className="text-center text-gray-500 py-8">
+                  <p className="text-sm">No upgrades available</p>
+                  <p className="text-xs mt-1">Buy more generators to unlock upgrades!</p>
+                </div>
+              )
+            ) : (
+              purchasedUpgrades.length > 0 ? (
+                purchasedUpgrades.map((upgrade, index) => (
+                  <UpgradeCard
+                    key={upgrade.id}
+                    upgrade={upgrade}
+                    isPurchased={true}
+                    index={index}
+                  />
+                ))
+              ) : (
+                <div className="text-center text-gray-500 py-8">
+                  <p className="text-sm">No upgrades purchased yet</p>
+                  <p className="text-xs mt-1">Buy upgrades to boost your production!</p>
+                </div>
+              )
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

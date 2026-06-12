@@ -21,10 +21,17 @@ import type { GameStore } from '../../types';
  */
 export function computeCps(state: GameStore): Decimal {
   const generatorMultipliers = calculateGeneratorMultipliers(state.upgrades);
+
+  const synergyZoneMultipliers = state.getSynergyZoneGeneratorMultipliers();
+  for (const [generatorId, multiplier] of Object.entries(synergyZoneMultipliers)) {
+    generatorMultipliers[generatorId] = (generatorMultipliers[generatorId] ?? 1) * multiplier;
+  }
+
   const upgradeGlobalMultiplier = calculateGlobalMultiplier(state.upgrades);
   const achievementGlobalMultiplier = calculateAchievementGlobalMultiplier(state.achievements);
   const heroMultiplier = calculateHeroCpsMultiplier(state.heroes, state.party);
-  const formationMultiplier = calculateFormationMultiplier(state.party, state.heroes);
+  const synergyFormationBonus = state.getSynergyFormationBonus();
+  const formationMultiplier = calculateFormationMultiplier(state.party, state.heroes, synergyFormationBonus);
   const prestigeMultiplier = calculatePrestigeProductionMultiplier(state.prestige);
   const ehMultiplier = state.getEhMultiplier();
   const eventMultipliers = state.getEventMultipliers();

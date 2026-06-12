@@ -111,6 +111,9 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
       // Achievement state
       achievements: [],
 
+      // Synergy state - permanent, NOT reset
+      synergy: get().synergy,
+
       // Persistence state
       lastSaved: Date.now(),
       gameStarted: Date.now(),

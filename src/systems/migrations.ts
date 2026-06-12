@@ -3,7 +3,7 @@
  * Each migration transforms data from one version to the next.
  */
 
-export const CURRENT_VERSION = 8;
+export const CURRENT_VERSION = 9;
 
 interface SerializedGameState {
   version?: number;
@@ -153,6 +153,17 @@ const migrations: Migration[] = [
       // No data changes, just version bump
       return data;
     },
+  },
+  {
+    fromVersion: 8,
+    toVersion: 9,
+    migrate: (data) => ({
+      ...data,
+      synergy: data.synergy ?? {
+        purchased: [],
+        zoneGeneratorBonuses: {},
+      },
+    }),
   },
 ];
 

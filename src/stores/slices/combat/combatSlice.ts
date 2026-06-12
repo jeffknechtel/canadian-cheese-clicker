@@ -63,8 +63,11 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     if (!state.combat.isInCombat || state.combat.battleResult !== 'ongoing') return;
 
     const partyStats = state.getPartyStats();
+    const synergyDamageBonus = state.getSynergyBuffCombatDamageBonus();
+    const heroDamageMultiplier = 1 + synergyDamageBonus;
+
     const battle = Battle.from(state.combat);
-    const { battle: updated, logs } = battle.tick(deltaMs, partyStats);
+    const { battle: updated, logs } = battle.tick(deltaMs, partyStats, heroDamageMultiplier);
 
     if (logs.length > 0 || updated.result !== state.combat.battleResult) {
       set({
@@ -93,6 +96,8 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
         };
 
         const isBoss = isBossStage(zoneId, stageNumber);
+        const isFirstBossDefeat = isBoss && !currentProgress.bossDefeated;
+
         const newProgress = {
           ...currentProgress,
           highestStageCleared: Math.max(currentProgress.highestStageCleared, stageNumber),
@@ -106,6 +111,10 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
             [zoneId]: newProgress,
           },
         });
+
+        if (isFirstBossDefeat) {
+          get().assignZoneGeneratorBonus(zoneId);
+        }
 
         // Check for zone/boss achievements after updating progress
         get().checkAchievements();

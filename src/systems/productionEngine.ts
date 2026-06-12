@@ -232,7 +232,8 @@ export function calculateHeroCpsMultiplier(
  */
 export function calculateFormationMultiplier(
   party: PartyFormation,
-  heroes: Record<string, HeroState>
+  heroes: Record<string, HeroState>,
+  synergyFormationBonus?: number | null
 ): number {
   let bonus = 0;
 
@@ -244,7 +245,7 @@ export function calculateFormationMultiplier(
     const hero = heroRegistry.get(heroId);
     if (hero?.class === 'tank') {
       bonus += FORMATION_TANK_FRONT_BONUS;
-      break; // Only count once
+      break;
     }
   }
 
@@ -256,14 +257,18 @@ export function calculateFormationMultiplier(
     const hero = heroRegistry.get(heroId);
     if (hero?.class === 'healer') {
       bonus += FORMATION_HEALER_BACK_BONUS;
-      break; // Only count once
+      break;
     }
   }
 
   // Check for full party
   const partySize = [...frontHeroes, ...backHeroes].length;
   if (partySize === 4) {
-    bonus += FORMATION_FULL_PARTY_BONUS;
+    if (synergyFormationBonus !== null && synergyFormationBonus !== undefined) {
+      bonus += synergyFormationBonus;
+    } else {
+      bonus += FORMATION_FULL_PARTY_BONUS;
+    }
   }
 
   // Verify heroes exist in heroes record (prevent phantom bonuses)
