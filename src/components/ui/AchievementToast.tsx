@@ -225,9 +225,12 @@ export function AchievementToastContainer() {
 
   if (toasts.length === 0) return null;
 
+  // Limit visible toasts to prevent overflow
+  const visibleToasts = toasts.slice(-3);
+
   return (
-    <div className="fixed top-20 right-4 z-40 flex flex-col gap-3 max-w-sm w-full pointer-events-none">
-      {toasts.map((toast) => (
+    <div className="fixed top-20 right-4 z-40 flex flex-col gap-3 max-w-sm w-full max-h-[calc(100vh-10rem)] overflow-hidden pointer-events-none">
+      {visibleToasts.map((toast) => (
         <div key={toast.id} className="pointer-events-auto">
           <AchievementToastItem item={toast} onDismiss={removeToast} />
         </div>
