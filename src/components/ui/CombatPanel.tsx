@@ -1,11 +1,18 @@
 import { useCallback, useState, useEffect, memo } from 'react';
 import { useGameStore } from '../../stores';
+import { useSettingsStore } from '../../stores/settingsStore';
 import { getHeroAbility, heroHasLimitBreak } from '../../data/heroes';
 import { heroRegistry, zoneRegistry } from '../../domain';
 import { CombatATBBar, LimitBreakGauge } from './CombatATBBar';
 import { EnemyDisplay } from './EnemyDisplay';
 import { CompactCombatLog } from './CombatLog';
 import { HeroAbilityButton } from './HeroAbilityButton';
+import {
+  DamageNumberContainer,
+  FlashOverlay,
+  ComboCounter,
+  CombatResultBanner,
+} from './CombatFeedback';
 import { announce } from '../../systems/accessibilityAnnouncer';
 import { ATB_MAX, LIMIT_BREAK_MAX, HP_LOW_THRESHOLD, HP_MEDIUM_THRESHOLD } from '../../systems/combatEngine';
 import type { HeroCombatState } from '../../types/game';
@@ -20,6 +27,7 @@ const HeroCombatCard = memo(function HeroCombatCard({ heroState, isSelected = fa
   const hero = heroRegistry.get(heroState.heroId);
   const ability = getHeroAbility(heroState.heroId);
   const battleResult = useGameStore((state) => state.combat.battleResult);
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
   if (!hero) return null;
 
@@ -93,7 +101,7 @@ const HeroCombatCard = memo(function HeroCombatCard({ heroState, isSelected = fa
           >
             {hero.name}
             {isReady && heroState.isAlive && (
-              <span className={`ml-1 text-xs bg-cheddar-100 text-cheddar-700 px-1 rounded ${!useGameStore.getState().settings.reducedMotion ? 'animate-pulse' : ''}`} aria-hidden="true">
+              <span className={`ml-1 text-xs bg-cheddar-100 text-cheddar-700 px-1 rounded ${!reducedMotion ? 'animate-pulse' : ''}`} aria-hidden="true">
                 READY
               </span>
             )}
@@ -225,6 +233,8 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
   const combat = useGameStore((state) => state.combat);
   const setCombatSpeed = useGameStore((state) => state.setCombatSpeed);
   const canUseHeroAbility = useGameStore((state) => state.canUseHeroAbility);
+  const feedback = useGameStore((state) => state.combat.feedback);
+  const removeDamageNumber = useGameStore((state) => state.removeDamageNumber);
 
   // Track selected hero for keyboard navigation
   const [selectedHeroIndex, setSelectedHeroIndex] = useState(0);
@@ -390,9 +400,14 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
       ? 'Victory'
       : 'Defeat';
 
+  // Shake class for screen shake effect
+  const shakeClass = feedback?.shakeIntensity
+    ? `animate-shake-${feedback.shakeIntensity}`
+    : '';
+
   return (
     <section
-      className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain focus:outline-none focus:ring-2 focus:ring-cheddar-400"
+      className={`relative p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain focus:outline-none focus:ring-2 focus:ring-cheddar-400 ${shakeClass}`}
       aria-labelledby="combat-heading"
       aria-describedby="battle-status"
       tabIndex={0}
@@ -525,6 +540,27 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
           <span aria-hidden="true">🏃</span> Flee (Sorry!)
         </button>
       </div>
+
+      {/* Combat Feedback Overlays */}
+      {feedback && (
+        <>
+          <FlashOverlay
+            isFlashing={feedback.isFlashing}
+            color={feedback.flashColor || 'red'}
+          />
+          <DamageNumberContainer
+            numbers={feedback.damageNumbers}
+            onRemove={removeDamageNumber}
+          />
+          <ComboCounter
+            count={feedback.comboCount}
+            maxCombo={feedback.maxCombo}
+          />
+          {combat.battleResult && combat.battleResult !== 'ongoing' && (
+            <CombatResultBanner result={combat.battleResult} />
+          )}
+        </>
+      )}
     </section>
   );
 }

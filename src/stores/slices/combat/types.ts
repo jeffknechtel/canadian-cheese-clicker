@@ -1,5 +1,6 @@
 import type {
   CombatState,
+  CombatFeedbackState,
   ZoneProgress,
   CombatRewards,
 } from '../../../types/game';
@@ -21,6 +22,14 @@ export interface CombatSliceActions {
   claimCombatRewards: () => CombatRewards | null;
   getZoneProgress: (zoneId: string) => ZoneProgress | undefined;
   getPrestigeCombatReset: () => CombatSliceState;
+  // Feedback actions
+  addDamageNumber: (damage: CombatFeedbackState['damageNumbers'][0]) => void;
+  removeDamageNumber: (id: string) => void;
+  incrementCombo: () => void;
+  resetCombo: () => void;
+  triggerFlash: (color: 'red' | 'gold' | 'green') => void;
+  triggerShake: (intensity: 'light' | 'medium' | 'heavy') => void;
+  resetFeedback: () => void;
 }
 
 export type CombatSlice = CombatSliceState & CombatSliceActions;

@@ -303,6 +303,21 @@ export type FormationPosition =
 
 // ===== Combat System Types =====
 
+export interface CombatFeedbackState {
+  damageNumbers: Array<{
+    id: string;
+    value: number;
+    type: 'damage' | 'heal' | 'crit' | 'miss' | 'block';
+    x: number;
+    y: number;
+  }>;
+  comboCount: number;
+  maxCombo: number;
+  isFlashing: boolean;
+  flashColor: 'red' | 'gold' | 'green' | null;
+  shakeIntensity: 'light' | 'medium' | 'heavy' | null;
+}
+
 export interface CombatState {
   isInCombat: boolean;
   currentZone: string | null;
@@ -313,6 +328,7 @@ export interface CombatState {
   combatSpeed: 1 | 2 | 4;
   limitBreakGauge: number; // 0-100
   battleResult: 'ongoing' | 'victory' | 'defeat' | null;
+  feedback: CombatFeedbackState;
 }
 
 export interface HeroCombatState {
