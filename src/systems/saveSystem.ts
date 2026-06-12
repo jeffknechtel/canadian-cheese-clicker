@@ -262,11 +262,15 @@ export interface OfflineProgress {
 
 export function calculateOfflineProgress(
   curdPerSecond: Decimal,
-  lastSaved: number
+  lastSaved: number,
+  offlineProgressCapHours?: number
 ): OfflineProgress {
   const now = Date.now();
   const elapsedMs = now - lastSaved;
-  const elapsedSeconds = Math.min(elapsedMs / 1000, MAX_OFFLINE_SECONDS);
+  const capSeconds = offlineProgressCapHours !== undefined
+    ? offlineProgressCapHours * 60 * 60
+    : MAX_OFFLINE_SECONDS;
+  const elapsedSeconds = Math.min(elapsedMs / 1000, capSeconds);
 
   // Only award offline progress if away for more than 1 minute
   if (elapsedSeconds < 60) {

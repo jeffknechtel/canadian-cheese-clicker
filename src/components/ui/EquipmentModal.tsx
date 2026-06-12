@@ -1,10 +1,10 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useGameStore } from '../../stores';
-import { useSettingsStore } from '../../stores/settingsStore';
 import { getEquipmentBySlot } from '../../data/equipment';
 import { heroRegistry, equipmentRegistry } from '../../domain';
 import { formatNumber } from '../../utils/formatNumber';
 import { playPurchaseSound } from '../../systems/audioSystem';
+import { ModalOverlay } from './shared/ModalOverlay';
 import type { EquipmentSlot, Equipment } from '../../types/game';
 
 const SLOT_LABELS: Record<EquipmentSlot, string> = {
@@ -157,7 +157,6 @@ export function EquipmentModal({ heroId, slot, onClose }: EquipmentModalProps) {
   const buyEquipment = useGameStore((state) => state.buyEquipment);
   const equipItem = useGameStore((state) => state.equipItem);
   const unequipItem = useGameStore((state) => state.unequipItem);
-  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
   const hero = heroRegistry.get(heroId);
   const heroState = heroes[heroId];
@@ -216,18 +215,12 @@ export function EquipmentModal({ heroId, slot, onClose }: EquipmentModalProps) {
   }
 
   return (
-    <div
-      className={`fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/50 ${!reducedMotion ? 'animate-backdrop-in' : ''}`}
-      onClick={onClose}
-    >
-      <div
-        className={`bg-white rounded-lg shadow-xl max-w-md w-full min-w-[320px] max-h-[80vh] flex flex-col panel-wood-solid ${!reducedMotion ? 'animate-modal-in' : ''}`}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <ModalOverlay isOpen={true} onClose={onClose} ariaLabelledBy="equipment-modal-title" className="z-60">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full min-w-[320px] max-h-[80vh] flex flex-col panel-wood-solid">
         {/* Header */}
         <div className="p-4 border-b border-timber-200">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-timber-700 flex items-center gap-2">
+            <h3 id="equipment-modal-title" className="font-bold text-timber-700 flex items-center gap-2">
               <span>{hero.icon}</span>
               <span>{hero.name}'s {SLOT_LABELS[slot]}</span>
             </h3>
@@ -307,6 +300,6 @@ export function EquipmentModal({ heroId, slot, onClose }: EquipmentModalProps) {
           </button>
         </div>
       </div>
-    </div>
+    </ModalOverlay>
   );
 }

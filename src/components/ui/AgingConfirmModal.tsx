@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useGameStore } from '../../stores';
+import { useSettingsStore } from '../../stores/settingsStore';
 import { formatNumber } from '../../utils/formatNumber';
 import { getPrestigeDialogue } from '../../data/canadianDialogue';
+import { ModalOverlay } from './shared/ModalOverlay';
 import Decimal from 'decimal.js';
 
 interface AgingConfirmModalProps {
@@ -10,8 +12,8 @@ interface AgingConfirmModalProps {
 }
 
 export function AgingConfirmModal({ onConfirm, onCancel }: AgingConfirmModalProps) {
-  const { curds, generators, upgrades, prestige, getPotentialRennet, getPrestigeMultipliers, settings } = useGameStore();
-  const { reducedMotion } = settings;
+  const { curds, generators, upgrades, prestige, getPotentialRennet, getPrestigeMultipliers } = useGameStore();
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
   const potentialRennet = getPotentialRennet();
   const currentMultipliers = getPrestigeMultipliers();
@@ -23,22 +25,13 @@ export function AgingConfirmModal({ onConfirm, onCancel }: AgingConfirmModalProp
   // Random Canadian message from dialogue system - stable across renders
   const [agingMessage] = useState(() => getPrestigeDialogue('beforeAging'));
 
-  // Animation state for modal entrance
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    // Trigger entrance animation
-    const timer = setTimeout(() => setIsVisible(true), 10);
-    return () => clearTimeout(timer);
-  }, []);
-
   // Count generators
   const totalGenerators = Object.values(generators).reduce((sum, count) => sum + count, 0);
 
   return (
-    <div className={`fixed inset-0 bg-black/50 flex items-center justify-center z-50 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-      <div className={`bg-white panel-wood-solid border-4 border-amber-500 rounded-lg p-6 max-w-lg mx-4 shadow-2xl transform transition-all duration-300 ${isVisible ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}`}>
-        <h2 className="text-2xl font-bold text-amber-700 mb-2 text-center flex items-center justify-center gap-2">
+    <ModalOverlay isOpen={true} onClose={onCancel} ariaLabelledBy="aging-modal-title">
+      <div className="bg-white panel-wood-solid border-4 border-amber-500 rounded-lg p-6 max-w-lg mx-4 shadow-2xl">
+        <h2 id="aging-modal-title" className="text-2xl font-bold text-amber-700 mb-2 text-center flex items-center justify-center gap-2">
           <span className={!reducedMotion ? 'animate-pulse' : ''}>🧀</span>
           Age Your Empire
           <span className={!reducedMotion ? 'animate-pulse' : ''}>🧀</span>
@@ -109,6 +102,6 @@ export function AgingConfirmModal({ onConfirm, onCancel }: AgingConfirmModalProp
           </button>
         </div>
       </div>
-    </div>
+    </ModalOverlay>
   );
 }

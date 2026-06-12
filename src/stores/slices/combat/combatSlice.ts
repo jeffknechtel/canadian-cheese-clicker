@@ -22,6 +22,11 @@ import {
   playDefeatJingle,
   playAbilitySound,
   playLimitBreakSound,
+  playAttackSound,
+  playEnemyDefeatSound,
+  playHealSound,
+  playBuffSound,
+  playDebuffSound,
 } from '../../../systems/audioSystem';
 
 export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
@@ -67,16 +72,34 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     const heroDamageMultiplier = 1 + synergyDamageBonus;
 
     const battle = Battle.from(state.combat);
-    const { battle: updated, logs } = battle.tick(deltaMs, partyStats, heroDamageMultiplier);
+    const { battle: updated, logs, audioEvents } = battle.tick(deltaMs, partyStats, heroDamageMultiplier);
 
-    if (logs.length > 0 || updated.result !== state.combat.battleResult) {
-      set({
-        combat: {
-          ...updated.toState(),
-          combatLog: [...state.combat.combatLog, ...logs].slice(-COMBAT_LOG_MAX_ENTRIES),
-        },
-      });
+    for (const event of audioEvents) {
+      switch (event.type) {
+        case 'attack':
+          playAttackSound(event.variant);
+          break;
+        case 'enemyDefeat':
+          playEnemyDefeatSound();
+          break;
+        case 'heal':
+          playHealSound();
+          break;
+        case 'buff':
+          playBuffSound();
+          break;
+        case 'debuff':
+          playDebuffSound();
+          break;
+      }
     }
+
+    set({
+      combat: {
+        ...updated.toState(),
+        combatLog: [...state.combat.combatLog, ...logs].slice(-COMBAT_LOG_MAX_ENTRIES),
+      },
+    });
   },
 
   endCombat: (result: 'victory' | 'defeat' | 'flee') => {
