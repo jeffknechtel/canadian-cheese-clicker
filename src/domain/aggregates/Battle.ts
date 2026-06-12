@@ -14,6 +14,14 @@ export type CombatAudioEvent =
   | { type: 'heal' }
   | { type: 'buff' }
   | { type: 'debuff' };
+
+export type CombatFeedbackEvent =
+  | { type: 'damage'; target: 'hero' | 'enemy'; slotIndex: number; value: number; damageType: 'damage' | 'crit' | 'miss' | 'block' }
+  | { type: 'heal'; target: 'hero' | 'enemy'; slotIndex: number; value: number }
+  | { type: 'comboHit' }
+  | { type: 'comboBreak' }
+  | { type: 'flash'; color: 'red' | 'gold' | 'green' }
+  | { type: 'shake'; intensity: 'light' | 'medium' | 'heavy' };
 import {
   updateAtbGauge,
   calculateDamage,
@@ -38,6 +46,7 @@ export interface BattleTickResult {
   battle: Battle;
   logs: readonly CombatLogEntry[];
   audioEvents: readonly CombatAudioEvent[];
+  feedbackEvents: readonly CombatFeedbackEvent[];
 }
 
 export interface BattleAbilityResult {
@@ -152,12 +161,13 @@ export class Battle {
    */
   tick(deltaMs: number, partyStats: Record<string, HeroStats>, heroDamageMultiplier = 1): BattleTickResult {
     if (!this.isActive) {
-      return { battle: this, logs: [], audioEvents: [] };
+      return { battle: this, logs: [], audioEvents: [], feedbackEvents: [] };
     }
 
     const deltaSeconds = deltaMs / 1000;
     const logs: CombatLogEntry[] = [];
     const audioEvents: CombatAudioEvent[] = [];
+    const feedbackEvents: CombatFeedbackEvent[] = [];
     let damageDealt = 0;
     let damageTaken = 0;
 
@@ -173,15 +183,15 @@ export class Battle {
     this.#advanceEnemyAtb(enemies, deltaSeconds);
 
     // Phase 3: Execute hero actions
-    const heroActionResult = this.#executeHeroActions(heroStates, enemies, partyStats, logs, audioEvents, heroDamageMultiplier);
+    const heroActionResult = this.#executeHeroActions(heroStates, enemies, partyStats, logs, audioEvents, feedbackEvents, heroDamageMultiplier);
     damageDealt += heroActionResult.damageDealt;
 
     // Phase 4: Execute enemy actions
-    const enemyActionResult = this.#executeEnemyActions(enemies, heroStates, partyStats, logs, audioEvents);
+    const enemyActionResult = this.#executeEnemyActions(enemies, heroStates, partyStats, logs, audioEvents, feedbackEvents);
     damageTaken += enemyActionResult.damageTaken;
 
     // Phase 5: Process hero status effects
-    const heroStatusResult = this.#processHeroStatusEffects(heroStates, logs, audioEvents);
+    const heroStatusResult = this.#processHeroStatusEffects(heroStates, logs, audioEvents, feedbackEvents);
     damageTaken += heroStatusResult.damageTaken;
 
     // Phase 6: Process enemy status effects
@@ -209,6 +219,7 @@ export class Battle {
       battle: new Battle(newState, logs),
       logs,
       audioEvents,
+      feedbackEvents,
     };
   }
 
@@ -362,6 +373,7 @@ export class Battle {
     partyStats: Record<string, HeroStats>,
     logs: CombatLogEntry[],
     audioEvents: CombatAudioEvent[],
+    feedbackEvents: CombatFeedbackEvent[],
     heroDamageMultiplier = 1
   ): { damageDealt: number } {
     let damageDealt = 0;
@@ -401,6 +413,24 @@ export class Battle {
 
       audioEvents.push({ type: 'attack', variant: 'physical' });
 
+      // Emit feedback events
+      const enemyIndex = enemies.indexOf(target);
+      const isCrit = damage > effectiveAttack * 1.5;
+      feedbackEvents.push({
+        type: 'damage',
+        target: 'enemy',
+        slotIndex: enemyIndex,
+        value: damage,
+        damageType: isCrit ? 'crit' : 'damage',
+      });
+      feedbackEvents.push({ type: 'comboHit' });
+      if (isCrit) {
+        feedbackEvents.push({ type: 'flash', color: 'gold' });
+        feedbackEvents.push({ type: 'shake', intensity: 'medium' });
+      } else {
+        feedbackEvents.push({ type: 'shake', intensity: 'light' });
+      }
+
       logs.push({
         timestamp: Date.now(),
         type: 'attack',
@@ -435,7 +465,8 @@ export class Battle {
     heroStates: Record<string, HeroCombatState>,
     partyStats: Record<string, HeroStats>,
     logs: CombatLogEntry[],
-    audioEvents: CombatAudioEvent[]
+    audioEvents: CombatAudioEvent[],
+    feedbackEvents: CombatFeedbackEvent[]
   ): { damageTaken: number } {
     let damageTaken = 0;
 
@@ -482,6 +513,17 @@ export class Battle {
 
           const heroDef = heroRegistry.get(heroState.heroId);
 
+          // Emit feedback events for AoE damage
+          const heroIds = Object.keys(heroStates);
+          const heroIndex = heroIds.indexOf(heroState.heroId);
+          feedbackEvents.push({
+            type: 'damage',
+            target: 'hero',
+            slotIndex: heroIndex,
+            value: damage,
+            damageType: 'damage',
+          });
+
           logs.push({
             timestamp: Date.now(),
             type: 'attack',
@@ -502,6 +544,10 @@ export class Battle {
             });
           }
         }
+        // AoE attack completed - emit combo break and screen effects
+        feedbackEvents.push({ type: 'comboBreak' });
+        feedbackEvents.push({ type: 'flash', color: 'red' });
+        feedbackEvents.push({ type: 'shake', intensity: 'heavy' });
       } else {
         // Single target (existing logic)
         const target = selectHeroTarget(heroStates);
@@ -518,6 +564,21 @@ export class Battle {
         damageTaken += damage;
 
         const heroDef = heroRegistry.get(target.heroId);
+
+        // Emit feedback events for single-target damage
+        const heroIds = Object.keys(heroStates);
+        const heroIndex = heroIds.indexOf(target.heroId);
+        const isBigHit = damage > effectiveAttack * 1.5;
+        feedbackEvents.push({
+          type: 'damage',
+          target: 'hero',
+          slotIndex: heroIndex,
+          value: damage,
+          damageType: isBigHit ? 'crit' : 'damage',
+        });
+        feedbackEvents.push({ type: 'comboBreak' });
+        feedbackEvents.push({ type: 'flash', color: 'red' });
+        feedbackEvents.push({ type: 'shake', intensity: isBigHit ? 'heavy' : 'medium' });
 
         logs.push({
           timestamp: Date.now(),
@@ -638,11 +699,13 @@ export class Battle {
   #processHeroStatusEffects(
     heroStates: Record<string, HeroCombatState>,
     logs: CombatLogEntry[],
-    audioEvents: CombatAudioEvent[]
+    audioEvents: CombatAudioEvent[],
+    feedbackEvents: CombatFeedbackEvent[]
   ): { damageTaken: number } {
     let damageTaken = 0;
+    const heroIds = Object.keys(heroStates);
 
-    for (const heroId of Object.keys(heroStates)) {
+    for (const heroId of heroIds) {
       const heroState = heroStates[heroId];
       if (!heroState.isAlive || heroState.statusEffects.length === 0) continue;
 
@@ -660,6 +723,14 @@ export class Battle {
       }
 
       if (result.healing > 0) {
+        const heroIndex = heroIds.indexOf(heroId);
+        feedbackEvents.push({
+          type: 'heal',
+          target: 'hero',
+          slotIndex: heroIndex,
+          value: result.healing,
+        });
+        feedbackEvents.push({ type: 'flash', color: 'green' });
         audioEvents.push({ type: 'heal' });
       }
 

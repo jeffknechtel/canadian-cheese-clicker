@@ -29,6 +29,20 @@ import {
   playDebuffSound,
 } from '../../../systems/audioSystem';
 
+function getGridPosition(target: 'hero' | 'enemy', slotIndex: number): { x: number; y: number } {
+  if (target === 'hero') {
+    return {
+      x: 20 + (slotIndex % 2) * 5,
+      y: 15 + slotIndex * 18,
+    };
+  } else {
+    return {
+      x: 75 + (slotIndex % 2) * 5,
+      y: 20 + slotIndex * 12,
+    };
+  }
+}
+
 export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
   // State - use factory for initial
   combat: createEmptyCombatState(),
@@ -72,7 +86,7 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     const heroDamageMultiplier = 1 + synergyDamageBonus;
 
     const battle = Battle.from(state.combat);
-    const { battle: updated, logs, audioEvents } = battle.tick(deltaMs, partyStats, heroDamageMultiplier);
+    const { battle: updated, logs, audioEvents, feedbackEvents } = battle.tick(deltaMs, partyStats, heroDamageMultiplier);
 
     for (const event of audioEvents) {
       switch (event.type) {
@@ -90,6 +104,36 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
           break;
         case 'debuff':
           playDebuffSound();
+          break;
+      }
+    }
+
+    // Process feedback events
+    for (const event of feedbackEvents) {
+      switch (event.type) {
+        case 'damage':
+        case 'heal': {
+          const { x, y } = getGridPosition(event.target, event.slotIndex);
+          get().addDamageNumber({
+            id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+            value: event.value,
+            type: event.type === 'heal' ? 'heal' : event.damageType,
+            x,
+            y,
+          });
+          break;
+        }
+        case 'comboHit':
+          get().incrementCombo();
+          break;
+        case 'comboBreak':
+          get().resetCombo();
+          break;
+        case 'flash':
+          get().triggerFlash(event.color);
+          break;
+        case 'shake':
+          get().triggerShake(event.intensity);
           break;
       }
     }
@@ -292,5 +336,130 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
 
   getZoneProgress: (zoneId: string) => {
     return get().zoneProgress[zoneId];
+  },
+
+  // Feedback actions
+  addDamageNumber: (damage) => {
+    const state = get();
+    set({
+      combat: {
+        ...state.combat,
+        feedback: {
+          ...state.combat.feedback,
+          damageNumbers: [...state.combat.feedback.damageNumbers, damage].slice(-20),
+        },
+      },
+    });
+  },
+
+  removeDamageNumber: (id) => {
+    const state = get();
+    set({
+      combat: {
+        ...state.combat,
+        feedback: {
+          ...state.combat.feedback,
+          damageNumbers: state.combat.feedback.damageNumbers.filter((d) => d.id !== id),
+        },
+      },
+    });
+  },
+
+  incrementCombo: () => {
+    const state = get();
+    const newCombo = state.combat.feedback.comboCount + 1;
+    set({
+      combat: {
+        ...state.combat,
+        feedback: {
+          ...state.combat.feedback,
+          comboCount: newCombo,
+          maxCombo: Math.max(state.combat.feedback.maxCombo, newCombo),
+        },
+      },
+    });
+  },
+
+  resetCombo: () => {
+    const state = get();
+    set({
+      combat: {
+        ...state.combat,
+        feedback: {
+          ...state.combat.feedback,
+          comboCount: 0,
+        },
+      },
+    });
+  },
+
+  triggerFlash: (color) => {
+    const state = get();
+    set({
+      combat: {
+        ...state.combat,
+        feedback: {
+          ...state.combat.feedback,
+          isFlashing: true,
+          flashColor: color,
+        },
+      },
+    });
+    setTimeout(() => {
+      const current = get();
+      set({
+        combat: {
+          ...current.combat,
+          feedback: {
+            ...current.combat.feedback,
+            isFlashing: false,
+            flashColor: null,
+          },
+        },
+      });
+    }, 150);
+  },
+
+  triggerShake: (intensity) => {
+    const state = get();
+    set({
+      combat: {
+        ...state.combat,
+        feedback: {
+          ...state.combat.feedback,
+          shakeIntensity: intensity,
+        },
+      },
+    });
+    const duration = intensity === 'light' ? 150 : intensity === 'medium' ? 300 : 500;
+    setTimeout(() => {
+      const current = get();
+      set({
+        combat: {
+          ...current.combat,
+          feedback: {
+            ...current.combat.feedback,
+            shakeIntensity: null,
+          },
+        },
+      });
+    }, duration);
+  },
+
+  resetFeedback: () => {
+    const state = get();
+    set({
+      combat: {
+        ...state.combat,
+        feedback: {
+          damageNumbers: [],
+          comboCount: 0,
+          maxCombo: 0,
+          isFlashing: false,
+          flashColor: null,
+          shakeIntensity: null,
+        },
+      },
+    });
   },
 });

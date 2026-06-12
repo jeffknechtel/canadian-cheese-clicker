@@ -175,6 +175,14 @@ function deserializeState(serialized: SerializedGameState): GameState {
       combatSpeed: 1,
       limitBreakGauge: 0,
       battleResult: null,
+      feedback: {
+        damageNumbers: [],
+        comboCount: 0,
+        maxCombo: 0,
+        isFlashing: false,
+        flashColor: null,
+        shakeIntensity: null,
+      },
     },
     // Restore zone progress from save or start fresh
     zoneProgress: serialized.zoneProgress || {},
