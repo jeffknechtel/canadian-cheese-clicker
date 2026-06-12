@@ -25,7 +25,7 @@ export function ActiveBuffsBar() {
   }
 
   return (
-    <div className="flex flex-wrap gap-1">
+    <div className="flex flex-wrap gap-1 max-h-16 overflow-y-auto max-w-48">
       {activeBuffs.map((buff) => (
         <BuffChip key={buff.id} buff={buff} currentTime={currentTime} />
       ))}
