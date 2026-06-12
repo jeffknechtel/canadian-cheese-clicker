@@ -168,6 +168,9 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     const ingredientQualityBonus = calculateIngredientQualityBonus(ingredients);
     const qualityBonus = cave.qualityBonus + ingredientQualityBonus;
 
+    const craftingSpeedMultiplier = state.getSynergyCraftingSpeedMultiplier();
+    const actualDuration = Math.floor(recipe.agingDuration * craftingSpeedMultiplier);
+
     // Use callback form to atomically check balance and deduct
     let success = false;
     set((s) => {
@@ -188,7 +191,7 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
         recipeId,
         caveId,
         startTime: now,
-        endTime: now + recipe.agingDuration,
+        endTime: now + actualDuration,
         ingredients,
         qualityBonus,
         interactions: [],

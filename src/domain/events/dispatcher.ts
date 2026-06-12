@@ -35,7 +35,9 @@ export type DomainEvent =
   | { type: 'AchievementUnlocked'; achievement: Achievement }
   // Event system events
   | { type: 'SeasonalEventActivated'; eventId: string }
-  | { type: 'SeasonalEventDeactivated'; eventId: string };
+  | { type: 'SeasonalEventDeactivated'; eventId: string }
+  // Synergy events
+  | { type: 'SynergyPurchased'; synergyId: string };
 
 type EventHandler<T extends DomainEvent['type']> = (
   event: Extract<DomainEvent, { type: T }>

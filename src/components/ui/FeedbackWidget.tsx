@@ -88,6 +88,7 @@ export function FeedbackWidget({ className = '' }: FeedbackWidgetProps) {
         crafting: state.crafting,
         activeEvents: state.activeEvents,
         goldenCheese: state.goldenCheese,
+        synergy: state.synergy,
       };
       const report = createBugReport(description, category, gameState, screenshot);
       const result = await submitBugReport(report);

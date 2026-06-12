@@ -131,6 +131,23 @@ export const EH_DIVISOR = 100;
 /** Bonus multiplier per Eh tier (1% = 0.01) */
 export const EH_BONUS_PER_TIER = 0.01;
 
+// ===== Synergy Balance =====
+
+/** Synergy: Additional Eh bonus per tier when "The Canadian Way" purchased */
+export const SYNERGY_EH_BONUS_ADDITION = 0.01;
+
+/** Synergy: Generator bonus per zone cleared for "Battle-Hardened Vats" */
+export const SYNERGY_ZONE_GENERATOR_BONUS = 0.05;
+
+/** Synergy: Combat damage bonus when buffs active for "Cheese-Fueled Warriors" */
+export const SYNERGY_BUFF_COMBAT_DAMAGE = 0.25;
+
+/** Synergy: Affinity divisor for crafting speed for "Fromage Affinity" */
+export const SYNERGY_AFFINITY_CRAFTING_DIVISOR = 10;
+
+/** Synergy: Full party formation bonus for "Combat Harmony" (replaces base +10%) */
+export const SYNERGY_FULL_PARTY_FORMATION_BONUS = 0.25;
+
 // ===== Offline Progress =====
 
 /** Maximum offline progress in seconds (8 hours) */
