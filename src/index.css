@@ -50,6 +50,9 @@
   --color-snow: #f8fafc;
   --color-ice: #e0f2fe;
 
+  /* ===== Custom Fonts ===== */
+  --font-display: 'Righteous', cursive;
+
   /* ===== Custom Animations ===== */
   --animate-float: float 2s ease-in-out infinite;
   --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
@@ -145,6 +148,10 @@
 @layer utilities {
   .transition-smooth {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .font-display {
+    font-family: var(--font-display);
   }
 }
 

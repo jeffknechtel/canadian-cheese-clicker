@@ -88,7 +88,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 text-white bg-gradient-to-r from-cheddar-500 to-cheddar-600">
-          <h2 className="text-xl font-bold flex items-center gap-2">
+          <h2 className="text-xl font-bold flex items-center gap-2 font-display">
             <span className="text-2xl">&#9881;</span>
             Settings
           </h2>

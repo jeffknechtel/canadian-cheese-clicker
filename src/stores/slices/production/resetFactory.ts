@@ -15,6 +15,7 @@ export interface ProductionResetState {
   curdPerClick: Decimal;
   curdPerSecond: Decimal;
   currencyAnimationTrigger: number;
+  lastClickWasCrit: boolean;
 }
 
 export function createInitialProductionState(): ProductionResetState {
@@ -28,6 +29,7 @@ export function createInitialProductionState(): ProductionResetState {
     curdPerClick: new Decimal(1),
     curdPerSecond: new Decimal(0),
     currencyAnimationTrigger: 0,
+    lastClickWasCrit: false,
   };
 }
 
@@ -44,5 +46,6 @@ export function createPrestigeProductionState(
     curdPerClick: new Decimal(1),
     curdPerSecond: new Decimal(0),
     currencyAnimationTrigger: 0,
+    lastClickWasCrit: false,
   };
 }

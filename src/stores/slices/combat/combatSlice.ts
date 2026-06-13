@@ -27,7 +27,11 @@ import {
   playHealSound,
   playBuffSound,
   playDebuffSound,
+  setCurrentProvince,
+  startProvinceAmbient,
+  stopAmbientSounds,
 } from '../../../systems/audioSystem';
+import { getZoneById } from '../../../data/zones';
 import {
   vibrateSuccess,
   vibrateLimitBreak,
@@ -78,6 +82,13 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     const isBoss = isBossStage(zoneId, stageNumber);
     trackCombatStart(zoneId, stageNumber, isBoss);
     startCombatMusic(isBoss);
+
+    // Start province ambient audio
+    const zone = getZoneById(zoneId);
+    if (zone) {
+      setCurrentProvince(zone.province);
+      startProvinceAmbient(zone.province);
+    }
 
     return true;
   },
@@ -221,6 +232,8 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
       playDefeatJingle();
     }
     endCombatMusic(result === 'victory');
+    stopAmbientSounds();
+    setCurrentProvince(null);
 
     set({
       combat: {

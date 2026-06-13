@@ -171,6 +171,35 @@ export const MAX_OFFLINE_SECONDS = 8 * 60 * 60;
 /** Maximum number of combat log entries to keep */
 export const COMBAT_LOG_MAX_ENTRIES = 100;
 
+// ===== Cheese Wheel Visual Tiers =====
+
+/** Production milestones that trigger visual evolution of the cheese wheel */
+export const CHEESE_WHEEL_TIERS = [
+  { threshold: 0, texture: 'basic', holes: 0, wedges: 0, glow: false, label: 'Fresh Curd' },
+  { threshold: 1_000, texture: 'aged', holes: 3, wedges: 0, glow: false, label: 'Young Cheese' },
+  { threshold: 100_000, texture: 'mature', holes: 6, wedges: 0, glow: false, label: 'Aged Cheese' },
+  { threshold: 10_000_000, texture: 'vintage', holes: 9, wedges: 1, glow: false, label: 'Vintage Wheel' },
+  { threshold: 1_000_000_000, texture: 'artisan', holes: 12, wedges: 2, glow: true, label: 'Artisan Masterpiece' },
+  { threshold: 1_000_000_000_000, texture: 'legendary', holes: 15, wedges: 4, glow: true, label: 'Legendary Fromage' },
+] as const;
+
+export type CheeseWheelTier = (typeof CHEESE_WHEEL_TIERS)[number];
+export type CheeseTextureType = CheeseWheelTier['texture'];
+
+// ===== Click Critical Hit Mechanics =====
+
+/** Base chance for a click to be a critical hit (5%) */
+export const CLICK_CRIT_BASE_CHANCE = 0.05;
+
+/** Base damage multiplier for critical clicks */
+export const CLICK_CRIT_BASE_MULTIPLIER = 2;
+
+// ===== Buy Milestones =====
+
+/** Generator purchase counts that trigger milestone celebrations */
+export const BUY_MILESTONES = [25, 50, 100, 150, 200, 250, 300, 400, 500] as const;
+export type BuyMilestone = (typeof BUY_MILESTONES)[number];
+
 // ===== Boss Reward Multipliers =====
 
 /** Default multiplier for any boss not in the table */

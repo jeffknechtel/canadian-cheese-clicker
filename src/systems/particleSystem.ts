@@ -180,6 +180,20 @@ export const PARTICLE_PRESETS = {
     rotation: true,
     shape: 'star' as const,
   },
+
+  // Buy milestone fireworks
+  fireworks: {
+    count: 30,
+    colors: ['#FFD700', '#FF6B6B', '#4ECDC4', '#A855F7', '#F97316'],
+    size: 8,
+    lifetime: 1200,
+    velocity: { x: 0, y: -5 },
+    spread: 1,
+    gravity: 120,
+    fadeOut: true,
+    rotation: true,
+    shape: 'star' as const,
+  },
 } as const;
 
 // ===== Utility Functions =====
@@ -329,7 +343,8 @@ export type ParticleEffect =
   | 'rennetFloat'
   | 'healingSparkles'
   | 'damageImpact'
-  | 'limitBreakExplosion';
+  | 'limitBreakExplosion'
+  | 'fireworks';
 
 /**
  * Get preset config by effect name

@@ -1008,6 +1008,42 @@ export function playClickSound(): void {
   }
 }
 
+// Play a powerful crit sound for critical clicks
+export function playCriticalSound(): void {
+  if (!canPlaySound('critical')) return;
+  const volume = getEffectiveSfxVolume();
+  if (volume === 0) return;
+
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === 'suspended') return;
+
+    const now = ctx.currentTime;
+
+    // Rising chord + impact for satisfying crit
+    const freqs = [523.25, 659.25, 783.99]; // C major chord
+    freqs.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now);
+      osc.frequency.exponentialRampToValueAtTime(freq * 1.5, now + 0.1);
+
+      gain.gain.setValueAtTime(volume * 0.4, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+      osc.connect(gain);
+      gain.connect(getSfxBus());
+
+      osc.start(now + i * 0.02);
+      osc.stop(now + 0.4);
+    });
+  } catch {
+    // Silently fail
+  }
+}
+
 // Play a "success" sound for purchases
 export function playPurchaseSound(): void {
   if (!canPlaySound('purchase')) return;
@@ -1190,6 +1226,51 @@ export function playCraftingCompleteSound(): void {
     });
   } catch {
     // Silently fail if audio not available
+  }
+}
+
+// Play generator buy milestone fanfare - scales with milestone size
+export function playBuyMilestoneSound(milestone: number): void {
+  if (!canPlaySound('milestone')) return;
+  const volume = getEffectiveSfxVolume();
+  if (volume === 0) return;
+
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === 'suspended') return;
+
+    const now = ctx.currentTime;
+
+    // Intensity scales with milestone
+    const intensity = Math.min(milestone / 100, 2);
+
+    // Rising arpeggio fanfare
+    const notes = [
+      { freq: 523.25, time: 0 },     // C5
+      { freq: 659.25, time: 0.1 },   // E5
+      { freq: 783.99, time: 0.2 },   // G5
+      { freq: 1046.50, time: 0.3 },  // C6
+    ];
+
+    notes.forEach(({ freq, time }) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+
+      gain.gain.setValueAtTime(0, now + time);
+      gain.gain.linearRampToValueAtTime(volume * 0.3 * intensity, now + time + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + time + 0.4);
+
+      osc.connect(gain);
+      gain.connect(getSfxBus());
+
+      osc.start(now + time);
+      osc.stop(now + time + 0.5);
+    });
+  } catch {
+    // Silently fail
   }
 }
 

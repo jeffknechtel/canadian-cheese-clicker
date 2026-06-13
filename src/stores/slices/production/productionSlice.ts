@@ -25,7 +25,11 @@ import {
   trackGeneratorPurchase,
   trackUpgradePurchase,
 } from '../../../systems/analyticsService';
-import { EH_DIVISOR, EH_BONUS_PER_TIER, UNLOCK_THRESHOLDS } from '../../../data/constants';
+import { EH_DIVISOR, EH_BONUS_PER_TIER, UNLOCK_THRESHOLDS, CLICK_CRIT_BASE_CHANCE, CLICK_CRIT_BASE_MULTIPLIER, BUY_MILESTONES } from '../../../data/constants';
+import { playCriticalSound, playBuyMilestoneSound } from '../../../systems/audioSystem';
+import { vibrateCrit, vibrateSuccess } from '../../../systems/haptics';
+import { emitParticles } from '../../../systems/particleSystem';
+import { announce } from '../../../systems/accessibilityAnnouncer';
 import type { UpgradeRequirement } from '../../../types/game';
 
 function checkRequirement(
@@ -52,6 +56,7 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
   ehCount: 0,
   lastMilestone: 0,
   currencyAnimationTrigger: 0,
+  lastClickWasCrit: false,
 
   // Actions
   click: () => {
@@ -59,13 +64,22 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
     const baseClickValue = state.getClickValue();
     const buffMultipliers = state.getActiveBuffMultipliers();
     const eventMultipliers = state.getEventMultipliers();
-    const clickValue = baseClickValue.mul(buffMultipliers.click).mul(eventMultipliers.click);
+    let clickValue = baseClickValue.mul(buffMultipliers.click).mul(eventMultipliers.click);
+
+    // Roll for critical hit
+    const isCrit = Math.random() < CLICK_CRIT_BASE_CHANCE;
+    if (isCrit) {
+      clickValue = clickValue.mul(CLICK_CRIT_BASE_MULTIPLIER);
+      playCriticalSound();
+      vibrateCrit();
+    }
 
     set({
       curds: state.curds.plus(clickValue),
       totalCurdsEarned: state.totalCurdsEarned.plus(clickValue),
       totalClicks: state.totalClicks + 1,
       currencyAnimationTrigger: state.currencyAnimationTrigger + 1,
+      lastClickWasCrit: isCrit,
     });
     get().incrementChallengeProgress('collectClicks', 1);
     get().checkAchievements();
@@ -106,16 +120,31 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
     }
 
     const currentOwned = state.generators[id] ?? 0;
+    const newOwned = currentOwned + count;
+
+    // Check if we crossed a buy milestone
+    const crossedMilestone = BUY_MILESTONES.find(
+      (m) => currentOwned < m && newOwned >= m
+    );
 
     set({
       curds: state.curds.minus(cost),
-      generators: { ...state.generators, [id]: currentOwned + count },
+      generators: { ...state.generators, [id]: newOwned },
       currencyAnimationTrigger: state.currencyAnimationTrigger + 1,
     });
 
     publish({ type: 'CpsInputsChanged' });
 
-    trackGeneratorPurchase(id, count, currentOwned + count);
+    // Celebrate milestone
+    if (crossedMilestone) {
+      const generator = GENERATORS.find((g) => g.id === id);
+      playBuyMilestoneSound(crossedMilestone);
+      vibrateSuccess();
+      emitParticles(window.innerWidth / 2, window.innerHeight / 3, 'fireworks');
+      announce(`${generator?.name ?? 'Generator'} milestone: ${crossedMilestone}!`, 'polite');
+    }
+
+    trackGeneratorPurchase(id, count, newOwned);
     get().checkAchievements();
 
     return true;

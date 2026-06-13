@@ -38,8 +38,8 @@ export function BetaAgreement({ onAccept, onDecline }: BetaAgreementProps) {
           <div className="flex items-center gap-3">
             <span className="text-3xl">🧀</span>
             <div>
-              <h2 className="text-xl font-bold">Beta Tester Agreement</h2>
-              <p className="text-sm text-white/80">The Great Canadian Cheese Quest v{GAME_VERSION}</p>
+              <h2 className="text-xl font-bold font-display">Beta Tester Agreement</h2>
+              <p className="text-sm text-white/80 font-display">The Great Canadian Cheese Quest v{GAME_VERSION}</p>
             </div>
           </div>
         </div>

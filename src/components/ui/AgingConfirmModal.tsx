@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGameStore } from '../../stores';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { formatNumber } from '../../utils/formatNumber';
 import { getPrestigeDialogue } from '../../data/canadianDialogue';
 import { ModalOverlay } from './shared/ModalOverlay';
+import { startPrestigeMusic, returnToIdleMusic } from '../../systems/audioSystem';
 import Decimal from 'decimal.js';
 
 interface AgingConfirmModalProps {
@@ -42,13 +43,19 @@ export function AgingConfirmModal({ onConfirm, onCancel }: AgingConfirmModalProp
   // Random Canadian message from dialogue system - stable across renders
   const [agingMessage] = useState(() => getPrestigeDialogue('beforeAging'));
 
+  // Start prestige music when modal opens
+  useEffect(() => {
+    startPrestigeMusic();
+    return () => returnToIdleMusic();
+  }, []);
+
   // Count generators
   const totalGenerators = Object.values(generators).reduce((sum, count) => sum + count, 0);
 
   return (
     <ModalOverlay isOpen={true} onClose={onCancel} ariaLabelledBy="aging-modal-title">
       <div className="bg-white panel-wood-solid border-4 border-amber-500 rounded-lg p-6 max-w-lg mx-4 shadow-2xl">
-        <h2 id="aging-modal-title" className="text-2xl font-bold text-amber-700 mb-2 text-center flex items-center justify-center gap-2">
+        <h2 id="aging-modal-title" className="text-2xl font-bold text-amber-700 mb-2 text-center flex items-center justify-center gap-2 font-display">
           <span className={!reducedMotion ? 'animate-pulse' : ''}>🧀</span>
           Age Your Empire
           <span className={!reducedMotion ? 'animate-pulse' : ''}>🧀</span>
