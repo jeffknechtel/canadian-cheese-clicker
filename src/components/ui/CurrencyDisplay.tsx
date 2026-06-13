@@ -34,7 +34,7 @@ export function CurrencyDisplay() {
     <div className="flex flex-col items-end gap-1">
       <div className="flex items-center gap-3">
         <div
-          className="flex items-center gap-2 text-white font-bold text-2xl tabular-nums transition-transform duration-200"
+          className="flex items-center gap-2 text-white font-bold text-2xl tabular-nums transition-transform duration-200 font-display"
         >
           <LoonieIcon />
           {/* aria-label provides accessible name; removed aria-live to prevent screen reader spam on rapid updates */}

@@ -1090,6 +1090,15 @@ export const ZONES: ZoneDefinition[] = [
 
 // ===== Helper Functions =====
 
+const zonesById = new Map(ZONES.map((z) => [z.id, z]));
+
+/**
+ * Get a zone by its ID (O(1) lookup)
+ */
+export function getZoneById(zoneId: string): ZoneDefinition | undefined {
+  return zonesById.get(zoneId);
+}
+
 /**
  * Get all zones for a specific province
  */

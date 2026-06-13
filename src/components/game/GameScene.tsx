@@ -174,7 +174,7 @@ const CanadianBackdrop = memo(function CanadianBackdrop() {
       ))}
 
       {/* Ground plane - extended to match sky coverage */}
-      <mesh position={[0, -4, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh position={[0, -4, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[200, 80]} />
         <meshStandardMaterial color="#8b7355" roughness={1} />
       </mesh>
@@ -259,12 +259,19 @@ export function GameScene() {
         <span className="sr-only">Click cheese wheel</span>
       </button>
       <Canvas
+        shadows
         camera={{ position: [0, 2, 4], fov: 50 }}
         dpr={dpr}
         performance={{ min: 0.5 }}
       >
         <ambientLight intensity={0.6} />
-        <directionalLight position={[5, 5, 5]} intensity={1} castShadow />
+        <directionalLight
+          position={[5, 5, 5]}
+          intensity={1}
+          castShadow
+          shadow-mapSize-width={1024}
+          shadow-mapSize-height={1024}
+        />
         <directionalLight position={[-3, 3, -3]} intensity={0.3} />
         <CanadianBackdrop />
         <CheeseWheel cylinderSegments={cylinderSegments} />

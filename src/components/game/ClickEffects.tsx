@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useGameStore } from '../../stores';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { formatNumber } from '../../utils/formatNumber';
@@ -27,6 +27,7 @@ export function ClickEffects() {
   const nextId = useRef(0);
   const totalClicks = useGameStore((state) => state.totalClicks);
   const getClickValue = useGameStore((state) => state.getClickValue);
+  const lastClickWasCrit = useGameStore((state) => state.lastClickWasCrit);
   const lastClicks = useRef(0);
   const animationRef = useRef<number | undefined>(undefined);
   const lastTimeRef = useRef<number>(0);
@@ -36,18 +37,12 @@ export function ClickEffects() {
   const particlesEnabled = useSettingsStore((state) => state.graphics.particlesEnabled);
   const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
-  // Determine if a click is a "critical" (every 10th click for demo, or based on bonuses)
-  const isCriticalClick = useCallback(() => {
-    // Simple heuristic: 10% chance for critical burst effect
-    return Math.random() < 0.1;
-  }, []);
-
   // Watch for clicks and create floating numbers + particles
   useEffect(() => {
     if (totalClicks > lastClicks.current) {
       const clickValue = getClickValue();
       const id = nextId.current++;
-      const crit = isCriticalClick();
+      const crit = lastClickWasCrit;
 
       // Random position near center
       const x = 50 + (Math.random() - 0.5) * 20;
@@ -78,7 +73,7 @@ export function ClickEffects() {
 
       lastClicks.current = totalClicks;
     }
-  }, [totalClicks, getClickValue, isCriticalClick, particlesEnabled, reducedMotion]);
+  }, [totalClicks, getClickValue, lastClickWasCrit, particlesEnabled, reducedMotion]);
 
   // Animate and remove old numbers
   const hasFloatingNumbers = floatingNumbers.length > 0;

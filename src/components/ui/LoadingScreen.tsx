@@ -82,7 +82,7 @@ export function LoadingScreen({ progress, onComplete }: LoadingScreenProps) {
 
         {/* Title */}
         <div className="text-center">
-          <h1 className="text-2xl sm:text-4xl font-bold text-cheddar-700 mb-2">
+          <h1 className="text-2xl sm:text-4xl font-bold text-cheddar-700 mb-2 font-display">
             The Great Canadian Cheese Quest
           </h1>
           <p className="text-cheddar-600 text-lg animate-pulse">

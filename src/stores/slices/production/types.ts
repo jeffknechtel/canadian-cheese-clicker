@@ -14,6 +14,7 @@ export interface ProductionState {
   ehCount: number;
   lastMilestone: number;
   currencyAnimationTrigger: number;
+  lastClickWasCrit: boolean;
 }
 
 export interface ProductionActions {
