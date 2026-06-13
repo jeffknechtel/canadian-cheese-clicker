@@ -3,6 +3,7 @@ import { useGameStore } from '../../stores';
 import { useGameStoreShallow } from '../../utils/zustandOptimization';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { GENERATORS } from '../../data/generators';
+import { UNLOCK_THRESHOLDS } from '../../data/constants';
 import { formatNumber } from '../../utils/formatNumber';
 import { calculateTimeToAfford } from '../../utils/timeToAfford';
 import { playPurchaseSound } from '../../systems/audioSystem';
@@ -167,9 +168,19 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
 export function GeneratorPanel() {
   const [buyAmount, setBuyAmount] = useState<BuyAmount>(1);
 
-  const visibleGenerators = useGameStore((s) => s.getVisibleGenerators());
-  const basicGenerators = visibleGenerators.filter((_, i) => i < CANADIAN_TIER_START);
-  const canadianGenerators = visibleGenerators.filter((_, i) => i >= CANADIAN_TIER_START);
+  const curds = useGameStore((s) => s.curds);
+  const visibleGenerators = useMemo(() => {
+    let highestAffordableIndex = -1;
+    for (let i = 0; i < GENERATORS.length; i++) {
+      if (curds.gte(GENERATORS[i].baseCost)) {
+        highestAffordableIndex = i;
+      }
+    }
+    const revealUpTo = Math.min(highestAffordableIndex + UNLOCK_THRESHOLDS.generatorRevealAhead + 1, GENERATORS.length);
+    return GENERATORS.slice(0, Math.max(revealUpTo, 3));
+  }, [curds]);
+  const basicGenerators = useMemo(() => visibleGenerators.filter((_, i) => i < CANADIAN_TIER_START), [visibleGenerators]);
+  const canadianGenerators = useMemo(() => visibleGenerators.filter((_, i) => i >= CANADIAN_TIER_START), [visibleGenerators]);
 
   return (
     <section className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain gap-3" aria-labelledby="generators-heading">
