@@ -10,6 +10,7 @@ import type { PersistenceSlice } from './slices/persistence/types';
 import type { GoldenCheeseSlice } from './slices/goldenCheese';
 import type { SynergySlice } from './slices/synergy';
 import type { ChallengeSlice } from './slices/challenge';
+import type { UnlockSlice } from './slices/unlock';
 
 export type GameStore = ProductionSlice &
   HeroSlice &
@@ -21,6 +22,7 @@ export type GameStore = ProductionSlice &
   PersistenceSlice &
   GoldenCheeseSlice &
   SynergySlice &
-  ChallengeSlice;
+  ChallengeSlice &
+  UnlockSlice;
 
 export type SliceCreator<T> = StateCreator<GameStore, [], [], T>;

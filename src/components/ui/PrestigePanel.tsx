@@ -15,6 +15,7 @@ import {
 } from '../../data/canadianDialogue';
 import { AgingConfirmModal } from './AgingConfirmModal';
 import { PrestigeStats } from './PrestigeStats';
+import { FirstTimeHint } from './shared/FirstTimeHint';
 import type { AgingUpgrade } from '../../types/game';
 import Decimal from 'decimal.js';
 import {
@@ -303,8 +304,9 @@ export function PrestigePanel() {
   const legacyProgress = Math.min(prestige.vintageResetCount / 10, 1);
 
   return (
-    <div className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain relative overflow-hidden">
-      {/* Prestige Animation Overlay */}
+    <FirstTimeHint hintId="firstPrestige" position="top">
+      <div className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain relative overflow-hidden">
+        {/* Prestige Animation Overlay */}
       {showPrestigeAnimation && (
         <div className="absolute inset-0 pointer-events-none z-10">
           <div className={`absolute inset-0 bg-linear-to-t from-amber-400/40 to-transparent ${!reducedMotion ? 'animate-pulse' : ''}`} />
@@ -508,13 +510,14 @@ export function PrestigePanel() {
         {activeTab === 'stats' && <PrestigeStats />}
       </div>
 
-      {/* Confirmation Modal */}
-      {showConfirmModal && (
-        <AgingConfirmModal
-          onConfirm={handleConfirmAging}
-          onCancel={() => setShowConfirmModal(false)}
-        />
-      )}
-    </div>
+        {/* Confirmation Modal */}
+        {showConfirmModal && (
+          <AgingConfirmModal
+            onConfirm={handleConfirmAging}
+            onCancel={() => setShowConfirmModal(false)}
+          />
+        )}
+      </div>
+    </FirstTimeHint>
   );
 }

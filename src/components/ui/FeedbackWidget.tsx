@@ -90,6 +90,8 @@ export function FeedbackWidget({ className = '' }: FeedbackWidgetProps) {
         goldenCheese: state.goldenCheese,
         synergy: state.synergy,
         challenge: state.challenge,
+        unlockedFeatures: state.unlockedFeatures,
+        shownHints: state.shownHints,
       };
       const report = createBugReport(description, category, gameState, screenshot);
       const result = await submitBugReport(report);

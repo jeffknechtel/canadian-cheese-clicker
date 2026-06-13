@@ -1,5 +1,22 @@
 import Decimal from 'decimal.js';
 
+// ===== Progressive Unlock Types =====
+
+export type FeatureId =
+  | 'upgrades'
+  | 'combat'
+  | 'heroes'
+  | 'crafting'
+  | 'prestige'
+  | 'achievements';
+
+export type HintId =
+  | 'firstClick'
+  | 'firstGenerator'
+  | 'firstCombat'
+  | 'firstPrestige'
+  | 'firstCraft';
+
 // ===== Prestige System Types =====
 
 export interface PrestigeState {
@@ -136,6 +153,10 @@ export interface GameState {
 
   // Challenge system
   challenge: ChallengeState;
+
+  // Progressive unlock system
+  unlockedFeatures: Set<FeatureId>;
+  shownHints: Set<HintId>;
 }
 
 export interface SynergyState {

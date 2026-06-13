@@ -1,5 +1,5 @@
 import type Decimal from 'decimal.js';
-import type { Upgrade } from '../../../types/game';
+import type { Upgrade, Generator } from '../../../types/game';
 import type { ProductionResetState } from './resetFactory';
 
 export interface ProductionState {
@@ -42,6 +42,7 @@ export interface ProductionActions {
   recalculateCps: () => void;
   recalculateClickValue: () => void;
   getPrestigeProductionReset: () => ProductionResetState;
+  getVisibleGenerators: () => Generator[];
 }
 
 export type ProductionSlice = ProductionState & ProductionActions;

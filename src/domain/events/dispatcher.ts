@@ -7,6 +7,7 @@ import type {
   CheeseActiveBuff,
   HeroDefinition,
   AffinageCave,
+  FeatureId,
 } from '../../types/game';
 
 /**
@@ -37,7 +38,9 @@ export type DomainEvent =
   | { type: 'SeasonalEventActivated'; eventId: string }
   | { type: 'SeasonalEventDeactivated'; eventId: string }
   // Synergy events
-  | { type: 'SynergyPurchased'; synergyId: string };
+  | { type: 'SynergyPurchased'; synergyId: string }
+  // Progressive unlock events
+  | { type: 'FeatureUnlocked'; featureId: FeatureId };
 
 type EventHandler<T extends DomainEvent['type']> = (
   event: Extract<DomainEvent, { type: T }>

@@ -148,6 +148,19 @@ export const SYNERGY_AFFINITY_CRAFTING_DIVISOR = 10;
 /** Synergy: Full party formation bonus for "Combat Harmony" (replaces base +10%) */
 export const SYNERGY_FULL_PARTY_FORMATION_BONUS = 0.25;
 
+// ===== Progressive Unlock Thresholds =====
+
+/** Total curds earned to unlock each feature tab/panel */
+export const UNLOCK_THRESHOLDS = {
+  upgrades: 0,                // Available immediately (generators need upgrades)
+  combat: 1_000,              // After first few generators
+  heroes: 10_000,             // After first combat attempts
+  crafting: 100_000,          // Mid-game feature
+  prestige: 1_000_000_000_000, // 1T curds (prestige becomes viable)
+  achievements: 100,          // Show early to give goals
+  generatorRevealAhead: 2,    // Show N generators ahead of what player can afford
+} as const;
+
 // ===== Offline Progress =====
 
 /** Maximum offline progress in seconds (8 hours) */
