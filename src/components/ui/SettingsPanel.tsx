@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { useGameStore } from '../../stores';
-import { deleteSave } from '../../systems/saveSystem';
+import { deleteSave, saveGame as saveGameToStorage } from '../../systems/saveSystem';
+import { showSaveToast } from '../../systems/saveToast';
 import { PrivacyToggle } from './PrivacyConsent';
 import { AnimatedTabContent } from './shared/AnimatedTabContent';
 import type { SettingsState } from '../../types/settings';
@@ -23,7 +24,6 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
   const settings = useSettingsStore();
 
   // Game store for data management
-  const saveGame = useGameStore((state) => state.save);
   const resetGame = useGameStore((state) => state.reset);
 
   // Export game save
@@ -172,7 +172,14 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
             {activeTab === 'data' && (
               <DataSettings
                 onExport={handleExportSave}
-                onSave={() => { saveGame(); alert('Game saved!'); }}
+                onSave={() => {
+                  const state = useGameStore.getState();
+                  const success = saveGameToStorage(state);
+                  showSaveToast(
+                    success ? 'success' : 'error',
+                    success ? 'Game saved!' : 'Failed to save game'
+                  );
+                }}
                 importValue={importValue}
                 onImportValueChange={setImportValue}
                 onImport={handleImportSave}

@@ -160,7 +160,9 @@ const UpgradeCard = memo(function UpgradeCard({ upgrade, isPurchased, index }: U
 export function UpgradePanel() {
   const [mainTab, setMainTab] = useState<MainTabType>('upgrades');
   const [upgradeTab, setUpgradeTab] = useState<UpgradeTabType>('available');
-  const { getAvailableUpgrades, getPurchasedUpgrades, getClickMultiplier } = useGameStore();
+  const getAvailableUpgrades = useGameStore((s) => s.getAvailableUpgrades);
+  const getPurchasedUpgrades = useGameStore((s) => s.getPurchasedUpgrades);
+  const getClickMultiplier = useGameStore((s) => s.getClickMultiplier);
   const synergyPurchased = useGameStore((state) => state.synergy.purchased);
 
   const availableUpgrades = getAvailableUpgrades();

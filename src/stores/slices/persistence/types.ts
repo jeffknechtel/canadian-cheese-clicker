@@ -9,6 +9,7 @@ export interface PersistenceSliceActions {
   save: () => void;
   load: () => OfflineProgress | null;
   reset: () => void;
+  applyOfflineProgress: (hiddenDurationMs: number) => OfflineProgress | null;
 }
 
 export type PersistenceSlice = PersistenceSliceState & PersistenceSliceActions;

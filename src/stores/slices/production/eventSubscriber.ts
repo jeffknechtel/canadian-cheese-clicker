@@ -14,6 +14,7 @@ export function initProductionEventSubscriber(): () => void {
     useGameStore.setState((s) => ({
       whey: s.whey.plus(event.rewards.whey),
       totalCurdsEarned: s.totalCurdsEarned.plus(event.rewards.curds),
+      currencyAnimationTrigger: s.currencyAnimationTrigger + 1,
     }));
   });
 

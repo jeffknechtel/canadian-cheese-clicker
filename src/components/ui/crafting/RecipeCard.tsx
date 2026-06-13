@@ -20,7 +20,10 @@ const categoryColors: Record<string, string> = {
 };
 
 export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
-  const { curds, crafting, startCrafting, canStartCrafting } = useGameStore();
+  const curds = useGameStore((s) => s.curds);
+  const unlockedIngredients = useGameStore((s) => s.crafting.unlockedIngredients);
+  const startCrafting = useGameStore((s) => s.startCrafting);
+  const canStartCrafting = useGameStore((s) => s.canStartCrafting);
 
   // Ingredient selection state
   const [selectedMilk, setSelectedMilk] = useState<MilkType>(
@@ -50,9 +53,9 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
   const { canStart, reason } = canStartCrafting(recipe.id, selectedCaveId);
 
   // Check if ingredients are unlocked
-  const milkUnlocked = milk && crafting.unlockedIngredients.includes(milk.id);
-  const cultureUnlocked = culture && crafting.unlockedIngredients.includes(culture.id);
-  const rennetUnlocked = rennet && crafting.unlockedIngredients.includes(rennet.id);
+  const milkUnlocked = milk && unlockedIngredients.includes(milk.id);
+  const cultureUnlocked = culture && unlockedIngredients.includes(culture.id);
+  const rennetUnlocked = rennet && unlockedIngredients.includes(rennet.id);
   const allIngredientsUnlocked = milkUnlocked && cultureUnlocked && rennetUnlocked;
 
   const canCraft = canStart && canAfford && allIngredientsUnlocked;
@@ -140,7 +143,7 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
               >
                 {recipe.requiredIngredients.milkType.map((type) => {
                   const ingredient = getMilkByType(type);
-                  const isUnlocked = ingredient && crafting.unlockedIngredients.includes(ingredient.id);
+                  const isUnlocked = ingredient && unlockedIngredients.includes(ingredient.id);
                   return (
                     <option key={type} value={type} disabled={!isUnlocked}>
                       {ingredient?.icon} {ingredient?.name} {!isUnlocked && '(Locked)'}
@@ -160,7 +163,7 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
               >
                 {recipe.requiredIngredients.cultureType.map((type) => {
                   const ingredient = getCultureByType(type);
-                  const isUnlocked = ingredient && crafting.unlockedIngredients.includes(ingredient.id);
+                  const isUnlocked = ingredient && unlockedIngredients.includes(ingredient.id);
                   return (
                     <option key={type} value={type} disabled={!isUnlocked}>
                       {ingredient?.icon} {ingredient?.name} {!isUnlocked && '(Locked)'}
@@ -180,7 +183,7 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
               >
                 {(recipe.requiredIngredients.rennetType ?? ['animal', 'vegetable', 'microbial']).map((type) => {
                   const ingredient = getRennetByType(type);
-                  const isUnlocked = ingredient && crafting.unlockedIngredients.includes(ingredient.id);
+                  const isUnlocked = ingredient && unlockedIngredients.includes(ingredient.id);
                   return (
                     <option key={type} value={type} disabled={!isUnlocked}>
                       {ingredient?.icon} {ingredient?.name} {!isUnlocked && '(Locked)'}
@@ -198,7 +201,7 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
               <div className="flex flex-wrap gap-1">
                 {recipe.effects.map((effect) => (
                   <span
-                    key={`${effect.type}-${effect.stat ?? 'none'}`}
+                    key={`${effect.type}-${'stat' in effect ? effect.stat : 'none'}`}
                     className="text-xs px-1.5 py-0.5 bg-white rounded border border-timber-200 text-timber-700"
                   >
                     {formatEffect(effect)}
