@@ -9,6 +9,7 @@ import {
   setMusicEnabled,
   setSfxEnabled,
 } from '../systems/audioSystem';
+import { setHapticsEnabled as setHapticsEnabledSystem } from '../systems/haptics';
 
 interface SettingsStore extends SettingsState {
   // Audio actions
@@ -33,6 +34,7 @@ interface SettingsStore extends SettingsState {
   setAutoSaveInterval: (seconds: number) => void;
   setOfflineProgressCap: (hours: number) => void;
   setNumberFormat: (format: SettingsState['game']['numberFormat']) => void;
+  setHapticsEnabled: (enabled: boolean) => void;
 
   // Utility actions
   resetToDefaults: () => void;
@@ -144,6 +146,13 @@ export const useSettingsStore = create<SettingsStore>()(
         }));
       },
 
+      setHapticsEnabled: (enabled) => {
+        setHapticsEnabledSystem(enabled);
+        set((state) => ({
+          game: { ...state.game, hapticsEnabled: enabled },
+        }));
+      },
+
       // ===== Utility Actions =====
       resetToDefaults: () => {
         set(DEFAULT_SETTINGS);
@@ -196,7 +205,7 @@ export const useSettingsStore = create<SettingsStore>()(
   )
 );
 
-// Initialize audio system with stored settings on app load
+// Initialize audio and haptics systems with stored settings on app load
 export function initializeSettingsAudio(): void {
   const state = useSettingsStore.getState();
   setMasterVolume(state.audio.masterVolume);
@@ -204,4 +213,30 @@ export function initializeSettingsAudio(): void {
   setSfxVolume(state.audio.sfxVolume);
   setMusicEnabled(state.audio.musicEnabled);
   setSfxEnabled(state.audio.sfxEnabled);
+  setHapticsEnabledSystem(state.game.hapticsEnabled);
+
+  // Seed reducedMotion from OS preference if not explicitly set by user
+  // This only runs on first load; subsequent loads use the persisted value
+  if (typeof window !== 'undefined') {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Only seed if the user preference matches the default (hasn't been changed)
+    // and the OS preference differs
+    if (state.accessibility.reducedMotion === DEFAULT_SETTINGS.accessibility.reducedMotion
+        && prefersReducedMotion !== state.accessibility.reducedMotion) {
+      useSettingsStore.getState().setReducedMotion(prefersReducedMotion);
+    }
+  }
+}
+
+// Set up listener for OS reduced motion preference changes
+export function setupReducedMotionListener(): () => void {
+  if (typeof window === 'undefined') return () => {};
+
+  const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const handler = (e: MediaQueryListEvent) => {
+    useSettingsStore.getState().setReducedMotion(e.matches);
+  };
+
+  mql.addEventListener('change', handler);
+  return () => mql.removeEventListener('change', handler);
 }

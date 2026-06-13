@@ -23,11 +23,11 @@ let accumulatedGameLogicTime = 0;
 let frameBudgetWarnings = 0;
 const MAX_WARNINGS_LOG = 5; // Only log first N warnings to avoid spam
 
-// Mobile detection (cached)
+// Mobile detection (cached) - uses capability detection instead of UA sniffing
 let isMobileDevice: boolean | null = null;
 export function isMobile(): boolean {
   if (isMobileDevice === null) {
-    isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    isMobileDevice = window.matchMedia('(pointer: coarse)').matches;
   }
   return isMobileDevice;
 }

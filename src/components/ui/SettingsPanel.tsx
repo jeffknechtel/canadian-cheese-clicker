@@ -5,6 +5,7 @@ import { deleteSave, saveGame as saveGameToStorage } from '../../systems/saveSys
 import { showSaveToast } from '../../systems/saveToast';
 import { PrivacyToggle } from './PrivacyConsent';
 import { AnimatedTabContent } from './shared/AnimatedTabContent';
+import { Button } from './shared/Button';
 import type { SettingsState } from '../../types/settings';
 
 interface SettingsPanelProps {
@@ -82,15 +83,11 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
-        style={{ backgroundColor: '#FFFEF5' }}
+        className="rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col bg-cream"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div
-          className="flex items-center justify-between px-6 py-4 text-white"
-          style={{ background: 'linear-gradient(to right, #f59e0b, #d97706)' }}
-        >
+        <div className="flex items-center justify-between px-6 py-4 text-white bg-gradient-to-r from-cheddar-500 to-cheddar-600">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <span className="text-2xl">&#9881;</span>
             Settings
@@ -107,20 +104,18 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
         </div>
 
         {/* Tabs */}
-        <div
-          className="flex border-b overflow-x-auto scrollbar-thin"
-          style={{ borderColor: '#E5DCC8', backgroundColor: '#F5F0E1' }}
-        >
+        <div className="flex border-b border-timber-200 overflow-x-auto scrollbar-thin bg-timber-50">
           {(['audio', 'graphics', 'accessibility', 'game', 'data'] as SettingsTab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className="shrink-0 py-3 px-4 text-sm font-medium capitalize transition-colors"
-              style={{
-                color: activeTab === tab ? '#8B7355' : '#6B5B45',
-                backgroundColor: activeTab === tab ? '#FFFFFF' : 'transparent',
-                borderBottom: activeTab === tab ? '2px solid #D4A853' : '2px solid transparent',
-              }}
+              className={`
+                shrink-0 py-3 px-4 text-sm font-medium capitalize transition-colors
+                ${activeTab === tab
+                  ? 'text-timber-700 bg-white border-b-2 border-cheddar-400'
+                  : 'text-timber-500 border-b-2 border-transparent hover:text-timber-700'
+                }
+              `}
             >
               {tab}
             </button>
@@ -128,7 +123,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: '#FFFEF5' }}>
+        <div className="flex-1 overflow-y-auto p-6 bg-cream">
           <AnimatedTabContent activeKey={activeTab}>
             {activeTab === 'audio' && (
               <AudioSettings
@@ -166,6 +161,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                 onAutoSaveChange={settings.setAutoSaveInterval}
                 onOfflineCapChange={settings.setOfflineProgressCap}
                 onNumberFormatChange={settings.setNumberFormat}
+                onHapticsChange={settings.setHapticsEnabled}
               />
             )}
 
@@ -195,18 +191,12 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
 
         {/* Footer */}
         <div className="px-6 py-4 bg-cheddar-50 border-t border-cheddar-200 flex justify-between">
-          <button
-            onClick={settings.resetToDefaults}
-            className="px-4 py-2 text-sm text-rind hover:text-maple-600 transition-colors"
-          >
+          <Button variant="ghost" size="sm" onClick={settings.resetToDefaults} className="text-rind hover:text-maple-600">
             Reset to Defaults
-          </button>
-          <button
-            onClick={onClose}
-            className="px-6 py-2 bg-cheddar-700 hover:bg-cheddar-800 text-white font-medium rounded-lg transition-colors"
-          >
+          </Button>
+          <Button variant="primary" onClick={onClose}>
             Done
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -482,6 +472,7 @@ interface GameSettingsProps {
   onAutoSaveChange: (s: number) => void;
   onOfflineCapChange: (h: number) => void;
   onNumberFormatChange: (f: 'standard' | 'scientific') => void;
+  onHapticsChange: (enabled: boolean) => void;
 }
 
 function GameSettings({
@@ -489,6 +480,7 @@ function GameSettings({
   onAutoSaveChange,
   onOfflineCapChange,
   onNumberFormatChange,
+  onHapticsChange,
 }: GameSettingsProps) {
   return (
     <div className="space-y-4">
@@ -527,6 +519,15 @@ function GameSettings({
         ]}
         onChange={onNumberFormatChange}
       />
+
+      <div className="border-t border-cheddar-200 pt-4">
+        <ToggleSetting
+          label="Haptic Feedback"
+          description="Vibration on mobile devices"
+          checked={settings.game.hapticsEnabled}
+          onChange={onHapticsChange}
+        />
+      </div>
 
       {/* Privacy & Analytics */}
       <div className="border-t border-cheddar-200 pt-4">
@@ -568,18 +569,12 @@ function DataSettings({
       <div>
         <h3 className="text-sm font-semibold text-rind-700 mb-3">Save Management</h3>
         <div className="flex gap-3">
-          <button
-            onClick={onSave}
-            className="flex-1 px-4 py-2 bg-cheddar-700 hover:bg-cheddar-800 text-white rounded-lg transition-colors"
-          >
+          <Button variant="primary" onClick={onSave} className="flex-1">
             Save Now
-          </button>
-          <button
-            onClick={onExport}
-            className="flex-1 px-4 py-2 bg-cheddar-100 hover:bg-cheddar-200 text-cheddar-700 rounded-lg transition-colors"
-          >
+          </Button>
+          <Button variant="secondary" onClick={onExport} className="flex-1">
             Export Save
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -593,42 +588,30 @@ function DataSettings({
           className="w-full h-24 px-3 py-2 border border-cheddar-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-cheddar-500"
         />
         {importError && <p className="text-red-500 text-xs mt-1">{importError}</p>}
-        <button
-          onClick={onImport}
-          className="mt-2 px-4 py-2 bg-cheddar-100 hover:bg-cheddar-200 text-cheddar-700 rounded-lg transition-colors"
-        >
+        <Button variant="secondary" size="sm" onClick={onImport} className="mt-2">
           Import Save
-        </button>
+        </Button>
       </div>
 
       {/* Reset */}
       <div className="border-t border-cheddar-200 pt-4">
         <h3 className="text-sm font-semibold text-maple-700 mb-3">Danger Zone</h3>
         {!showResetConfirm ? (
-          <button
-            onClick={onShowResetConfirm}
-            className="px-4 py-2 bg-maple-100 hover:bg-maple-200 text-maple-700 rounded-lg transition-colors"
-          >
+          <Button variant="danger" size="sm" onClick={onShowResetConfirm} className="bg-maple-100 hover:bg-maple-200 text-maple-700">
             Reset All Progress
-          </button>
+          </Button>
         ) : (
           <div className="bg-maple-50 border border-maple-200 rounded-lg p-4">
             <p className="text-sm text-maple-700 mb-3">
               Are you sure? This will delete ALL your progress and cannot be undone!
             </p>
             <div className="flex gap-3">
-              <button
-                onClick={onCancelReset}
-                className="flex-1 px-4 py-2 bg-rind-100 hover:bg-rind-200 text-rind-700 rounded-lg transition-colors"
-              >
+              <Button variant="secondary" onClick={onCancelReset} className="flex-1">
                 Cancel
-              </button>
-              <button
-                onClick={onConfirmReset}
-                className="flex-1 px-4 py-2 bg-maple-600 hover:bg-maple-700 text-white rounded-lg transition-colors"
-              >
+              </Button>
+              <Button variant="danger" onClick={onConfirmReset} className="flex-1">
                 Yes, Reset Everything
-              </button>
+              </Button>
             </div>
           </div>
         )}

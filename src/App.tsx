@@ -47,7 +47,7 @@ import { playMilestoneChime } from './systems/audioSystem';
 import { startGameLoop, stopGameLoop, setupVisibilityHandler } from './systems/gameLoop';
 import { useGameStore } from './stores';
 import { useHeroLevelUpEvents } from './hooks/useHeroEvents';
-import { useSettingsStore, initializeSettingsAudio } from './stores/settingsStore';
+import { useSettingsStore, initializeSettingsAudio, setupReducedMotionListener } from './stores/settingsStore';
 import { ACHIEVEMENTS } from './data/achievements';
 import type { EquipmentSlot, CombatRewards } from './types/game';
 
@@ -212,14 +212,16 @@ function App() {
     setShowLoading(false);
   }, []);
 
-  // Initialize accessibility announcer and error capture
+  // Initialize accessibility announcer, error capture, and reduced motion listener
   useEffect(() => {
     initializeAnnouncer();
     if (IS_BETA) {
       initializeErrorCapture();
     }
+    const cleanupReducedMotion = setupReducedMotionListener();
     return () => {
       cleanupAnnouncer();
+      cleanupReducedMotion();
     };
   }, []);
 
@@ -524,8 +526,8 @@ function App() {
               </h1>
             </div>
             <div className="flex items-center gap-3">
-              {/* Event and Challenge indicators */}
-              <div className="hidden lg:flex items-center gap-2">
+              {/* Event and Challenge indicators - visible on all screen sizes */}
+              <div className="flex items-center gap-2">
                 <EventIndicator />
                 <ChallengeIndicator />
               </div>
@@ -623,7 +625,7 @@ function App() {
               {/* Game Help Button */}
               <button
                 onClick={() => setHelpModalOpen(true)}
-                className="p-2 rounded-lg bg-cheddar-500/30 hover:bg-cheddar-500/50 transition-colors hidden sm:block"
+                className="min-w-[44px] min-h-[44px] p-2.5 rounded-lg bg-cheddar-500/30 hover:bg-cheddar-500/50 transition-colors hidden sm:flex items-center justify-center"
                 title="Game Guide"
                 aria-label="Open game guide"
               >
@@ -632,7 +634,7 @@ function App() {
               {/* Keyboard Help Button */}
               <button
                 onClick={() => setKeyboardHelpOpen(true)}
-                className="p-2 rounded-lg bg-cheddar-500/30 hover:bg-cheddar-500/50 transition-colors hidden sm:block"
+                className="min-w-[44px] min-h-[44px] p-2.5 rounded-lg bg-cheddar-500/30 hover:bg-cheddar-500/50 transition-colors hidden sm:flex items-center justify-center"
                 title="Keyboard Shortcuts"
                 aria-label="Open keyboard shortcuts help"
               >
@@ -641,7 +643,7 @@ function App() {
               {/* Settings Button */}
               <button
                 onClick={() => setSettingsOpen(true)}
-                className="p-2 rounded-lg bg-cheddar-500/30 hover:bg-cheddar-500/50 transition-colors"
+                className="min-w-[44px] min-h-[44px] p-2.5 rounded-lg bg-cheddar-500/30 hover:bg-cheddar-500/50 transition-colors flex items-center justify-center"
                 title="Settings (s)"
                 aria-label="Open settings"
               >

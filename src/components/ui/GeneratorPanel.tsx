@@ -184,7 +184,7 @@ export function GeneratorPanel() {
               onClick={() => setBuyAmount(amount)}
               aria-pressed={buyAmount === amount}
               aria-label={amount === 'max' ? 'Buy maximum affordable' : `Buy ${amount} at a time`}
-              className={`px-2 py-1 text-xs rounded font-medium transition-colors ${
+              className={`min-w-[44px] min-h-[44px] px-2 py-2 text-xs rounded font-medium transition-colors ${
                 buyAmount === amount
                   ? 'bg-timber-500 text-white'
                   : 'bg-white/50 text-timber-700'

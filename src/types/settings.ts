@@ -23,6 +23,7 @@ export interface SettingsState {
     autoSaveInterval: number; // seconds
     offlineProgressCap: number; // hours
     numberFormat: 'standard' | 'scientific';
+    hapticsEnabled: boolean;
   };
 }
 
@@ -49,5 +50,6 @@ export const DEFAULT_SETTINGS: SettingsState = {
     autoSaveInterval: 30,
     offlineProgressCap: 8,
     numberFormat: 'standard',
+    hapticsEnabled: true,
   },
 };

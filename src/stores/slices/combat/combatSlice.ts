@@ -28,6 +28,11 @@ import {
   playBuffSound,
   playDebuffSound,
 } from '../../../systems/audioSystem';
+import {
+  vibrateSuccess,
+  vibrateLimitBreak,
+  vibrateCrit,
+} from '../../../systems/haptics';
 
 function getGridPosition(target: 'hero' | 'enemy', slotIndex: number): { x: number; y: number } {
   if (target === 'hero') {
@@ -121,6 +126,10 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
             x,
             y,
           });
+          // Haptic feedback for crits
+          if (event.type === 'damage' && event.damageType === 'crit') {
+            vibrateCrit();
+          }
           break;
         }
         case 'comboHit':
@@ -207,6 +216,7 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
 
     if (result === 'victory') {
       playVictoryFanfare();
+      vibrateSuccess();
     } else if (result === 'defeat' || result === 'flee') {
       playDefeatJingle();
     }
@@ -270,6 +280,7 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     }
 
     playLimitBreakSound();
+    vibrateLimitBreak();
 
     set({
       combat: {
