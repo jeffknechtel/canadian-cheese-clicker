@@ -135,4 +135,30 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
     // Initialize challenge after reset
     get().initializeChallenge();
   },
+
+  applyOfflineProgress: (hiddenDurationMs: number) => {
+    const state = get();
+    const { curdPerSecond } = state;
+    const offlineProgressCapHours = useSettingsStore.getState().game.offlineProgressCap;
+
+    const hiddenSeconds = hiddenDurationMs / 1000;
+    const capSeconds = offlineProgressCapHours * 60 * 60;
+    const elapsedSeconds = Math.min(hiddenSeconds, capSeconds);
+
+    // Only award if hidden for more than 1 minute (matches calculateOfflineProgress threshold)
+    if (elapsedSeconds < 60) return null;
+
+    const curdsEarned = curdPerSecond.mul(elapsedSeconds);
+
+    // Don't award if zero CPS
+    if (curdsEarned.isZero()) return null;
+
+    set((s) => ({
+      curds: s.curds.plus(curdsEarned),
+      totalCurdsEarned: s.totalCurdsEarned.plus(curdsEarned),
+      currencyAnimationTrigger: s.currencyAnimationTrigger + 1,
+    }));
+
+    return { curdsEarned, secondsAway: elapsedSeconds };
+  },
 });

@@ -15,6 +15,8 @@ import {
   trackCraftingStart,
   trackCraftingComplete,
 } from '../../../systems/analyticsService';
+import { playCraftingCompleteSound } from '../../../systems/audioSystem';
+import { emitParticles } from '../../../systems/particleSystem';
 import {
   checkUnlockRequirement,
   type UnlockContext,
@@ -275,6 +277,8 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
           ingredients: job.ingredients,
         };
         publish({ type: 'CheeseCollected', cheese: placeholderCheese, recipe });
+        playCraftingCompleteSound();
+        emitParticles(window.innerWidth / 2, window.innerHeight / 3, 'confetti');
       }
     }
   },

@@ -13,6 +13,7 @@ import { AchievementToastContainer } from './components/ui/AchievementToast';
 import { ParticleContainer } from './components/ui/ParticleContainer';
 import { DialogueToastContainer } from './components/ui/DialogueToast';
 import { GoldenCheeseNotificationContainer } from './components/ui/GoldenCheeseNotification';
+import { SaveToastContainer } from './components/ui/SaveToast';
 import { ZoneSelectPanel } from './components/ui/ZoneSelectPanel';
 import { CombatResultsModal } from './components/ui/CombatResultsModal';
 import { ActiveBuffsBar } from './components/ui/crafting/ActiveBuffsBar';
@@ -20,6 +21,7 @@ import { LoadingScreen } from './components/ui/LoadingScreen';
 import { KeyboardHelpModal } from './components/ui/KeyboardHelpModal';
 import { PrivacyConsent } from './components/ui/PrivacyConsent';
 import { usePrivacyConsent } from './hooks/usePrivacyConsent';
+import { useIsMobile } from './hooks/useBreakpoint';
 import { BetaAgreement } from './components/ui/BetaAgreement';
 import { useBetaAgreement } from './hooks/useBetaAgreement';
 import { FeedbackWidget } from './components/ui/FeedbackWidget';
@@ -105,6 +107,9 @@ function App() {
     acceptAgreement: acceptBetaAgreement,
   } = useBetaAgreement();
 
+  // Layout breakpoint
+  const isMobile = useIsMobile();
+
   // Settings store
   const autoSaveInterval = useSettingsStore((state) => state.game.autoSaveInterval);
   const accessibility = useSettingsStore((state) => state.accessibility);
@@ -118,18 +123,33 @@ function App() {
   const unlockedCount = getUnlockedAchievements().length;
   const totalAchievements = ACHIEVEMENTS.filter((a) => a.category !== 'hidden').length;
 
-  // Combat-related store state
-  const combat = useGameStore((state) => state.combat);
+  // Combat-related store state (narrow selectors for performance)
+  const isInCombat = useGameStore((state) => state.combat.isInCombat);
+  const battleResult = useGameStore((state) => state.combat.battleResult);
+  const currentZone = useGameStore((state) => state.combat.currentZone);
+  const currentStage = useGameStore((state) => state.combat.currentStage);
   const startCombat = useGameStore((state) => state.startCombat);
   const endCombat = useGameStore((state) => state.endCombat);
   const claimCombatRewards = useGameStore((state) => state.claimCombatRewards);
 
-  // Prestige-related store state
-  const prestige = useGameStore((state) => state.prestige);
+  // Prestige-related store state (narrow selectors for performance)
+  const rennet = useGameStore((state) => state.prestige.rennet);
+  const agingResetCount = useGameStore((state) => state.prestige.agingResetCount);
   const getPotentialRennet = useGameStore((state) => state.getPotentialRennet);
   const potentialRennet = getPotentialRennet();
-  const hasPrestiged = prestige.agingResetCount > 0 || prestige.rennet > 0;
+  const hasPrestiged = agingResetCount > 0 || rennet > 0;
   const prestigeAvailable = potentialRennet > 0;
+
+  // Crafting badge - count of completed but uncollected crafts
+  const completedCraftsCount = useGameStore((state) =>
+    state.crafting.activeJobs.filter(j => j.notificationSent).length
+  );
+
+  // Upgrades badge - count of affordable upgrades
+  const affordableUpgradesCount = useGameStore((state) => {
+    const available = state.getAvailableUpgrades();
+    return available.filter(u => state.canAffordUpgrade(u.id)).length;
+  });
 
   // Ref for random dialogue timer
   const dialogueTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -203,7 +223,12 @@ function App() {
 
     startGameLoop();
 
-    const cleanupVisibility = setupVisibilityHandler();
+    const cleanupVisibility = setupVisibilityHandler((hiddenDuration) => {
+      const progress = useGameStore.getState().applyOfflineProgress(hiddenDuration);
+      if (progress && progress.curdsEarned.gt(0)) {
+        // Offline progress applied silently — currency animation already triggered
+      }
+    });
 
     return () => {
       stopGameLoop();
@@ -321,10 +346,10 @@ function App() {
     setCombatResults({
       result: 'defeat',
       rewards: null,
-      zoneId: combat.currentZone,
-      stageNumber: combat.currentStage,
+      zoneId: currentZone,
+      stageNumber: currentStage,
     });
-  }, [endCombat, combat.currentZone, combat.currentStage]);
+  }, [endCombat, currentZone, currentStage]);
 
   const handleCombatResultsContinue = useCallback(() => {
     if (combatResults?.result === 'victory') {
@@ -404,16 +429,16 @@ function App() {
   // Watch for combat end to show results modal
   // This effect syncs the zustand combat state to local React state for the modal
   useEffect(() => {
-    if (combat.battleResult && combat.battleResult !== 'ongoing' && !combatResults) {
+    if (battleResult && battleResult !== 'ongoing' && !combatResults) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Syncing external store state to local state is a valid use case
       setCombatResults({
-        result: combat.battleResult,
+        result: battleResult,
         rewards: null, // Will be calculated when claiming
-        zoneId: combat.currentZone,
-        stageNumber: combat.currentStage,
+        zoneId: currentZone,
+        stageNumber: currentStage,
       });
     }
-  }, [combat.battleResult, combat.currentZone, combat.currentStage, combatResults]);
+  }, [battleResult, currentZone, currentStage, combatResults]);
 
   // Build accessibility classes (memoized to prevent re-computation on every render)
   // This must be before any early returns to satisfy React hooks rules
@@ -492,14 +517,14 @@ function App() {
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors border ${
                     rightPanelView === 'combat'
                       ? 'bg-white/40 border-white/40'
-                      : combat.isInCombat
+                      : isInCombat
                         ? `bg-red-500/30 border-red-400/40 ${!accessibility.reducedMotion ? 'animate-pulse' : ''}`
                         : 'bg-white/20 hover:bg-white/30 border-white/20'
                   }`}
                   title="Combat"
                 >
                   <span className="text-lg">⚔️</span>
-                  {combat.isInCombat && <span className="text-xs font-bold">!</span>}
+                  {isInCombat && <span className="text-xs font-bold">!</span>}
                 </button>
                 <button
                   onClick={() => setRightPanelView('heroes')}
@@ -537,7 +562,7 @@ function App() {
                 >
                   <span className="text-lg">🧀</span>
                   {(hasPrestiged || prestigeAvailable) && (
-                    <span className="text-sm font-medium">{prestige.rennet}</span>
+                    <span className="text-sm font-medium">{rennet}</span>
                   )}
                   {prestigeAvailable && rightPanelView !== 'prestige' && (
                     <span className="text-xs text-white font-medium">+{potentialRennet}</span>
@@ -545,7 +570,7 @@ function App() {
                 </button>
                 <button
                   onClick={() => setRightPanelView('crafting')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors border ${
+                  className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors border ${
                     rightPanelView === 'crafting'
                       ? 'bg-white/40 border-white/40'
                       : 'bg-white/20 hover:bg-white/30 border-white/20'
@@ -553,6 +578,11 @@ function App() {
                   title="Cheese Crafting"
                 >
                   <span className="text-lg">🪤</span>
+                  {completedCraftsCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full text-xs text-white flex items-center justify-center font-bold">
+                      {completedCraftsCount}
+                    </span>
+                  )}
                 </button>
               </div>
               <AudioControls />
@@ -586,54 +616,9 @@ function App() {
           </div>
         </header>
 
-        {/* Desktop Layout */}
-        <main id="main-content" className="hidden md:flex flex-1 min-h-0" role="main" aria-label="Game content">
-          {/* Generator Panel - Left side */}
-          <aside id="generators-panel" className="w-72 lg:w-80 xl:w-96 p-4 overflow-hidden shrink-0" aria-label="Generators panel">
-            <GeneratorPanel />
-          </aside>
-
-          {/* 3D Scene - Center */}
-          <div className="flex-1 relative min-w-0" aria-label="Game scene">
-            <GameScene />
-          </div>
-
-          {/* Right side panel (Upgrades, Achievements, Heroes, or Combat) */}
-          <aside className="w-72 lg:w-80 xl:w-96 p-4 overflow-hidden shrink-0 flex flex-col gap-4">
-            {rightPanelView === 'upgrades' && <UpgradePanel />}
-            {rightPanelView === 'achievements' && <AchievementPanel />}
-            {rightPanelView === 'heroes' && (
-              <>
-                <div className="flex-1 min-h-0 overflow-hidden">
-                  <HeroPanel onEquipmentClick={handleEquipmentClick} />
-                </div>
-                <PartyFormationPanel compact />
-              </>
-            )}
-            {rightPanelView === 'combat' && (
-              combat.isInCombat ? (
-                <Suspense fallback={<PanelLoader />}>
-                  <CombatPanel onFlee={handleFlee} />
-                </Suspense>
-              ) : (
-                <ZoneSelectPanel onStartCombat={handleStartCombat} />
-              )
-            )}
-            {rightPanelView === 'prestige' && (
-              <Suspense fallback={<PanelLoader />}>
-                <PrestigePanel />
-              </Suspense>
-            )}
-            {rightPanelView === 'crafting' && (
-              <Suspense fallback={<PanelLoader />}>
-                <CraftingPanel />
-              </Suspense>
-            )}
-          </aside>
-        </main>
-
-        {/* Mobile Layout */}
-        <div className="flex flex-col flex-1 min-h-0 md:hidden" role="main" aria-label="Mobile game content">
+        {/* Single Layout Mount - only desktop OR mobile, not both */}
+        {isMobile ? (
+        <div className="flex flex-col flex-1 min-h-0" role="main" aria-label="Mobile game content">
           {/* 3D Scene - Top portion on mobile */}
           <div className="h-[45%] min-h-[200px] relative" aria-label="Game scene">
             <GameScene />
@@ -660,9 +645,10 @@ function App() {
               role="tab"
               aria-selected={mobileTab === 'upgrades'}
               aria-controls="mobile-panel-content"
+              aria-label={affordableUpgradesCount > 0 ? `Upgrades (${affordableUpgradesCount} affordable)` : 'Upgrades'}
               onClick={() => setMobileTab('upgrades')}
               className={`
-                flex-1 py-3 px-4 text-sm font-semibold transition-all
+                flex-1 py-3 px-4 text-sm font-semibold transition-all relative
                 ${mobileTab === 'upgrades'
                   ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
                   : 'text-rind hover:text-cheddar-600 hover:bg-white/30'
@@ -670,18 +656,23 @@ function App() {
               `}
             >
               Upgrades
+              {affordableUpgradesCount > 0 && (
+                <span className="ml-1 px-1.5 py-0.5 bg-green-500 rounded-full text-xs text-white">
+                  {affordableUpgradesCount}
+                </span>
+              )}
             </button>
             <button
               role="tab"
               aria-selected={mobileTab === 'combat'}
               aria-controls="mobile-panel-content"
-              aria-label={combat.isInCombat ? 'Combat (battle in progress)' : 'Combat'}
+              aria-label={isInCombat ? 'Combat (battle in progress)' : 'Combat'}
               onClick={() => setMobileTab('combat')}
               className={`
                 flex-1 py-3 px-4 text-sm font-semibold transition-all relative
                 ${mobileTab === 'combat'
                   ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
-                  : combat.isInCombat
+                  : isInCombat
                     ? `text-red-600 bg-red-50/50 ${!accessibility.reducedMotion ? 'animate-pulse' : ''}`
                     : 'text-rind hover:text-cheddar-600 hover:bg-white/30'
                 }
@@ -689,7 +680,7 @@ function App() {
             >
               <span aria-hidden="true">⚔️</span>
               <span className="sr-only">Combat</span>
-              {combat.isInCombat && (
+              {isInCombat && (
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" aria-hidden="true" />
               )}
             </button>
@@ -752,10 +743,10 @@ function App() {
               role="tab"
               aria-selected={mobileTab === 'crafting'}
               aria-controls="mobile-panel-content"
-              aria-label="Crafting"
+              aria-label={completedCraftsCount > 0 ? `Crafting (${completedCraftsCount} ready)` : 'Crafting'}
               onClick={() => setMobileTab('crafting')}
               className={`
-                flex-1 py-3 px-4 text-sm font-semibold transition-all
+                flex-1 py-3 px-4 text-sm font-semibold transition-all relative
                 ${mobileTab === 'crafting'
                   ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
                   : 'text-rind hover:text-cheddar-600 hover:bg-white/30'
@@ -764,6 +755,9 @@ function App() {
             >
               <span aria-hidden="true">🪤</span>
               <span className="sr-only">Crafting</span>
+              {completedCraftsCount > 0 && (
+                <span className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full" aria-hidden="true" />
+              )}
             </button>
           </nav>
 
@@ -772,7 +766,7 @@ function App() {
             {mobileTab === 'generators' && <GeneratorPanel />}
             {mobileTab === 'upgrades' && <UpgradePanel />}
             {mobileTab === 'combat' && (
-              combat.isInCombat ? (
+              isInCombat ? (
                 <Suspense fallback={<PanelLoader />}>
                   <CombatPanel onFlee={handleFlee} />
                 </Suspense>
@@ -801,6 +795,52 @@ function App() {
             )}
           </div>
         </div>
+        ) : (
+        <main id="main-content" className="flex flex-1 min-h-0" role="main" aria-label="Game content">
+          {/* Generator Panel - Left side */}
+          <aside id="generators-panel" className="w-72 lg:w-80 xl:w-96 p-4 overflow-hidden shrink-0" aria-label="Generators panel">
+            <GeneratorPanel />
+          </aside>
+
+          {/* 3D Scene - Center */}
+          <div className="flex-1 relative min-w-0" aria-label="Game scene">
+            <GameScene />
+          </div>
+
+          {/* Right side panel (Upgrades, Achievements, Heroes, or Combat) */}
+          <aside className="w-72 lg:w-80 xl:w-96 p-4 overflow-hidden shrink-0 flex flex-col gap-4">
+            {rightPanelView === 'upgrades' && <UpgradePanel />}
+            {rightPanelView === 'achievements' && <AchievementPanel />}
+            {rightPanelView === 'heroes' && (
+              <>
+                <div className="flex-1 min-h-0 overflow-hidden">
+                  <HeroPanel onEquipmentClick={handleEquipmentClick} />
+                </div>
+                <PartyFormationPanel compact />
+              </>
+            )}
+            {rightPanelView === 'combat' && (
+              isInCombat ? (
+                <Suspense fallback={<PanelLoader />}>
+                  <CombatPanel onFlee={handleFlee} />
+                </Suspense>
+              ) : (
+                <ZoneSelectPanel onStartCombat={handleStartCombat} />
+              )
+            )}
+            {rightPanelView === 'prestige' && (
+              <Suspense fallback={<PanelLoader />}>
+                <PrestigePanel />
+              </Suspense>
+            )}
+            {rightPanelView === 'crafting' && (
+              <Suspense fallback={<PanelLoader />}>
+                <CraftingPanel />
+              </Suspense>
+            )}
+          </aside>
+        </main>
+        )}
       </div>
 
       {/* Particle Container for visual effects */}
@@ -810,6 +850,7 @@ function App() {
       <AchievementToastContainer />
       <DialogueToastContainer />
       <GoldenCheeseNotificationContainer />
+      <SaveToastContainer />
 
       {/* Eh Counter (subtle display in corner) */}
       {ehCount > 0 && (

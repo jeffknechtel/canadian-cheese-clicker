@@ -11,6 +11,9 @@ let isRunning = false;
 let lastEventCheckTime = 0;
 const EVENT_CHECK_INTERVAL_MS = 60 * 60 * 1000; // Check hourly
 
+// Track when tab was hidden for offline progress calculation
+let hiddenTimestamp: number | null = null;
+
 // ===== Performance Configuration =====
 // Separate game logic tick rate from visual frame rate
 // Visual: 60fps (every frame), Game Logic: 10fps (every 100ms)
@@ -132,11 +135,17 @@ export function resumeGameLoop() {
 }
 
 // Handle visibility changes to pause/resume
-export function setupVisibilityHandler() {
+export function setupVisibilityHandler(onVisibilityResume?: (hiddenDurationMs: number) => void) {
   const handleVisibilityChange = () => {
     if (document.hidden) {
+      hiddenTimestamp = Date.now();
       pauseGameLoop();
     } else {
+      const duration = hiddenTimestamp ? Date.now() - hiddenTimestamp : 0;
+      hiddenTimestamp = null;
+      if (duration > 0 && onVisibilityResume) {
+        onVisibilityResume(duration);
+      }
       resumeGameLoop();
     }
   };

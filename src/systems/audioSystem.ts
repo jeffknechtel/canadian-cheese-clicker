@@ -36,11 +36,58 @@ let isAmbientPlaying = false;
 let ambientInterval: number | null = null;
 let currentAmbientProvince: Province | null = null;
 
+// SFX bus with compressor to prevent clipping
+let sfxBus: GainNode | null = null;
+let sfxCompressor: DynamicsCompressorNode | null = null;
+
+// Per-sound cooldowns to prevent rapid stacking
+const soundCooldowns: Map<string, number> = new Map();
+const SFX_COOLDOWNS: Record<string, number> = {
+  click: 30,
+  purchase: 80,
+  attack: 60,
+  ability: 100,
+  heal: 80,
+  buff: 80,
+  debuff: 80,
+  defeat: 200,
+  milestone: 200,
+  crafting: 200,
+};
+
 function getAudioContext(): AudioContext {
   if (!audioContext) {
     audioContext = new AudioContext();
   }
   return audioContext;
+}
+
+function getSfxBus(): GainNode {
+  if (!sfxBus) {
+    const ctx = getAudioContext();
+    sfxCompressor = ctx.createDynamicsCompressor();
+    sfxCompressor.threshold.value = -24;
+    sfxCompressor.knee.value = 30;
+    sfxCompressor.ratio.value = 12;
+    sfxCompressor.attack.value = 0.003;
+    sfxCompressor.release.value = 0.25;
+    sfxCompressor.connect(ctx.destination);
+
+    sfxBus = ctx.createGain();
+    sfxBus.connect(sfxCompressor);
+  }
+  return sfxBus;
+}
+
+function canPlaySound(soundId: string, cooldownMs?: number): boolean {
+  const now = performance.now();
+  const lastPlayed = soundCooldowns.get(soundId) ?? 0;
+  const cooldown = cooldownMs ?? SFX_COOLDOWNS[soundId] ?? 50;
+  if (now - lastPlayed < cooldown) {
+    return false;
+  }
+  soundCooldowns.set(soundId, now);
+  return true;
 }
 
 // Resume audio context (required after user interaction)
@@ -926,6 +973,7 @@ export function stopAmbientSounds(): void {
 
 // Generate a simple click sound using oscillators
 export function playClickSound(): void {
+  if (!canPlaySound('click')) return;
   const volume = getEffectiveSfxVolume();
   if (volume === 0) return;
 
@@ -940,7 +988,7 @@ export function playClickSound(): void {
     const gainNode = ctx.createGain();
 
     oscillator.connect(gainNode);
-    gainNode.connect(ctx.destination);
+    gainNode.connect(getSfxBus());
 
     // Higher frequency for a brighter click
     oscillator.frequency.setValueAtTime(800, now);
@@ -962,6 +1010,7 @@ export function playClickSound(): void {
 
 // Play a "success" sound for purchases
 export function playPurchaseSound(): void {
+  if (!canPlaySound('purchase')) return;
   const volume = getEffectiveSfxVolume();
   if (volume === 0) return;
 
@@ -978,7 +1027,7 @@ export function playPurchaseSound(): void {
 
     osc1.connect(gainNode);
     osc2.connect(gainNode);
-    gainNode.connect(ctx.destination);
+    gainNode.connect(getSfxBus());
 
     // Two-note "success" jingle
     osc1.frequency.setValueAtTime(523, now); // C5
@@ -1071,6 +1120,7 @@ export function playAchievementFanfare(): void {
 
 // Milestone chime - celebratory ascending tones
 export function playMilestoneChime(): void {
+  if (!canPlaySound('milestone')) return;
   const volume = getEffectiveSfxVolume();
   if (volume === 0) return;
 
@@ -1080,7 +1130,7 @@ export function playMilestoneChime(): void {
 
     const now = ctx.currentTime;
     const gainNode = ctx.createGain();
-    gainNode.connect(ctx.destination);
+    gainNode.connect(getSfxBus());
 
     // Quick ascending chime: G-B-D
     const notes = [
@@ -1106,6 +1156,37 @@ export function playMilestoneChime(): void {
 
       osc.start(now + time);
       osc.stop(now + time + 0.35);
+    });
+  } catch {
+    // Silently fail if audio not available
+  }
+}
+
+// Crafting complete chime - cheerful two-note completion sound
+export function playCraftingCompleteSound(): void {
+  if (!canPlaySound('crafting')) return;
+  const volume = getEffectiveSfxVolume();
+  if (volume === 0) return;
+
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === 'suspended') return;
+
+    const now = ctx.currentTime;
+    const gainNode = ctx.createGain();
+    gainNode.connect(getSfxBus());
+
+    gainNode.gain.setValueAtTime(volume * 0.4, now);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+
+    // Rising two-note chime
+    [523.25, 659.25].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+      osc.connect(gainNode);
+      osc.start(now + i * 0.1);
+      osc.stop(now + 0.5);
     });
   } catch {
     // Silently fail if audio not available
@@ -1166,6 +1247,7 @@ export function setAudioPreferences(prefs: AudioPreferences): void {
 
 // Play attack sound - quick percussive hit
 export function playAttackSound(type: 'physical' | 'magic' | 'critical' = 'physical'): void {
+  if (!canPlaySound('attack')) return;
   const volume = getEffectiveSfxVolume();
   if (volume === 0) return;
 
@@ -1175,7 +1257,7 @@ export function playAttackSound(type: 'physical' | 'magic' | 'critical' = 'physi
 
     const now = ctx.currentTime;
     const gainNode = ctx.createGain();
-    gainNode.connect(ctx.destination);
+    gainNode.connect(getSfxBus());
 
     if (type === 'physical') {
       // Quick "thwack" sound
@@ -1256,6 +1338,7 @@ export function playAttackSound(type: 'physical' | 'magic' | 'critical' = 'physi
 
 // Play ability activation sound
 export function playAbilitySound(): void {
+  if (!canPlaySound('ability')) return;
   const volume = getEffectiveSfxVolume();
   if (volume === 0) return;
 
@@ -1265,7 +1348,7 @@ export function playAbilitySound(): void {
 
     const now = ctx.currentTime;
     const gainNode = ctx.createGain();
-    gainNode.connect(ctx.destination);
+    gainNode.connect(getSfxBus());
 
     // Rising whoosh with sparkle
     const osc1 = ctx.createOscillator();
@@ -1360,6 +1443,7 @@ export function playLimitBreakSound(): void {
 
 // Play enemy defeat sound
 export function playEnemyDefeatSound(): void {
+  if (!canPlaySound('defeat')) return;
   const volume = getEffectiveSfxVolume();
   if (volume === 0) return;
 
@@ -1369,7 +1453,7 @@ export function playEnemyDefeatSound(): void {
 
     const now = ctx.currentTime;
     const gainNode = ctx.createGain();
-    gainNode.connect(ctx.destination);
+    gainNode.connect(getSfxBus());
 
     // Descending tone with crunch
     const osc = ctx.createOscillator();
@@ -1495,6 +1579,7 @@ export function playDefeatJingle(): void {
 
 // Play heal sound - gentle ascending chime
 export function playHealSound(): void {
+  if (!canPlaySound('heal')) return;
   const volume = getEffectiveSfxVolume();
   if (volume === 0) return;
 
@@ -1504,7 +1589,7 @@ export function playHealSound(): void {
 
     const now = ctx.currentTime;
     const gainNode = ctx.createGain();
-    gainNode.connect(ctx.destination);
+    gainNode.connect(getSfxBus());
 
     // Gentle ascending sparkle
     const notes = [523.25, 659.26, 783.99]; // C5, E5, G5
@@ -1531,6 +1616,7 @@ export function playHealSound(): void {
 
 // Play buff applied sound
 export function playBuffSound(): void {
+  if (!canPlaySound('buff')) return;
   const volume = getEffectiveSfxVolume();
   if (volume === 0) return;
 
@@ -1543,7 +1629,7 @@ export function playBuffSound(): void {
     const osc = ctx.createOscillator();
     const gainNode = ctx.createGain();
     osc.connect(gainNode);
-    gainNode.connect(ctx.destination);
+    gainNode.connect(getSfxBus());
 
     // Quick rising tone
     osc.frequency.setValueAtTime(400, now);
@@ -1562,6 +1648,7 @@ export function playBuffSound(): void {
 
 // Play debuff applied sound
 export function playDebuffSound(): void {
+  if (!canPlaySound('debuff')) return;
   const volume = getEffectiveSfxVolume();
   if (volume === 0) return;
 
@@ -1574,7 +1661,7 @@ export function playDebuffSound(): void {
     const osc = ctx.createOscillator();
     const gainNode = ctx.createGain();
     osc.connect(gainNode);
-    gainNode.connect(ctx.destination);
+    gainNode.connect(getSfxBus());
 
     // Quick descending tone
     osc.frequency.setValueAtTime(600, now);

@@ -7,11 +7,14 @@ interface RennetDisplayProps {
 }
 
 export function RennetDisplay({ showPotential = false, className = '' }: RennetDisplayProps) {
-  const { prestige, getPotentialRennet, getPrestigeMultipliers } = useGameStore();
+  const rennet = useGameStore((s) => s.prestige.rennet);
+  const agingResetCount = useGameStore((s) => s.prestige.agingResetCount);
+  const getPotentialRennet = useGameStore((s) => s.getPotentialRennet);
+  const getPrestigeMultipliers = useGameStore((s) => s.getPrestigeMultipliers);
   const potentialRennet = getPotentialRennet();
   const multipliers = getPrestigeMultipliers();
 
-  const hasPrestiged = prestige.agingResetCount > 0 || prestige.rennet > 0;
+  const hasPrestiged = agingResetCount > 0 || rennet > 0;
 
   if (!hasPrestiged && potentialRennet === 0 && !showPotential) {
     return null;
@@ -20,7 +23,7 @@ export function RennetDisplay({ showPotential = false, className = '' }: RennetD
   return (
     <div className={`group relative inline-flex items-center gap-1.5 ${className}`}>
       <span className="text-lg" title="Rennet">🧀</span>
-      <span className="font-bold text-amber-700">{formatNumber(prestige.rennet)}</span>
+      <span className="font-bold text-amber-700">{formatNumber(rennet)}</span>
 
       {showPotential && potentialRennet > 0 && (
         <span className="text-xs text-amber-600">
@@ -39,7 +42,7 @@ export function RennetDisplay({ showPotential = false, className = '' }: RennetD
           {multipliers.combat > 1 && <div>Combat: x{multipliers.combat.toFixed(2)}</div>}
         </div>
         <div className="text-white/90 mt-1 pt-1 border-t border-white/30">
-          Aging Resets: {prestige.agingResetCount}
+          Aging Resets: {agingResetCount}
         </div>
         {/* Tooltip arrow */}
         <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-rind" />

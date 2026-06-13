@@ -7,6 +7,7 @@ import {
   getAudioPreferences,
   setAudioPreferences,
 } from './audioSystem';
+import { showSaveToast } from './saveToast';
 
 const SAVE_KEY = 'canadian_cheese_quest_save';
 const AUDIO_PREFS_KEY = 'canadian_cheese_quest_audio';
@@ -216,7 +217,7 @@ function deserializeState(serialized: SerializedGameState): GameState {
   };
 }
 
-export function saveGame(state: GameState): void {
+export function saveGame(state: GameState): boolean {
   try {
     const data: SaveData = {
       version: CURRENT_VERSION,
@@ -226,8 +227,10 @@ export function saveGame(state: GameState): void {
       }),
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    return true;
   } catch (error) {
     console.error('Failed to save game:', error);
+    return false;
   }
 }
 
@@ -240,11 +243,16 @@ export function loadGame(): GameState | null {
 
     // Check for future versions - refuse to load to prevent data corruption
     if (data.version > CURRENT_VERSION) {
+      // Backup the rejected save
+      localStorage.setItem(`${SAVE_KEY}_backup_v${data.version}`, raw);
+      showSaveToast(
+        'error',
+        `Save from newer version (v${data.version}) cannot be loaded. A backup was created. Starting fresh game.`
+      );
       console.error(
         `Save version ${data.version} is from a newer game version. ` +
         `Current version is ${CURRENT_VERSION}. Cannot load - this would risk data corruption.`
       );
-      // Return null to start fresh rather than corrupt the save
       return null;
     }
 
@@ -258,6 +266,12 @@ export function loadGame(): GameState | null {
 
     return deserializeState(data.state);
   } catch (error) {
+    // Backup the corrupted save
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (raw) {
+      localStorage.setItem(`${SAVE_KEY}_backup_corrupted_${Date.now()}`, raw);
+      showSaveToast('error', 'Save data was corrupted. A backup was created. Starting fresh game.');
+    }
     console.error('Failed to load game, starting fresh:', error);
     return null;
   }

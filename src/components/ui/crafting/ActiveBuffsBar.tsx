@@ -3,7 +3,7 @@ import { useGameStore } from '../../../stores';
 import type { CheeseActiveBuff } from '../../../types/game';
 
 export function ActiveBuffsBar() {
-  const { crafting } = useGameStore();
+  const storeActiveBuffs = useGameStore((s) => s.crafting.activeBuffs);
   const [currentTime, setCurrentTime] = useState(() => Date.now());
 
   // Force re-render every second to update timers
@@ -17,8 +17,8 @@ export function ActiveBuffsBar() {
 
   // Filter to only show active (non-expired) buffs
   const activeBuffs = useMemo(() => {
-    return crafting.activeBuffs.filter((buff) => buff.endTime > currentTime);
-  }, [crafting.activeBuffs, currentTime]);
+    return storeActiveBuffs.filter((buff: CheeseActiveBuff) => buff.endTime > currentTime);
+  }, [storeActiveBuffs, currentTime]);
 
   if (activeBuffs.length === 0) {
     return null;
