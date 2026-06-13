@@ -53,7 +53,7 @@ export function CurrencyDisplay() {
         )}
       </div>
       {!curdPerSecond.isZero() && (
-        <div className="text-timmys-cream text-sm tabular-nums">
+        <div className="text-white/90 text-sm tabular-nums">
           {formatNumber(curdPerSecond)} / sec
         </div>
       )}
