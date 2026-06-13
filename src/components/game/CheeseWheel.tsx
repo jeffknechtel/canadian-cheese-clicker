@@ -5,6 +5,7 @@ import { useGameStore } from '../../stores';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { playClickSound, resumeAudioContext } from '../../systems/audioSystem';
 import { isMobile } from '../../systems/gameLoop';
+import { vibrateClick } from '../../systems/haptics';
 
 interface CheeseWheelProps {
   onClickPosition?: (point: THREE.Vector3) => void;
@@ -70,6 +71,7 @@ export function CheeseWheel({ onClickPosition, cylinderSegments = 32 }: CheeseWh
 
       click();
       playClickSound();
+      vibrateClick();
       setClickAnimation(1);
 
       // Pass click position for particle effects

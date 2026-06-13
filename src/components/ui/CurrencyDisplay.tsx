@@ -37,11 +37,10 @@ export function CurrencyDisplay() {
           className="flex items-center gap-2 text-white font-bold text-2xl tabular-nums transition-transform duration-200"
         >
           <LoonieIcon />
+          {/* aria-label provides accessible name; removed aria-live to prevent screen reader spam on rapid updates */}
           <span
             key={currencyAnimationTrigger}
             className={!reducedMotion ? 'animate-number-pop' : ''}
-            role="status"
-            aria-live="polite"
             aria-label={`${formatNumber(curds)} curds`}
           >
             {formatNumber(curds)} Curds

@@ -6,7 +6,15 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   return (
-    <div className="min-h-screen bg-linear-to-br from-cream via-cheddar-50 to-cheddar-100 overflow-x-hidden">
+    <div
+      className="min-h-screen bg-linear-to-br from-cream via-cheddar-50 to-cheddar-100 overflow-x-hidden"
+      style={{
+        paddingTop: 'var(--safe-area-top)',
+        paddingBottom: 'var(--safe-area-bottom)',
+        paddingLeft: 'var(--safe-area-left)',
+        paddingRight: 'var(--safe-area-right)',
+      }}
+    >
       {/* Subtle decorative background pattern */}
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.02]"

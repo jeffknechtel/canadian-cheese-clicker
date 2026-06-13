@@ -60,7 +60,9 @@
   --animate-slide-in-right: slide-in-right 0.25s ease-out forwards;
   --animate-fade-in: fade-in 0.3s ease-out forwards;
   --animate-modal-in: modal-in 0.25s ease-out forwards;
+  --animate-modal-out: modal-out 0.15s ease-in forwards;
   --animate-backdrop-in: backdrop-in 0.2s ease-out forwards;
+  --animate-fade-out: fade-out 0.15s ease-out forwards;
   --animate-number-pop: number-pop 0.3s ease-out;
   --animate-success-flash: success-flash 0.4s ease-out;
   --animate-value-highlight: value-highlight 0.5s ease-out;
@@ -119,6 +121,12 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    /* Safe area insets for notch/home indicator */
+    --safe-area-top: env(safe-area-inset-top, 0px);
+    --safe-area-right: env(safe-area-inset-right, 0px);
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-left: env(safe-area-inset-left, 0px);
   }
 
   body {
@@ -1118,6 +1126,32 @@
 
 .animate-backdrop-in {
   animation: backdrop-in 0.2s ease-out forwards;
+}
+
+/* Modal exit animation */
+@keyframes modal-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+.animate-modal-out {
+  animation: modal-out 0.15s ease-in forwards;
+}
+
+/* Fade out animation */
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.animate-fade-out {
+  animation: fade-out 0.15s ease-out forwards;
 }
 
 /* Staggered animation delays for lists */

@@ -61,7 +61,7 @@ const HeroCombatCard = memo(function HeroCombatCard({ heroState, isSelected = fa
         }
       `}
       aria-label={statusLabel}
-      aria-selected={isSelected}
+      aria-current={isSelected ? 'true' : undefined}
       role="listitem"
       data-hero-number={heroNumber}
     >
@@ -211,7 +211,7 @@ const SpeedControl = memo(function SpeedControl({ currentSpeed, onSpeedChange }:
           aria-pressed={currentSpeed === speed}
           aria-label={`${speed}x speed${currentSpeed === speed ? ' (selected)' : ''}`}
           className={`
-            px-2 py-1 text-xs font-bold rounded transition-all btn-scale
+            min-w-[44px] min-h-[44px] px-2 py-2 text-xs font-bold rounded transition-all btn-scale
             ${currentSpeed === speed
               ? 'bg-maple-600 text-white shadow-xs'
               : 'bg-gray-200 text-gray-600 hover:bg-gray-300'

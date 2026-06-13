@@ -6,6 +6,7 @@ import { playPurchaseSound } from '../../systems/audioSystem';
 import type { Upgrade } from '../../types/game';
 import { generatorRegistry } from '../../domain';
 import { SynergiesPanel } from './SynergiesPanel';
+import { EmptyState } from './shared/EmptyState';
 
 type MainTabType = 'upgrades' | 'synergies';
 type UpgradeTabType = 'available' | 'purchased';
@@ -254,10 +255,11 @@ export function UpgradePanel() {
                   />
                 ))
               ) : (
-                <div className="text-center text-gray-500 py-8">
-                  <p className="text-sm">No upgrades available</p>
-                  <p className="text-xs mt-1">Buy more generators to unlock upgrades!</p>
-                </div>
+                <EmptyState
+                  icon="🧀"
+                  title="No Upgrades Available"
+                  description="Buy more generators to unlock powerful upgrades!"
+                />
               )
             ) : (
               purchasedUpgrades.length > 0 ? (
@@ -270,10 +272,11 @@ export function UpgradePanel() {
                   />
                 ))
               ) : (
-                <div className="text-center text-gray-500 py-8">
-                  <p className="text-sm">No upgrades purchased yet</p>
-                  <p className="text-xs mt-1">Buy upgrades to boost your production!</p>
-                </div>
+                <EmptyState
+                  icon="📦"
+                  title="No Upgrades Purchased"
+                  description="Buy upgrades to boost your production!"
+                />
               )
             )}
           </div>
