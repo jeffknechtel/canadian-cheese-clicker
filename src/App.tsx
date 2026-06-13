@@ -360,24 +360,28 @@ function App() {
   }, [endCombat, currentZone, currentStage]);
 
   const handleCombatResultsContinue = useCallback(() => {
-    if (combatResults?.result === 'victory') {
-      const rewards = claimCombatRewards();
-      if (rewards) {
-        playMilestoneChime();
+    if (combatResults?.result) {
+      endCombat(combatResults.result);
+      if (combatResults.result === 'victory') {
+        const rewards = claimCombatRewards();
+        if (rewards) {
+          playMilestoneChime();
+        }
       }
     }
     setCombatResults(null);
-  }, [combatResults?.result, claimCombatRewards]);
+  }, [combatResults?.result, endCombat, claimCombatRewards]);
 
   const handleCombatRetry = useCallback(() => {
     if (combatResults) {
-      const { zoneId, stageNumber } = combatResults;
+      const { zoneId, stageNumber, result } = combatResults;
+      endCombat(result);
       setCombatResults(null);
       if (zoneId) {
         handleStartCombat(zoneId, stageNumber);
       }
     }
-  }, [combatResults, handleStartCombat]);
+  }, [combatResults, endCombat, handleStartCombat]);
 
   // Keyboard navigation handler for panels
   const handleKeyboardNavigate = useCallback(
