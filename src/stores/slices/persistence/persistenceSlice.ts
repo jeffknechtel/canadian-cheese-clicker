@@ -1,5 +1,6 @@
 import type { SliceCreator } from '../../types';
 import type { PersistenceSlice } from './types';
+import type { FeatureId, HintId } from '../../../types/game';
 import { saveGame, loadGame, calculateOfflineProgress } from '../../../systems/saveSystem';
 import { createInitialProductionState } from '../production/resetFactory';
 import { createEmptyCombatState } from '../combat/resetFactory';
@@ -127,6 +128,10 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
         completed: false,
         claimed: false,
       },
+
+      // Progressive unlock state - reset to fresh game experience
+      unlockedFeatures: new Set<FeatureId>(['upgrades', 'achievements']),
+      shownHints: new Set<HintId>(),
 
       // Persistence state
       lastSaved: Date.now(),

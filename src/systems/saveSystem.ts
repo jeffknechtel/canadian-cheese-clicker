@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js';
-import type { GameState, HeroState, PartyFormation, PrestigeState, ZoneProgress, CraftingState, GoldenCheeseState, SynergyState, ChallengeState } from '../types/game';
+import type { GameState, HeroState, PartyFormation, PrestigeState, ZoneProgress, CraftingState, GoldenCheeseState, SynergyState, ChallengeState, FeatureId, HintId } from '../types/game';
 import { MAX_OFFLINE_SECONDS } from '../data/constants';
 import { CURRENT_VERSION, runMigrations } from './migrations';
 import type { AudioPreferences } from './audioSystem';
@@ -48,6 +48,9 @@ interface SerializedGameState {
   synergy?: SynergyState;
   // Challenge system
   challenge?: ChallengeState;
+  // Progressive unlock system
+  unlockedFeatures?: FeatureId[];
+  shownHints?: HintId[];
 }
 
 function serializeState(state: GameState): SerializedGameState {
@@ -81,6 +84,9 @@ function serializeState(state: GameState): SerializedGameState {
     synergy: state.synergy,
     // Challenge system
     challenge: state.challenge,
+    // Progressive unlock system
+    unlockedFeatures: Array.from(state.unlockedFeatures),
+    shownHints: Array.from(state.shownHints),
   };
 }
 
@@ -214,6 +220,11 @@ function deserializeState(serialized: SerializedGameState): GameState {
       completed: false,
       claimed: false,
     },
+    // Progressive unlock system - for existing saves, unlock all features to preserve experience
+    unlockedFeatures: serialized.unlockedFeatures
+      ? new Set(serialized.unlockedFeatures)
+      : new Set(['upgrades', 'combat', 'heroes', 'crafting', 'prestige', 'achievements'] as FeatureId[]),
+    shownHints: new Set(serialized.shownHints ?? []),
   };
 }
 

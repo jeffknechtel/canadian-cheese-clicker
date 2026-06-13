@@ -19,12 +19,13 @@ import {
 } from '../../../systems/productionEngine';
 import { upgradeRegistry } from '../../../domain';
 import { UPGRADES } from '../../../data/upgrades';
+import { GENERATORS } from '../../../data/generators';
 import { MILESTONE_THRESHOLDS } from '../../../data/canadianDialogue';
 import {
   trackGeneratorPurchase,
   trackUpgradePurchase,
 } from '../../../systems/analyticsService';
-import { EH_DIVISOR, EH_BONUS_PER_TIER } from '../../../data/constants';
+import { EH_DIVISOR, EH_BONUS_PER_TIER, UNLOCK_THRESHOLDS } from '../../../data/constants';
 import type { UpgradeRequirement } from '../../../types/game';
 
 function checkRequirement(
@@ -288,5 +289,29 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
 
   getPrestigeProductionReset: () => {
     return createPrestigeProductionState(get().prestige);
+  },
+
+  getVisibleGenerators: () => {
+    const state = get();
+    const curds = state.curds;
+
+    // Find the highest generator the player can afford
+    let highestAffordableIndex = -1;
+    for (let i = 0; i < GENERATORS.length; i++) {
+      if (curds.gte(GENERATORS[i].baseCost)) {
+        highestAffordableIndex = i;
+      }
+    }
+
+    // Show up to N generators ahead
+    const revealUpTo = Math.min(
+      highestAffordableIndex + UNLOCK_THRESHOLDS.generatorRevealAhead + 1,
+      GENERATORS.length
+    );
+
+    // Always show at least the first 3 generators
+    const minVisible = 3;
+
+    return GENERATORS.slice(0, Math.max(revealUpTo, minVisible));
   },
 });

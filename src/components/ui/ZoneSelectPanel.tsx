@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useGameStore } from '../../stores';
 import { ZONES, getProvinceDisplayName, isZoneUnlocked, getTotalStages, getZoneCompletionPercent } from '../../data/zones';
+import { FirstTimeHint } from './shared/FirstTimeHint';
 import type { ZoneDefinition, Province } from '../../types/game';
 
 const PROVINCE_ICONS: Record<Province, string> = {
@@ -184,17 +185,18 @@ export function ZoneSelectPanel({ onStartCombat }: ZoneSelectPanelProps) {
   };
 
   return (
-    <div className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain">
-      {/* Header */}
-      <div className="mb-3">
-        <h2 className="text-lg font-bold text-timber-700 flex items-center gap-2">
-          <span>⚔️</span>
-          <span>Combat Zones</span>
-        </h2>
-        <p className="text-xs text-gray-500 mt-1">
-          Select a zone and stage to begin battle
-        </p>
-      </div>
+    <FirstTimeHint hintId="firstCombat" position="top">
+      <div className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain">
+        {/* Header */}
+        <div className="mb-3">
+          <h2 className="text-lg font-bold text-timber-700 flex items-center gap-2">
+            <span>⚔️</span>
+            <span>Combat Zones</span>
+          </h2>
+          <p className="text-xs text-gray-500 mt-1">
+            Select a zone and stage to begin battle
+          </p>
+        </div>
 
       {/* No Party Warning */}
       {!hasPartyMembers && (
@@ -223,20 +225,21 @@ export function ZoneSelectPanel({ onStartCombat }: ZoneSelectPanelProps) {
         })}
       </div>
 
-      {/* Legend */}
-      <div className="mt-3 pt-3 border-t border-timber-200">
-        <div className="flex flex-wrap gap-2 text-xs text-gray-500">
-          <span className="flex items-center gap-1">
-            <span className="w-3 h-3 rounded bg-cheddar-100 border border-cheddar-300" /> Cleared
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-3 h-3 rounded bg-maple-100 border border-maple-300" /> Available
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-3 h-3 rounded bg-gray-100 border border-gray-200" /> Locked
-          </span>
+        {/* Legend */}
+        <div className="mt-3 pt-3 border-t border-timber-200">
+          <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+            <span className="flex items-center gap-1">
+              <span className="w-3 h-3 rounded bg-cheddar-100 border border-cheddar-300" /> Cleared
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-3 h-3 rounded bg-maple-100 border border-maple-300" /> Available
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-3 h-3 rounded bg-gray-100 border border-gray-200" /> Locked
+            </span>
+          </div>
         </div>
       </div>
-    </div>
+    </FirstTimeHint>
   );
 }

@@ -65,6 +65,9 @@ function tick(currentTime: number) {
         store.tickGoldenCheese(gameLogicInterval);
         accumulatedGameLogicTime -= gameLogicInterval;
       }
+
+      // Check for newly unlocked features (after production updates)
+      store.checkUnlocks();
     }
 
     // Combat tick: runs every frame for smooth ATB bars

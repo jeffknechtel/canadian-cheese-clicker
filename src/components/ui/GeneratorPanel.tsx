@@ -9,6 +9,7 @@ import { playPurchaseSound } from '../../systems/audioSystem';
 import { announceGeneratorPurchase } from '../../systems/accessibilityAnnouncer';
 import type { Generator } from '../../types/game';
 import { CpsBreakdownPanel } from './CpsBreakdownPanel';
+import { FirstTimeHint } from './shared/FirstTimeHint';
 
 type BuyAmount = 1 | 10 | 100 | 'max';
 
@@ -166,8 +167,9 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
 export function GeneratorPanel() {
   const [buyAmount, setBuyAmount] = useState<BuyAmount>(1);
 
-  const basicGenerators = GENERATORS.slice(0, CANADIAN_TIER_START);
-  const canadianGenerators = GENERATORS.slice(CANADIAN_TIER_START);
+  const visibleGenerators = useGameStore((s) => s.getVisibleGenerators());
+  const basicGenerators = visibleGenerators.filter((_, i) => i < CANADIAN_TIER_START);
+  const canadianGenerators = visibleGenerators.filter((_, i) => i >= CANADIAN_TIER_START);
 
   return (
     <section className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain gap-3" aria-labelledby="generators-heading">
@@ -195,15 +197,26 @@ export function GeneratorPanel() {
       </div>
       <div className="flex-1 overflow-y-auto space-y-2 scrollbar-thin" role="list" aria-label="Available generators">
         {/* Basic Tier Generators */}
-        {basicGenerators.map((generator, index) => (
-          <GeneratorRow
-            key={generator.id}
-            generator={generator}
-            buyAmount={buyAmount}
-            isCanadianTier={false}
-            index={index}
-          />
-        ))}
+        {basicGenerators.map((generator, index) =>
+          index === 0 ? (
+            <FirstTimeHint key={generator.id} hintId="firstGenerator" position="right">
+              <GeneratorRow
+                generator={generator}
+                buyAmount={buyAmount}
+                isCanadianTier={false}
+                index={index}
+              />
+            </FirstTimeHint>
+          ) : (
+            <GeneratorRow
+              key={generator.id}
+              generator={generator}
+              buyAmount={buyAmount}
+              isCanadianTier={false}
+              index={index}
+            />
+          )
+        )}
 
         {/* Canadian Tier Separator */}
         {canadianGenerators.length > 0 && (
@@ -222,6 +235,17 @@ export function GeneratorPanel() {
             index={basicGenerators.length + index}
           />
         ))}
+
+        {/* More generators hint */}
+        {visibleGenerators.length < GENERATORS.length && (
+          <div className="text-center text-gray-500 py-4 text-sm">
+            <span className="text-lg">🔒</span>
+            <p>More generators unlock as you progress!</p>
+            <p className="text-xs mt-1">
+              Next: {GENERATORS[visibleGenerators.length]?.name}
+            </p>
+          </div>
+        )}
       </div>
       <CpsBreakdownPanel />
     </section>

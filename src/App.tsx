@@ -19,6 +19,7 @@ import { CombatResultsModal } from './components/ui/CombatResultsModal';
 import { ActiveBuffsBar } from './components/ui/crafting/ActiveBuffsBar';
 import { LoadingScreen } from './components/ui/LoadingScreen';
 import { KeyboardHelpModal } from './components/ui/KeyboardHelpModal';
+import { HelpModal } from './components/ui/HelpModal';
 import { PrivacyConsent } from './components/ui/PrivacyConsent';
 import { usePrivacyConsent } from './hooks/usePrivacyConsent';
 import { useIsMobile } from './hooks/useBreakpoint';
@@ -32,6 +33,7 @@ import { initializeAnnouncer, cleanupAnnouncer } from './systems/accessibilityAn
 import { initializeErrorCapture } from './systems/bugReporter';
 import { analytics, trackMilestone } from './systems/analyticsService';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useUnlockedTabs } from './hooks/useUnlockedTabs';
 import { IS_BETA, BETA_FEATURES } from './config/version';
 
 // Lazy-loaded heavy components for code splitting
@@ -90,6 +92,7 @@ function App() {
   const [combatResults, setCombatResults] = useState<CombatResultsState | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [keyboardHelpOpen, setKeyboardHelpOpen] = useState(false);
+  const [helpModalOpen, setHelpModalOpen] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [showLoading, setShowLoading] = useState(true);
 
@@ -150,6 +153,9 @@ function App() {
     const available = state.getAvailableUpgrades();
     return available.filter(u => state.canAffordUpgrade(u.id)).length;
   });
+
+  // Progressive unlock - which tabs are unlocked
+  const { isTabUnlocked } = useUnlockedTabs();
 
   // Ref for random dialogue timer
   const dialogueTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -408,21 +414,23 @@ function App() {
   );
 
   // Check if any modal is open
-  const isAnyModalOpen = settingsOpen || keyboardHelpOpen || !!equipmentModal || !!combatResults || !!offlineProgress;
+  const isAnyModalOpen = settingsOpen || keyboardHelpOpen || helpModalOpen || !!equipmentModal || !!combatResults || !!offlineProgress;
 
   // Global keyboard shortcuts
   useKeyboardShortcuts({
     onNavigate: handleKeyboardNavigate,
     onOpenSettings: useCallback(() => setSettingsOpen(true), []),
     onOpenHelp: useCallback(() => setKeyboardHelpOpen(true), []),
+    onOpenGameHelp: useCallback(() => setHelpModalOpen(true), []),
     onCloseModal: useCallback(() => {
-      if (keyboardHelpOpen) setKeyboardHelpOpen(false);
+      if (helpModalOpen) setHelpModalOpen(false);
+      else if (keyboardHelpOpen) setKeyboardHelpOpen(false);
       else if (settingsOpen) setSettingsOpen(false);
       else if (equipmentModal) setEquipmentModal(null);
       else if (combatResults) {
         handleCombatResultsContinue();
       }
-    }, [keyboardHelpOpen, settingsOpen, equipmentModal, combatResults, handleCombatResultsContinue]),
+    }, [helpModalOpen, keyboardHelpOpen, settingsOpen, equipmentModal, combatResults, handleCombatResultsContinue]),
     isModalOpen: isAnyModalOpen,
   });
 
@@ -439,6 +447,17 @@ function App() {
       });
     }
   }, [battleResult, currentZone, currentStage, combatResults]);
+
+  // Fallback when current panel is locked (e.g., fresh game)
+  useEffect(() => {
+    if (!isTabUnlocked(rightPanelView)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Syncing external store unlock state to local panel state
+      setRightPanelView('upgrades'); // Upgrades is always unlocked
+    }
+    if (!isTabUnlocked(mobileTab) && mobileTab !== 'generators') {
+      setMobileTab('generators');
+    }
+  }, [isTabUnlocked, rightPanelView, mobileTab]);
 
   // Build accessibility classes (memoized to prevent re-computation on every render)
   // This must be before any early returns to satisfy React hooks rules
@@ -471,6 +490,11 @@ function App() {
     <KeyboardHelpModal
       isOpen={keyboardHelpOpen}
       onClose={() => setKeyboardHelpOpen(false)}
+    />
+    {/* Game Guide Help Modal - must be outside Layout */}
+    <HelpModal
+      isOpen={helpModalOpen}
+      onClose={() => setHelpModalOpen(false)}
     />
     <div className={accessibilityClasses}>
     <Layout>
@@ -512,88 +536,107 @@ function App() {
               </div>
               {/* Desktop panel toggle buttons */}
               <div className="hidden md:flex items-center gap-2">
-                <button
-                  onClick={() => setRightPanelView('combat')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors border ${
-                    rightPanelView === 'combat'
-                      ? 'bg-white/40 border-white/40'
-                      : isInCombat
-                        ? `bg-red-500/30 border-red-400/40 ${!accessibility.reducedMotion ? 'animate-pulse' : ''}`
+                {isTabUnlocked('combat') && (
+                  <button
+                    onClick={() => setRightPanelView('combat')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors border ${
+                      rightPanelView === 'combat'
+                        ? 'bg-white/40 border-white/40'
+                        : isInCombat
+                          ? `bg-red-500/30 border-red-400/40 ${!accessibility.reducedMotion ? 'animate-pulse' : ''}`
+                          : 'bg-white/20 hover:bg-white/30 border-white/20'
+                    }`}
+                    title="Combat"
+                  >
+                    <span className="text-lg">⚔️</span>
+                    {isInCombat && <span className="text-xs font-bold">!</span>}
+                  </button>
+                )}
+                {isTabUnlocked('heroes') && (
+                  <button
+                    onClick={() => setRightPanelView('heroes')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors border ${
+                      rightPanelView === 'heroes'
+                        ? 'bg-white/40 border-white/40'
                         : 'bg-white/20 hover:bg-white/30 border-white/20'
-                  }`}
-                  title="Combat"
-                >
-                  <span className="text-lg">⚔️</span>
-                  {isInCombat && <span className="text-xs font-bold">!</span>}
-                </button>
-                <button
-                  onClick={() => setRightPanelView('heroes')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors border ${
-                    rightPanelView === 'heroes'
-                      ? 'bg-white/40 border-white/40'
-                      : 'bg-white/20 hover:bg-white/30 border-white/20'
-                  }`}
-                  title="Heroes"
-                >
-                  <span className="text-lg">🦸</span>
-                </button>
-                <button
-                  onClick={() => setRightPanelView('achievements')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors border ${
-                    rightPanelView === 'achievements'
-                      ? 'bg-white/40 border-white/40'
-                      : 'bg-white/20 hover:bg-white/30 border-white/20'
-                  }`}
-                  title="Achievements"
-                >
-                  <span className="text-lg">🏆</span>
-                  <span className="text-sm font-medium">{unlockedCount}/{totalAchievements}</span>
-                </button>
-                <button
-                  onClick={() => setRightPanelView('prestige')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors border ${
-                    rightPanelView === 'prestige'
-                      ? 'bg-white/40 border-white/40'
-                      : prestigeAvailable
-                        ? `bg-amber-500/30 border-amber-400/40 ${!accessibility.reducedMotion ? 'animate-pulse' : ''}`
+                    }`}
+                    title="Heroes"
+                  >
+                    <span className="text-lg">🦸</span>
+                  </button>
+                )}
+                {isTabUnlocked('achievements') && (
+                  <button
+                    onClick={() => setRightPanelView('achievements')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors border ${
+                      rightPanelView === 'achievements'
+                        ? 'bg-white/40 border-white/40'
                         : 'bg-white/20 hover:bg-white/30 border-white/20'
-                  }`}
-                  title="Prestige (Cheese Aging)"
-                >
-                  <span className="text-lg">🧀</span>
-                  {(hasPrestiged || prestigeAvailable) && (
-                    <span className="text-sm font-medium">{rennet}</span>
-                  )}
-                  {prestigeAvailable && rightPanelView !== 'prestige' && (
-                    <span className="text-xs text-white font-medium">+{potentialRennet}</span>
-                  )}
-                </button>
-                <button
-                  onClick={() => setRightPanelView('crafting')}
-                  className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors border ${
-                    rightPanelView === 'crafting'
-                      ? 'bg-white/40 border-white/40'
-                      : 'bg-white/20 hover:bg-white/30 border-white/20'
-                  }`}
-                  title="Cheese Crafting"
-                >
-                  <span className="text-lg">🪤</span>
-                  {completedCraftsCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full text-xs text-white flex items-center justify-center font-bold">
-                      {completedCraftsCount}
-                    </span>
-                  )}
-                </button>
+                    }`}
+                    title="Achievements"
+                  >
+                    <span className="text-lg">🏆</span>
+                    <span className="text-sm font-medium">{unlockedCount}/{totalAchievements}</span>
+                  </button>
+                )}
+                {isTabUnlocked('prestige') && (
+                  <button
+                    onClick={() => setRightPanelView('prestige')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors border ${
+                      rightPanelView === 'prestige'
+                        ? 'bg-white/40 border-white/40'
+                        : prestigeAvailable
+                          ? `bg-amber-500/30 border-amber-400/40 ${!accessibility.reducedMotion ? 'animate-pulse' : ''}`
+                          : 'bg-white/20 hover:bg-white/30 border-white/20'
+                    }`}
+                    title="Prestige (Cheese Aging)"
+                  >
+                    <span className="text-lg">🧀</span>
+                    {(hasPrestiged || prestigeAvailable) && (
+                      <span className="text-sm font-medium">{rennet}</span>
+                    )}
+                    {prestigeAvailable && rightPanelView !== 'prestige' && (
+                      <span className="text-xs text-white font-medium">+{potentialRennet}</span>
+                    )}
+                  </button>
+                )}
+                {isTabUnlocked('crafting') && (
+                  <button
+                    onClick={() => setRightPanelView('crafting')}
+                    className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors border ${
+                      rightPanelView === 'crafting'
+                        ? 'bg-white/40 border-white/40'
+                        : 'bg-white/20 hover:bg-white/30 border-white/20'
+                    }`}
+                    title="Cheese Crafting"
+                  >
+                    <span className="text-lg">🪤</span>
+                    {completedCraftsCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full text-xs text-white flex items-center justify-center font-bold">
+                        {completedCraftsCount}
+                      </span>
+                    )}
+                  </button>
+                )}
               </div>
               <AudioControls />
+              {/* Game Help Button */}
+              <button
+                onClick={() => setHelpModalOpen(true)}
+                className="p-2 rounded-lg bg-cheddar-500/30 hover:bg-cheddar-500/50 transition-colors hidden sm:block"
+                title="Game Guide"
+                aria-label="Open game guide"
+              >
+                <span className="text-lg" aria-hidden="true">❓</span>
+              </button>
               {/* Keyboard Help Button */}
               <button
                 onClick={() => setKeyboardHelpOpen(true)}
                 className="p-2 rounded-lg bg-cheddar-500/30 hover:bg-cheddar-500/50 transition-colors hidden sm:block"
-                title="Keyboard Shortcuts (?)"
+                title="Keyboard Shortcuts"
                 aria-label="Open keyboard shortcuts help"
               >
-                <span className="text-sm font-bold" aria-hidden="true">?</span>
+                <span className="text-sm font-bold" aria-hidden="true">⌨</span>
               </button>
               {/* Settings Button */}
               <button
@@ -641,124 +684,136 @@ function App() {
             >
               Generators
             </button>
-            <button
-              role="tab"
-              aria-selected={mobileTab === 'upgrades'}
-              aria-controls="mobile-panel-content"
-              aria-label={affordableUpgradesCount > 0 ? `Upgrades (${affordableUpgradesCount} affordable)` : 'Upgrades'}
-              onClick={() => setMobileTab('upgrades')}
-              className={`
-                flex-1 py-3 px-4 text-sm font-semibold transition-all relative
-                ${mobileTab === 'upgrades'
-                  ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
-                  : 'text-rind hover:text-cheddar-600 hover:bg-white/30'
-                }
-              `}
-            >
-              Upgrades
-              {affordableUpgradesCount > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 bg-green-500 rounded-full text-xs text-white">
-                  {affordableUpgradesCount}
-                </span>
-              )}
-            </button>
-            <button
-              role="tab"
-              aria-selected={mobileTab === 'combat'}
-              aria-controls="mobile-panel-content"
-              aria-label={isInCombat ? 'Combat (battle in progress)' : 'Combat'}
-              onClick={() => setMobileTab('combat')}
-              className={`
-                flex-1 py-3 px-4 text-sm font-semibold transition-all relative
-                ${mobileTab === 'combat'
-                  ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
-                  : isInCombat
-                    ? `text-red-600 bg-red-50/50 ${!accessibility.reducedMotion ? 'animate-pulse' : ''}`
+            {isTabUnlocked('upgrades') && (
+              <button
+                role="tab"
+                aria-selected={mobileTab === 'upgrades'}
+                aria-controls="mobile-panel-content"
+                aria-label={affordableUpgradesCount > 0 ? `Upgrades (${affordableUpgradesCount} affordable)` : 'Upgrades'}
+                onClick={() => setMobileTab('upgrades')}
+                className={`
+                  flex-1 py-3 px-4 text-sm font-semibold transition-all relative
+                  ${mobileTab === 'upgrades'
+                    ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
                     : 'text-rind hover:text-cheddar-600 hover:bg-white/30'
-                }
-              `}
-            >
-              <span aria-hidden="true">⚔️</span>
-              <span className="sr-only">Combat</span>
-              {isInCombat && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" aria-hidden="true" />
-              )}
-            </button>
-            <button
-              role="tab"
-              aria-selected={mobileTab === 'heroes'}
-              aria-controls="mobile-panel-content"
-              aria-label="Heroes"
-              onClick={() => setMobileTab('heroes')}
-              className={`
-                flex-1 py-3 px-4 text-sm font-semibold transition-all
-                ${mobileTab === 'heroes'
-                  ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
-                  : 'text-rind hover:text-cheddar-600 hover:bg-white/30'
-                }
-              `}
-            >
-              <span aria-hidden="true">🦸</span>
-              <span className="sr-only">Heroes</span>
-            </button>
-            <button
-              role="tab"
-              aria-selected={mobileTab === 'achievements'}
-              aria-controls="mobile-panel-content"
-              aria-label={`Achievements, ${unlockedCount} unlocked`}
-              onClick={() => setMobileTab('achievements')}
-              className={`
-                flex-1 py-3 px-4 text-sm font-semibold transition-all
-                ${mobileTab === 'achievements'
-                  ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
-                  : 'text-rind hover:text-cheddar-600 hover:bg-white/30'
-                }
-              `}
-            >
-              <span aria-hidden="true">🏆</span> {unlockedCount}
-            </button>
-            <button
-              role="tab"
-              aria-selected={mobileTab === 'prestige'}
-              aria-controls="mobile-panel-content"
-              aria-label={prestigeAvailable ? 'Prestige (available)' : 'Prestige'}
-              onClick={() => setMobileTab('prestige')}
-              className={`
-                flex-1 py-3 px-4 text-sm font-semibold transition-all relative
-                ${mobileTab === 'prestige'
-                  ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
-                  : prestigeAvailable
-                    ? `text-amber-600 bg-amber-50/50 ${!accessibility.reducedMotion ? 'animate-pulse' : ''}`
+                  }
+                `}
+              >
+                Upgrades
+                {affordableUpgradesCount > 0 && (
+                  <span className="ml-1 px-1.5 py-0.5 bg-green-500 rounded-full text-xs text-white">
+                    {affordableUpgradesCount}
+                  </span>
+                )}
+              </button>
+            )}
+            {isTabUnlocked('combat') && (
+              <button
+                role="tab"
+                aria-selected={mobileTab === 'combat'}
+                aria-controls="mobile-panel-content"
+                aria-label={isInCombat ? 'Combat (battle in progress)' : 'Combat'}
+                onClick={() => setMobileTab('combat')}
+                className={`
+                  flex-1 py-3 px-4 text-sm font-semibold transition-all relative
+                  ${mobileTab === 'combat'
+                    ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
+                    : isInCombat
+                      ? `text-red-600 bg-red-50/50 ${!accessibility.reducedMotion ? 'animate-pulse' : ''}`
+                      : 'text-rind hover:text-cheddar-600 hover:bg-white/30'
+                  }
+                `}
+              >
+                <span aria-hidden="true">⚔️</span>
+                <span className="sr-only">Combat</span>
+                {isInCombat && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" aria-hidden="true" />
+                )}
+              </button>
+            )}
+            {isTabUnlocked('heroes') && (
+              <button
+                role="tab"
+                aria-selected={mobileTab === 'heroes'}
+                aria-controls="mobile-panel-content"
+                aria-label="Heroes"
+                onClick={() => setMobileTab('heroes')}
+                className={`
+                  flex-1 py-3 px-4 text-sm font-semibold transition-all
+                  ${mobileTab === 'heroes'
+                    ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
                     : 'text-rind hover:text-cheddar-600 hover:bg-white/30'
-                }
-              `}
-            >
-              <span aria-hidden="true">🧀</span>
-              <span className="sr-only">Prestige</span>
-              {prestigeAvailable && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-amber-500 rounded-full" aria-hidden="true" />
-              )}
-            </button>
-            <button
-              role="tab"
-              aria-selected={mobileTab === 'crafting'}
-              aria-controls="mobile-panel-content"
-              aria-label={completedCraftsCount > 0 ? `Crafting (${completedCraftsCount} ready)` : 'Crafting'}
-              onClick={() => setMobileTab('crafting')}
-              className={`
-                flex-1 py-3 px-4 text-sm font-semibold transition-all relative
-                ${mobileTab === 'crafting'
-                  ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
-                  : 'text-rind hover:text-cheddar-600 hover:bg-white/30'
-                }
-              `}
-            >
-              <span aria-hidden="true">🪤</span>
-              <span className="sr-only">Crafting</span>
-              {completedCraftsCount > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full" aria-hidden="true" />
-              )}
-            </button>
+                  }
+                `}
+              >
+                <span aria-hidden="true">🦸</span>
+                <span className="sr-only">Heroes</span>
+              </button>
+            )}
+            {isTabUnlocked('achievements') && (
+              <button
+                role="tab"
+                aria-selected={mobileTab === 'achievements'}
+                aria-controls="mobile-panel-content"
+                aria-label={`Achievements, ${unlockedCount} unlocked`}
+                onClick={() => setMobileTab('achievements')}
+                className={`
+                  flex-1 py-3 px-4 text-sm font-semibold transition-all
+                  ${mobileTab === 'achievements'
+                    ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
+                    : 'text-rind hover:text-cheddar-600 hover:bg-white/30'
+                  }
+                `}
+              >
+                <span aria-hidden="true">🏆</span> {unlockedCount}
+              </button>
+            )}
+            {isTabUnlocked('prestige') && (
+              <button
+                role="tab"
+                aria-selected={mobileTab === 'prestige'}
+                aria-controls="mobile-panel-content"
+                aria-label={prestigeAvailable ? 'Prestige (available)' : 'Prestige'}
+                onClick={() => setMobileTab('prestige')}
+                className={`
+                  flex-1 py-3 px-4 text-sm font-semibold transition-all relative
+                  ${mobileTab === 'prestige'
+                    ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
+                    : prestigeAvailable
+                      ? `text-amber-600 bg-amber-50/50 ${!accessibility.reducedMotion ? 'animate-pulse' : ''}`
+                      : 'text-rind hover:text-cheddar-600 hover:bg-white/30'
+                  }
+                `}
+              >
+                <span aria-hidden="true">🧀</span>
+                <span className="sr-only">Prestige</span>
+                {prestigeAvailable && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-amber-500 rounded-full" aria-hidden="true" />
+                )}
+              </button>
+            )}
+            {isTabUnlocked('crafting') && (
+              <button
+                role="tab"
+                aria-selected={mobileTab === 'crafting'}
+                aria-controls="mobile-panel-content"
+                aria-label={completedCraftsCount > 0 ? `Crafting (${completedCraftsCount} ready)` : 'Crafting'}
+                onClick={() => setMobileTab('crafting')}
+                className={`
+                  flex-1 py-3 px-4 text-sm font-semibold transition-all relative
+                  ${mobileTab === 'crafting'
+                    ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
+                    : 'text-rind hover:text-cheddar-600 hover:bg-white/30'
+                  }
+                `}
+              >
+                <span aria-hidden="true">🪤</span>
+                <span className="sr-only">Crafting</span>
+                {completedCraftsCount > 0 && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full" aria-hidden="true" />
+                )}
+              </button>
+            )}
           </nav>
 
           {/* Mobile Panel Content */}

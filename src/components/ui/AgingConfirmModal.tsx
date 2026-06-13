@@ -11,8 +11,16 @@ interface AgingConfirmModalProps {
   onCancel: () => void;
 }
 
+function formatRecoupTime(seconds: number): string {
+  if (!isFinite(seconds) || seconds <= 0) return 'instantly';
+  if (seconds < 60) return 'less than a minute';
+  if (seconds < 3600) return `~${Math.ceil(seconds / 60)} minutes`;
+  if (seconds < 86400) return `~${(seconds / 3600).toFixed(1)} hours`;
+  return `~${(seconds / 86400).toFixed(1)} days`;
+}
+
 export function AgingConfirmModal({ onConfirm, onCancel }: AgingConfirmModalProps) {
-  const { curds, generators, upgrades, prestige, getPotentialRennet, getPrestigeMultipliers } = useGameStore();
+  const { curds, curdPerSecond, generators, upgrades, prestige, getPotentialRennet, getPrestigeMultipliers } = useGameStore();
   const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
   const potentialRennet = getPotentialRennet();
@@ -21,6 +29,15 @@ export function AgingConfirmModal({ onConfirm, onCancel }: AgingConfirmModalProp
   // Calculate what multiplier will be after prestige
   const newRennet = prestige.rennet + potentialRennet;
   const newProductionMultiplier = 1 + (newRennet * 0.01);
+
+  // Calculate recoup time estimate
+  // How long to regain current curds with the new multiplier boost
+  const multiplierGain = newProductionMultiplier / currentMultipliers.production;
+  // Estimate assumes player rebuilds at roughly the same pace but with the new multiplier advantage
+  // This is a simplification: actual time depends on how fast they buy generators again
+  const estimatedRecoupSeconds = curdPerSecond.isZero()
+    ? 0
+    : curds.div(curdPerSecond.mul(multiplierGain)).toNumber();
 
   // Random Canadian message from dialogue system - stable across renders
   const [agingMessage] = useState(() => getPrestigeDialogue('beforeAging'));
@@ -59,6 +76,19 @@ export function AgingConfirmModal({ onConfirm, onCancel }: AgingConfirmModalProp
             <span className="font-semibold">x{currentMultipliers.production.toFixed(2)}</span>
             {' → '}
             <span className="font-bold text-cheddar-600">x{newProductionMultiplier.toFixed(2)}</span>
+          </p>
+        </div>
+
+        {/* Recoup Time Estimate */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+          <p className="text-sm text-blue-800 flex items-center gap-2">
+            <span>⏱️</span>
+            <span>
+              <strong>Time to recoup:</strong> {formatRecoupTime(estimatedRecoupSeconds)}
+            </span>
+          </p>
+          <p className="text-xs text-blue-600 mt-1">
+            Estimated time to regain your current curd production level after resetting.
           </p>
         </div>
 

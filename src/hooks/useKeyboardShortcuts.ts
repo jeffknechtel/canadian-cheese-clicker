@@ -57,6 +57,7 @@ interface UseKeyboardShortcutsOptions {
   onNavigate: (panel: 'generators' | 'upgrades' | 'heroes' | 'combat' | 'prestige' | 'crafting' | 'achievements') => void;
   onOpenSettings: () => void;
   onOpenHelp: () => void;
+  onOpenGameHelp?: () => void;
   onCloseModal: () => void;
   isModalOpen: boolean;
 }
@@ -65,6 +66,7 @@ export function useKeyboardShortcuts({
   onNavigate,
   onOpenSettings,
   onOpenHelp,
+  onOpenGameHelp,
   onCloseModal,
   isModalOpen,
 }: UseKeyboardShortcutsOptions): void {
@@ -184,15 +186,29 @@ export function useKeyboardShortcuts({
           announce('Opened Settings', 'polite');
           break;
 
-        // Help modal
+        // Help modal (keyboard shortcuts)
+        case '/':
+          if (event.shiftKey) {
+            event.preventDefault();
+            onOpenHelp();
+            announce('Opened keyboard shortcuts help', 'polite');
+          }
+          break;
+
+        // Game guide help
         case '?':
           event.preventDefault();
-          onOpenHelp();
-          announce('Opened keyboard shortcuts help', 'polite');
+          if (onOpenGameHelp) {
+            onOpenGameHelp();
+            announce('Opened game guide', 'polite');
+          } else {
+            onOpenHelp();
+            announce('Opened keyboard shortcuts help', 'polite');
+          }
           break;
       }
     },
-    [click, generators, buyGenerator, onNavigate, onOpenSettings, onOpenHelp, onCloseModal, isModalOpen]
+    [click, generators, buyGenerator, onNavigate, onOpenSettings, onOpenHelp, onOpenGameHelp, onCloseModal, isModalOpen]
   );
 
   useEffect(() => {
