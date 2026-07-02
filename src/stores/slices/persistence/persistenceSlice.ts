@@ -1,12 +1,15 @@
 import type { SliceCreator } from '../../types';
 import type { PersistenceSlice } from './types';
-import type { FeatureId, HintId } from '../../../types/game';
 import { saveGame, loadGame, calculateOfflineProgress } from '../../../systems/saveSystem';
 import { createInitialProductionState } from '../production/resetFactory';
 import { createEmptyCombatState } from '../combat/resetFactory';
 import { createInitialCraftingState } from '../crafting/resetFactory';
 import { createInitialPrestigeState } from '../prestige/resetFactory';
 import { createInitialChallengeState } from '../challenge/resetFactory';
+import { createInitialHeroState } from '../heroes/resetFactory';
+import { createInitialAchievementState } from '../achievements/resetFactory';
+import { createInitialEventState } from '../events/resetFactory';
+import { createInitialUnlockState } from '../unlock/resetFactory';
 import { useSettingsStore } from '../../settingsStore';
 
 // Module-level flag to prevent save during import
@@ -87,15 +90,8 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
       ehCount: 0,
       lastMilestone: 0,
 
-      // Hero state
-      heroes: {},
-      party: {
-        frontLeft: null,
-        frontRight: null,
-        backLeft: null,
-        backRight: null,
-      },
-      equipmentInventory: [],
+      // Hero state - DELEGATED to factory
+      ...createInitialHeroState(),
 
       // Combat state - DELEGATED to factory
       combat: createEmptyCombatState(),
@@ -107,11 +103,11 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
       // Crafting state - DELEGATED to factory
       crafting: createInitialCraftingState(),
 
-      // Event state
-      activeEvents: [],
+      // Event state - DELEGATED to factory
+      ...createInitialEventState(),
 
-      // Achievement state
-      achievements: [],
+      // Achievement state - DELEGATED to factory
+      ...createInitialAchievementState(),
 
       // Synergy state - permanent, NOT reset
       synergy: get().synergy,
@@ -119,9 +115,8 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
       // Challenge state - DELEGATED to factory
       challenge: createInitialChallengeState(),
 
-      // Progressive unlock state - reset to fresh game experience
-      unlockedFeatures: new Set<FeatureId>(['upgrades', 'achievements']),
-      shownHints: new Set<HintId>(),
+      // Progressive unlock state - DELEGATED to factory
+      ...createInitialUnlockState(),
 
       // Persistence state
       lastSaved: Date.now(),

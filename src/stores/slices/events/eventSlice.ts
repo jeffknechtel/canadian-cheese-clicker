@@ -82,13 +82,10 @@ export const createEventSlice: SliceCreator<EventSlice> = (set, get) => ({
               get().unlockRecipe(recipeId);
             }
           }
+          // Route through grantEquipment to respect slice boundaries
           if (event.exclusiveContent.equipment) {
             for (const equipmentId of event.exclusiveContent.equipment) {
-              if (!get().equipmentInventory.includes(equipmentId)) {
-                set((s) => ({
-                  equipmentInventory: [...s.equipmentInventory, equipmentId],
-                }));
-              }
+              get().grantEquipment(equipmentId);
             }
           }
         }

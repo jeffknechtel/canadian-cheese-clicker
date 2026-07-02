@@ -9,11 +9,6 @@ import {
   calculateMaxAffordable,
   calculateClickMultiplier,
   calculateGeneratorMultipliers,
-  calculateGlobalMultiplier,
-  calculateAchievementGlobalMultiplier,
-  calculateHeroCpsMultiplier,
-  calculateFormationMultiplier,
-  calculatePrestigeProductionMultiplier,
   calculatePrestigeClickMultiplier,
   calculateAchievementClickMultiplier,
 } from '../../../systems/productionEngine';
@@ -25,7 +20,7 @@ import {
   trackGeneratorPurchase,
   trackUpgradePurchase,
 } from '../../../systems/analyticsService';
-import { EH_DIVISOR, EH_BONUS_PER_TIER, UNLOCK_THRESHOLDS, CLICK_CRIT_BASE_CHANCE, CLICK_CRIT_BASE_MULTIPLIER, BUY_MILESTONES } from '../../../data/constants';
+import { EH_DIVISOR, EH_BONUS_PER_TIER, CLICK_CRIT_BASE_CHANCE, CLICK_CRIT_BASE_MULTIPLIER, BUY_MILESTONES } from '../../../data/constants';
 import { playCriticalSound, playBuyMilestoneSound } from '../../../systems/audioSystem';
 import { vibrateCrit, vibrateSuccess } from '../../../systems/haptics';
 import { emitParticles } from '../../../systems/particleSystem';
@@ -109,6 +104,18 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
       curds: state.curds.plus(amount),
       totalCurdsEarned: state.totalCurdsEarned.plus(amount),
     });
+  },
+
+  spendCurds: (amount: Decimal) => {
+    set((s) => ({
+      curds: s.curds.minus(amount),
+    }));
+  },
+
+  spendWhey: (amount: Decimal) => {
+    set((s) => ({
+      whey: s.whey.minus(amount),
+    }));
   },
 
   buyGenerator: (id: string, count: number) => {
@@ -285,27 +292,19 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
   },
 
   getClickMultiplier: () => {
-    const { upgrades, achievements, prestige } = get();
-    const upgradeMultiplier = calculateClickMultiplier(upgrades);
-    const achievementMultiplier = calculateAchievementClickMultiplier(achievements);
-    const prestigeMultiplier = calculatePrestigeClickMultiplier(prestige);
-    return upgradeMultiplier * achievementMultiplier * prestigeMultiplier;
+    const state = get();
+    const upgradeMultiplier = calculateClickMultiplier(state.upgrades);
+    const achievementMultiplier = calculateAchievementClickMultiplier(state.achievements);
+    const prestigeMultiplier = calculatePrestigeClickMultiplier(state.prestige);
+    const ehMultiplier = state.getEhMultiplier();
+    const eventMultipliers = state.getEventMultipliers();
+    return upgradeMultiplier * achievementMultiplier * prestigeMultiplier * ehMultiplier * eventMultipliers.click;
   },
 
   getGeneratorMultiplier: (id: string) => {
     const { upgrades } = get();
     const multipliers = calculateGeneratorMultipliers(upgrades);
     return multipliers[id] ?? 1;
-  },
-
-  getGlobalMultiplier: () => {
-    const { upgrades, achievements, heroes, party, prestige } = get();
-    const upgradeMultiplier = calculateGlobalMultiplier(upgrades);
-    const achievementMultiplier = calculateAchievementGlobalMultiplier(achievements);
-    const heroMultiplier = calculateHeroCpsMultiplier(heroes, party);
-    const formationMultiplier = calculateFormationMultiplier(party, heroes);
-    const prestigeMultiplier = calculatePrestigeProductionMultiplier(prestige);
-    return upgradeMultiplier * achievementMultiplier * heroMultiplier * formationMultiplier * prestigeMultiplier;
   },
 
   recalculateCps: () => {
@@ -318,29 +317,5 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
 
   getPrestigeProductionReset: () => {
     return createPrestigeProductionState(get().prestige);
-  },
-
-  getVisibleGenerators: () => {
-    const state = get();
-    const curds = state.curds;
-
-    // Find the highest generator the player can afford
-    let highestAffordableIndex = -1;
-    for (let i = 0; i < GENERATORS.length; i++) {
-      if (curds.gte(GENERATORS[i].baseCost)) {
-        highestAffordableIndex = i;
-      }
-    }
-
-    // Show up to N generators ahead
-    const revealUpTo = Math.min(
-      highestAffordableIndex + UNLOCK_THRESHOLDS.generatorRevealAhead + 1,
-      GENERATORS.length
-    );
-
-    // Always show at least the first 3 generators
-    const minVisible = 3;
-
-    return GENERATORS.slice(0, Math.max(revealUpTo, minVisible));
   },
 });

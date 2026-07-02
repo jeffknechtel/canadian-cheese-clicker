@@ -334,9 +334,10 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
   },
 
   getHeroMultiplier: () => {
-    const { heroes, party } = get();
-    const heroMultiplier = calculateHeroCpsMultiplier(heroes, party);
-    const formationMultiplier = calculateFormationMultiplier(party, heroes);
+    const state = get();
+    const heroMultiplier = calculateHeroCpsMultiplier(state.heroes, state.party);
+    const synergyFormationBonus = state.getSynergyFormationBonus();
+    const formationMultiplier = calculateFormationMultiplier(state.party, state.heroes, synergyFormationBonus);
     return heroMultiplier * formationMultiplier;
   },
 

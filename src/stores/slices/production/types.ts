@@ -1,5 +1,5 @@
 import type Decimal from 'decimal.js';
-import type { Upgrade, Generator } from '../../../types/game';
+import type { Upgrade } from '../../../types/game';
 import type { ProductionResetState } from './resetFactory';
 
 export interface ProductionState {
@@ -21,6 +21,8 @@ export interface ProductionActions {
   click: () => void;
   tick: (deltaMs: number) => void;
   addCurds: (amount: Decimal) => void;
+  spendCurds: (amount: Decimal) => void;
+  spendWhey: (amount: Decimal) => void;
   buyGenerator: (id: string, count: number) => boolean;
   getGeneratorCost: (id: string, count: number) => Decimal;
   canAffordGenerator: (id: string, count: number) => boolean;
@@ -39,11 +41,9 @@ export interface ProductionActions {
   getClickValue: () => Decimal;
   getClickMultiplier: () => number;
   getGeneratorMultiplier: (id: string) => number;
-  getGlobalMultiplier: () => number;
   recalculateCps: () => void;
   recalculateClickValue: () => void;
   getPrestigeProductionReset: () => ProductionResetState;
-  getVisibleGenerators: () => Generator[];
 }
 
 export type ProductionSlice = ProductionState & ProductionActions;
