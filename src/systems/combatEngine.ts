@@ -739,7 +739,9 @@ function applyAbilityEffect(
 
       for (const ally of buffTargets) {
         const statusEffect: StatusEffect = {
-          id: `${effect.stat}_buff_${Date.now()}`,
+          // Include the target's identity — Date.now() alone collides for every
+          // ally buffed in the same synchronous loop
+          id: `${effect.stat}_buff_${Date.now()}_${ally.heroId}`,
           type: 'buff',
           stat: effect.stat as StatusEffect['stat'],
           value: effect.value,
@@ -770,7 +772,7 @@ function applyAbilityEffect(
 
       for (const enemy of debuffTargets) {
         const statusEffect: StatusEffect = {
-          id: `${effect.stat}_debuff_${Date.now()}`,
+          id: `${effect.stat}_debuff_${Date.now()}_${enemy.instanceId}`,
           type: 'debuff',
           stat: effect.stat as StatusEffect['stat'],
           value: effect.value,
@@ -828,7 +830,7 @@ function applyAbilityEffect(
 
       for (const ally of immunityTargets) {
         const statusEffect: StatusEffect = {
-          id: `immunity_${effect.immunityType}_${Date.now()}`,
+          id: `immunity_${effect.immunityType}_${Date.now()}_${ally.heroId}`,
           type: 'immunity',
           stat: effect.immunityType as StatusEffect['stat'], // The debuff type this grants immunity to
           value: 1, // Binary: immune or not

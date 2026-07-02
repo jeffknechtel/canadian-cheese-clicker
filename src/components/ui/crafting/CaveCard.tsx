@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { useGameStore } from '../../../stores';
+import { useNow } from '../../../hooks/useNow';
 import { formatAgingDuration } from '../../../data/cheeseRecipes';
 import { recipeRegistry } from '../../../domain';
 import { playPurchaseSound } from '../../../systems/audioSystem';
@@ -73,27 +73,16 @@ interface AgingJobRowProps {
 function AgingJobRow({ job }: AgingJobRowProps) {
   const collectCheese = useGameStore((s) => s.collectCheese);
   const addInteraction = useGameStore((s) => s.addInteraction);
-  // Selected as a function deliberately: only called inside the interval callback,
-  // where it reads fresh state via get() at call time.
+  // Selected as a function deliberately: it reads fresh state via get() at call
+  // time, and the useNow() clock below re-renders this row once per second.
   const getJobProgress = useGameStore((s) => s.getJobProgress);
-  const [progress, setProgress] = useState(getJobProgress(job.id));
+
+  // Shared 1s clock drives both the countdown display and the progress refresh
+  const currentTime = useNow();
+  const progress = getJobProgress(job.id);
 
   const recipe = recipeRegistry.get(job.recipeId);
   const isComplete = progress >= 100;
-
-  const [currentTime, setCurrentTime] = useState(() => Date.now());
-
-  // Single interval for both progress and time updates
-  useEffect(() => {
-    if (isComplete) return;
-
-    const interval = setInterval(() => {
-      setProgress(getJobProgress(job.id));
-      setCurrentTime(Date.now());
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [job.id, isComplete, getJobProgress]);
 
   const handleCollect = () => {
     if (!isComplete) return;

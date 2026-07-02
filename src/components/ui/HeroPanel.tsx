@@ -177,8 +177,9 @@ interface HeroRecruitCardProps {
 }
 
 function HeroRecruitCard({ hero }: HeroRecruitCardProps) {
-  const { recruitHero, canAffordHero } = useGameStore();
-  const canAfford = canAffordHero(hero.id);
+  const recruitHero = useGameStore((s) => s.recruitHero);
+  // Primitive boolean subscription — updates as curds cross the recruit cost
+  const canAfford = useGameStore((s) => s.canAffordHero(hero.id));
 
   const handleRecruit = () => {
     if (canAfford) {

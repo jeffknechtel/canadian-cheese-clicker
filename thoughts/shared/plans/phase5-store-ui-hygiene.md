@@ -418,10 +418,10 @@ Verify the brief `isLoaded: false` first paint renders the existing loading stat
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Type check + build passes: `pnpm build`
-- [ ] Lint passes: `pnpm lint`
-- [ ] `grep -n "key={entry.timestamp}" src/components/ui/CombatLog.tsx` returns nothing
-- [ ] `grep -rn "setInterval" src/components/ui/crafting/` shows no bespoke 1s clocks (only `useNow` usage)
+- [x] Type check + build passes: `pnpm build`
+- [x] Lint passes: `pnpm lint`
+- [x] `grep -n "key={entry.timestamp}" src/components/ui/CombatLog.tsx` returns nothing
+- [x] `grep -rn "setInterval" src/components/ui/crafting/` shows no bespoke 1s clocks (only `useNow` usage)
 
 #### Manual Verification:
 - [ ] No duplicate-key warnings in the console during a multi-target ability battle

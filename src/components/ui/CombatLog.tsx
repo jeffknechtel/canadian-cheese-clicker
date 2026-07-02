@@ -56,7 +56,9 @@ function CombatLogEntryItem({ entry, isNew = false }: CombatLogEntryItemProps) {
       <span className="text-gray-500 shrink-0 tabular-nums">[{formatTime(entry.timestamp)}]</span>
       <span className={`flex-1 ${colorClass}`}>{entry.message}</span>
       {entry.value !== undefined && (
-        <span className="shrink-0 font-bold text-red-600">-{entry.value}</span>
+        <span className={`shrink-0 font-bold ${entry.type === 'heal' ? 'text-success' : 'text-error'}`}>
+          {entry.type === 'heal' ? '+' : '-'}{entry.value}
+        </span>
       )}
     </div>
   );
@@ -86,7 +88,7 @@ export function CombatLog({
   }, [entries.length, autoScroll]);
 
   // Track which entries are "new" (last 3 entries if recently added)
-  const newEntryThreshold = entries.length - 1;
+  const newEntryThreshold = Math.max(0, entries.length - 3);
 
   return (
     <div className="bg-white/80 rounded-lg border border-timber-200 overflow-hidden">
@@ -120,8 +122,11 @@ export function CombatLog({
           ) : (
             <div className="divide-y divide-gray-100">
               {entries.map((entry, index) => (
+                // Entries are append-only within a battle and cleared between
+                // battles, so a timestamp+index composite key is stable —
+                // timestamps alone collide for multi-target abilities.
                 <CombatLogEntryItem
-                  key={entry.timestamp}
+                  key={`${entry.timestamp}-${index}`}
                   entry={entry}
                   isNew={index >= newEntryThreshold}
                 />
@@ -151,7 +156,7 @@ export function CompactCombatLog({ entries, maxEntries = 5 }: CompactCombatLogPr
 
         return (
           <div
-            key={entry.timestamp}
+            key={`${entry.timestamp}-${index}`}
             className={`
               flex items-center gap-1 px-2 py-0.5 rounded
               ${isLatest ? 'bg-cheddar-50' : 'opacity-70'}

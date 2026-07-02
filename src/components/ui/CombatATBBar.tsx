@@ -51,7 +51,7 @@ export function CombatATBBar({
           className={`
             shrink-0 text-center
             ${size === 'sm' ? 'text-sm w-5' : size === 'md' ? 'text-base w-6' : 'text-lg w-8'}
-            ${isReady ? 'animate-bounce' : ''}
+            ${isReady && !reducedMotion ? 'animate-bounce' : ''}
           `}
         >
           {icon}

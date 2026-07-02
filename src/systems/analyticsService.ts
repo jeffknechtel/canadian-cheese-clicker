@@ -44,6 +44,14 @@ class AnalyticsService {
   private batchTimerId: ReturnType<typeof setInterval> | null = null;
   private consent: PrivacyConsent;
 
+  // Named handlers so destroy() can remove them (anonymous listeners are unremovable)
+  private handleBeforeUnload = () => this.flush();
+  private handleVisibilityChange = () => {
+    if (document.hidden) {
+      this.flush();
+    }
+  };
+
   constructor() {
     this.sessionId = generateSessionId();
     this.consent = this.loadConsent();
@@ -60,12 +68,23 @@ class AnalyticsService {
 
     // Flush on page unload
     if (typeof window !== 'undefined') {
-      window.addEventListener('beforeunload', () => this.flush());
-      window.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-          this.flush();
-        }
-      });
+      window.addEventListener('beforeunload', this.handleBeforeUnload);
+      window.addEventListener('visibilitychange', this.handleVisibilityChange);
+    }
+  }
+
+  /**
+   * Remove window listeners and stop the batch timer. The singleton lives for
+   * the page lifetime in production; this exists for tests/teardown.
+   */
+  destroy(): void {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('beforeunload', this.handleBeforeUnload);
+      window.removeEventListener('visibilitychange', this.handleVisibilityChange);
+    }
+    if (this.batchTimerId !== null) {
+      clearInterval(this.batchTimerId);
+      this.batchTimerId = null;
     }
   }
 

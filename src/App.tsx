@@ -159,9 +159,18 @@ function App() {
   // Ref for random dialogue timer
   const dialogueTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Initialize game state synchronously on first render
-  const [{ isLoaded, offlineProgress }, setLoadState] = useState(() => {
-    // Initialize settings audio
+  // Initialize game state on mount. Guarded against StrictMode's double effect
+  // invocation so load() and the analytics session start exactly once (a
+  // useState initializer would run twice under StrictMode in dev).
+  const [{ isLoaded, offlineProgress }, setLoadState] = useState<{
+    isLoaded: boolean;
+    offlineProgress: ReturnType<typeof load>;
+  }>({ isLoaded: false, offlineProgress: null });
+  const didInit = useRef(false);
+  useEffect(() => {
+    if (didInit.current) return;
+    didInit.current = true;
+
     initializeSettingsAudio();
 
     const progress = load();
@@ -171,11 +180,12 @@ function App() {
     const lastSessionMs = progress?.secondsAway ? progress.secondsAway * 1000 : undefined;
     analytics.startSession(isReturning, lastSessionMs);
 
-    return {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- One-time init: syncing the loaded save (external system) into React state
+    setLoadState({
       isLoaded: true,
       offlineProgress: progress && progress.secondsAway > 0 ? progress : null,
-    };
-  });
+    });
+  }, [load]);
 
   // Simulate loading progress for loading screen
   useEffect(() => {
