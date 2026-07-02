@@ -119,11 +119,10 @@ function App() {
 
   const load = useGameStore((state) => state.load);
   const save = useGameStore((state) => state.save);
-  const getUnlockedAchievements = useGameStore((state) => state.getUnlockedAchievements);
+  const unlockedCount = useGameStore((state) => state.getUnlockedAchievements().length);
   const checkMilestone = useGameStore((state) => state.checkMilestone);
   const incrementEh = useGameStore((state) => state.incrementEh);
   const ehCount = useGameStore((state) => state.ehCount);
-  const unlockedCount = getUnlockedAchievements().length;
   const totalAchievements = ACHIEVEMENTS.filter((a) => a.category !== 'hidden').length;
 
   // Combat-related store state (narrow selectors for performance)
@@ -138,8 +137,7 @@ function App() {
   // Prestige-related store state (narrow selectors for performance)
   const rennet = useGameStore((state) => state.prestige.rennet);
   const agingResetCount = useGameStore((state) => state.prestige.agingResetCount);
-  const getPotentialRennet = useGameStore((state) => state.getPotentialRennet);
-  const potentialRennet = getPotentialRennet();
+  const potentialRennet = useGameStore((state) => state.getPotentialRennet());
   const hasPrestiged = agingResetCount > 0 || rennet > 0;
   const prestigeAvailable = potentialRennet > 0;
 

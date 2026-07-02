@@ -287,13 +287,12 @@ export function HeroPanel({ onEquipmentClick }: HeroPanelProps) {
   const heroes = useGameStore((state) => state.heroes);
   const party = useGameStore((state) => state.party);
   const assignToParty = useGameStore((state) => state.assignToParty);
-  const getHeroMultiplier = useGameStore((state) => state.getHeroMultiplier);
+  const heroMultiplier = useGameStore((state) => state.getHeroMultiplier());
   const isInCombat = useGameStore((state) => state.combat.isInCombat);
   const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
   const recruitedHeroes = HEROES.filter((h) => heroes[h.id] !== undefined);
   const availableHeroes = HEROES.filter((h) => heroes[h.id] === undefined);
-  const heroMultiplier = getHeroMultiplier();
 
   // Check if hero is in party (memoized to prevent recreation on each render)
   const isHeroInParty = useCallback((heroId: string): boolean => {

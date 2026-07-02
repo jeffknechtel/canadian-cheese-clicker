@@ -110,10 +110,8 @@ interface PartyFormationPanelProps {
 export function PartyFormationPanel({ onSlotClick, compact = false }: PartyFormationPanelProps) {
   const party = useGameStore((state) => state.party);
   const removeFromParty = useGameStore((state) => state.removeFromParty);
-  const getHeroMultiplier = useGameStore((state) => state.getHeroMultiplier);
+  const heroMultiplier = useGameStore((state) => state.getHeroMultiplier());
   const heroes = useGameStore((state) => state.heroes);
-
-  const heroMultiplier = getHeroMultiplier();
 
   // Count party members
   const partyCount = POSITIONS.filter((pos) => party[pos] !== null).length;

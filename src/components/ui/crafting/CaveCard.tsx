@@ -71,7 +71,11 @@ interface AgingJobRowProps {
 }
 
 function AgingJobRow({ job }: AgingJobRowProps) {
-  const { getJobProgress, collectCheese, addInteraction } = useGameStore();
+  const collectCheese = useGameStore((s) => s.collectCheese);
+  const addInteraction = useGameStore((s) => s.addInteraction);
+  // Selected as a function deliberately: only called inside the interval callback,
+  // where it reads fresh state via get() at call time.
+  const getJobProgress = useGameStore((s) => s.getJobProgress);
   const [progress, setProgress] = useState(getJobProgress(job.id));
 
   const recipe = recipeRegistry.get(job.recipeId);

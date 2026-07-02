@@ -1,4 +1,5 @@
 import { useGameStore } from '../../stores';
+import { useGameStoreShallow } from '../../utils/zustandOptimization';
 import { formatNumber } from '../../utils/formatNumber';
 
 interface RennetDisplayProps {
@@ -9,10 +10,8 @@ interface RennetDisplayProps {
 export function RennetDisplay({ showPotential = false, className = '' }: RennetDisplayProps) {
   const rennet = useGameStore((s) => s.prestige.rennet);
   const agingResetCount = useGameStore((s) => s.prestige.agingResetCount);
-  const getPotentialRennet = useGameStore((s) => s.getPotentialRennet);
-  const getPrestigeMultipliers = useGameStore((s) => s.getPrestigeMultipliers);
-  const potentialRennet = getPotentialRennet();
-  const multipliers = getPrestigeMultipliers();
+  const potentialRennet = useGameStore((s) => s.getPotentialRennet());
+  const multipliers = useGameStoreShallow((s) => s.getPrestigeMultipliers());
 
   const hasPrestiged = agingResetCount > 0 || rennet > 0;
 

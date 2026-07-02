@@ -1,5 +1,6 @@
 import { useState, memo, useCallback, useRef, useEffect } from 'react';
 import { useGameStore } from '../../stores';
+import { useGameStoreShallow } from '../../utils/zustandOptimization';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { formatNumber } from '../../utils/formatNumber';
 import { playPurchaseSound } from '../../systems/audioSystem';
@@ -161,14 +162,10 @@ const UpgradeCard = memo(function UpgradeCard({ upgrade, isPurchased, index }: U
 export function UpgradePanel() {
   const [mainTab, setMainTab] = useState<MainTabType>('upgrades');
   const [upgradeTab, setUpgradeTab] = useState<UpgradeTabType>('available');
-  const getAvailableUpgrades = useGameStore((s) => s.getAvailableUpgrades);
-  const getPurchasedUpgrades = useGameStore((s) => s.getPurchasedUpgrades);
-  const getClickMultiplier = useGameStore((s) => s.getClickMultiplier);
+  const availableUpgrades = useGameStoreShallow((s) => s.getAvailableUpgrades());
+  const purchasedUpgrades = useGameStoreShallow((s) => s.getPurchasedUpgrades());
+  const clickMultiplier = useGameStore((s) => s.getClickMultiplier());
   const synergyPurchased = useGameStore((state) => state.synergy.purchased);
-
-  const availableUpgrades = getAvailableUpgrades();
-  const purchasedUpgrades = getPurchasedUpgrades();
-  const clickMultiplier = getClickMultiplier();
 
   return (
     <div className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain">

@@ -1,4 +1,5 @@
 import { useGameStore } from '../../stores';
+import { useGameStoreShallow } from '../../utils/zustandOptimization';
 import { AGING_UPGRADES, getAgingUpgradePurchaseCount } from '../../data/agingUpgrades';
 
 interface StatRowProps {
@@ -19,8 +20,8 @@ function StatRow({ label, value, highlight = false }: StatRowProps) {
 }
 
 export function PrestigeStats() {
-  const { prestige, getPrestigeMultipliers } = useGameStore();
-  const multipliers = getPrestigeMultipliers();
+  const prestige = useGameStore((s) => s.prestige);
+  const multipliers = useGameStoreShallow((s) => s.getPrestigeMultipliers());
 
   // Calculate starting bonuses
   let startingCurds = 0;

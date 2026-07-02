@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGameStore } from '../../stores';
+import { useGameStoreShallow } from '../../utils/zustandOptimization';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { formatNumber } from '../../utils/formatNumber';
 import { getPrestigeDialogue } from '../../data/canadianDialogue';
@@ -21,11 +22,14 @@ function formatRecoupTime(seconds: number): string {
 }
 
 export function AgingConfirmModal({ onConfirm, onCancel }: AgingConfirmModalProps) {
-  const { curds, curdPerSecond, generators, upgrades, prestige, getPotentialRennet, getPrestigeMultipliers } = useGameStore();
+  const curds = useGameStore((s) => s.curds);
+  const curdPerSecond = useGameStore((s) => s.curdPerSecond);
+  const generators = useGameStore((s) => s.generators);
+  const upgrades = useGameStore((s) => s.upgrades);
+  const prestige = useGameStore((s) => s.prestige);
+  const potentialRennet = useGameStore((s) => s.getPotentialRennet());
+  const currentMultipliers = useGameStoreShallow((s) => s.getPrestigeMultipliers());
   const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
-
-  const potentialRennet = getPotentialRennet();
-  const currentMultipliers = getPrestigeMultipliers();
 
   // Calculate what multiplier will be after prestige
   const newRennet = prestige.rennet + potentialRennet;
