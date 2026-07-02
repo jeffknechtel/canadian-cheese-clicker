@@ -219,7 +219,7 @@ grep -r "shadow-sm\|shadow " --include="*.tsx" src/
 
 ```html
 <!-- OLD v3 -->
-<div class="bg-[--brand-color]">
+<div class="bg-(--brand-color)">
 
 <!-- NEW v4 -->
 <div class="bg-(--brand-color)">
@@ -412,10 +412,10 @@ pnpm add -D tailwindcss@^3.4.0 postcss autoprefixer
 
 ## Summary Checklist
 
-- [ ] Phase 1: Create backup branch
-- [ ] Phase 2: Run `npx @tailwindcss/upgrade`
+- [x] Phase 1: Create backup branch
+- [x] Phase 2: Run `npx @tailwindcss/upgrade`
 - [ ] Phase 3: Configure `@theme` block with custom colors/animations
-- [ ] Phase 4: Fix renamed utilities (shadow, rounded, blur)
+- [x] Phase 4: Fix renamed utilities (shadow, rounded, blur)
 - [ ] Phase 5: Fix high-priority bugs
 - [ ] Phase 6: Update PostCSS config
 - [ ] Phase 7: Visual testing
