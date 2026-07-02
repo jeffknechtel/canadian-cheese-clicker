@@ -8,6 +8,7 @@ import {
   type ChangelogEntry,
 } from '../../data/changelog';
 import { GAME_VERSION } from '../../config/version';
+import { ModalOverlay } from './shared/ModalOverlay';
 
 interface ChangelogModalProps {
   isOpen: boolean;
@@ -51,15 +52,12 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
     setSearchQuery('');
   }, []);
 
-  if (!isOpen) return null;
-
   return (
-    <div
-      className="fixed inset-0 z-70 flex items-center justify-center bg-black/50 backdrop-blur-xs"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="changelog-title"
+    <ModalOverlay
+      isOpen={isOpen}
+      onClose={onClose}
+      zIndexClass="z-70"
+      ariaLabelledBy="changelog-title"
     >
       <div className="bg-white panel-wood-solid rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
@@ -180,7 +178,7 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
           </button>
         </div>
       </div>
-    </div>
+    </ModalOverlay>
   );
 }
 

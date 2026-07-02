@@ -49,11 +49,12 @@ import { useGameStore } from './stores';
 import { useHeroLevelUpEvents } from './hooks/useHeroEvents';
 import { useSettingsStore, initializeSettingsAudio, setupReducedMotionListener } from './stores/settingsStore';
 import { ACHIEVEMENTS } from './data/achievements';
+import {
+  RANDOM_DIALOGUE_MIN_MS,
+  RANDOM_DIALOGUE_MAX_MS,
+  MILESTONE_CHECK_INTERVAL_MS,
+} from './data/constants';
 import type { EquipmentSlot, CombatRewards } from './types/game';
-
-const RANDOM_DIALOGUE_MIN_MS = 60_000; // 60 seconds minimum
-const RANDOM_DIALOGUE_MAX_MS = 120_000; // 120 seconds maximum
-const MILESTONE_CHECK_INTERVAL_MS = 1000; // Check milestones every second
 
 // Loading fallback for lazy-loaded panels
 function PanelLoader() {
@@ -119,11 +120,10 @@ function App() {
 
   const load = useGameStore((state) => state.load);
   const save = useGameStore((state) => state.save);
-  const getUnlockedAchievements = useGameStore((state) => state.getUnlockedAchievements);
+  const unlockedCount = useGameStore((state) => state.getUnlockedAchievements().length);
   const checkMilestone = useGameStore((state) => state.checkMilestone);
   const incrementEh = useGameStore((state) => state.incrementEh);
   const ehCount = useGameStore((state) => state.ehCount);
-  const unlockedCount = getUnlockedAchievements().length;
   const totalAchievements = ACHIEVEMENTS.filter((a) => a.category !== 'hidden').length;
 
   // Combat-related store state (narrow selectors for performance)
@@ -138,8 +138,7 @@ function App() {
   // Prestige-related store state (narrow selectors for performance)
   const rennet = useGameStore((state) => state.prestige.rennet);
   const agingResetCount = useGameStore((state) => state.prestige.agingResetCount);
-  const getPotentialRennet = useGameStore((state) => state.getPotentialRennet);
-  const potentialRennet = getPotentialRennet();
+  const potentialRennet = useGameStore((state) => state.getPotentialRennet());
   const hasPrestiged = agingResetCount > 0 || rennet > 0;
   const prestigeAvailable = potentialRennet > 0;
 
@@ -160,9 +159,18 @@ function App() {
   // Ref for random dialogue timer
   const dialogueTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Initialize game state synchronously on first render
-  const [{ isLoaded, offlineProgress }, setLoadState] = useState(() => {
-    // Initialize settings audio
+  // Initialize game state on mount. Guarded against StrictMode's double effect
+  // invocation so load() and the analytics session start exactly once (a
+  // useState initializer would run twice under StrictMode in dev).
+  const [{ isLoaded, offlineProgress }, setLoadState] = useState<{
+    isLoaded: boolean;
+    offlineProgress: ReturnType<typeof load>;
+  }>({ isLoaded: false, offlineProgress: null });
+  const didInit = useRef(false);
+  useEffect(() => {
+    if (didInit.current) return;
+    didInit.current = true;
+
     initializeSettingsAudio();
 
     const progress = load();
@@ -172,11 +180,12 @@ function App() {
     const lastSessionMs = progress?.secondsAway ? progress.secondsAway * 1000 : undefined;
     analytics.startSession(isReturning, lastSessionMs);
 
-    return {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- One-time init: syncing the loaded save (external system) into React state
+    setLoadState({
       isLoaded: true,
       offlineProgress: progress && progress.secondsAway > 0 ? progress : null,
-    };
-  });
+    });
+  }, [load]);
 
   // Simulate loading progress for loading screen
   useEffect(() => {

@@ -14,6 +14,7 @@ export function createEmptyCombatState(): CombatState {
     currentStage: 0,
     enemies: [],
     heroStates: {},
+    partyStats: {},
     combatLog: [],
     combatSpeed: 1,
     limitBreakGauge: 0,

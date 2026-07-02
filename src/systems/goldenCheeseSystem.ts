@@ -2,24 +2,24 @@ import Decimal from 'decimal.js';
 import type { GoldenCheeseReward, GoldenCheeseRewardType, CheeseActiveBuff } from '../types/game';
 import type { GameStore } from '../stores/types';
 import { SPECIALTY_ITEMS } from '../data/ingredients';
+import {
+  MIN_SPAWN_DELAY_MS,
+  MAX_SPAWN_DELAY_MS,
+  VISIBLE_DURATION_MS,
+  CHEESE_FRENZY_DURATION_MS,
+  CLICK_STORM_DURATION_MS,
+  HERO_RALLY_DURATION_MS,
+  CURD_TSUNAMI_DURATION_MS,
+  CHEESE_FRENZY_MULTIPLIER,
+  CLICK_STORM_MULTIPLIER,
+  HERO_RALLY_MULTIPLIER,
+  CURD_TSUNAMI_MULTIPLIER,
+  LUCKY_CURDS_MINUTES,
+} from '../data/constants';
 
-// ===== Constants =====
-export const MIN_SPAWN_DELAY_MS = 3 * 60 * 1000;  // 3 minutes
-export const MAX_SPAWN_DELAY_MS = 10 * 60 * 1000; // 10 minutes
-export const VISIBLE_DURATION_MS = 15 * 1000;      // 15 seconds
-
-// Reward durations
-const CHEESE_FRENZY_DURATION_MS = 77 * 1000;
-const CLICK_STORM_DURATION_MS = 13 * 1000;
-const HERO_RALLY_DURATION_MS = 60 * 1000;
-const CURD_TSUNAMI_DURATION_MS = 7 * 1000;
-
-// Reward multipliers
-const CHEESE_FRENZY_MULTIPLIER = 7;
-const CLICK_STORM_MULTIPLIER = 77;
-const HERO_RALLY_MULTIPLIER = 5;
-const CURD_TSUNAMI_MULTIPLIER = 777;
-const LUCKY_CURDS_MINUTES = 15;
+// Balance constants live in data/constants.ts (Golden Cheese section);
+// re-export the ones existing modules import from here.
+export { MIN_SPAWN_DELAY_MS, MAX_SPAWN_DELAY_MS, VISIBLE_DURATION_MS };
 
 // Reward weights (sum = 100 for easy probability reading)
 const REWARD_TABLE: GoldenCheeseReward[] = [

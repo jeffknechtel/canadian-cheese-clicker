@@ -7,6 +7,7 @@ import { showSaveToast } from '../../systems/saveToast';
 import { PrivacyToggle } from './PrivacyConsent';
 import { AnimatedTabContent } from './shared/AnimatedTabContent';
 import { Button } from './shared/Button';
+import { ModalOverlay } from './shared/ModalOverlay';
 import type { SettingsState } from '../../types/settings';
 
 interface SettingsPanelProps {
@@ -78,20 +79,20 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
     window.location.reload();
   }, [resetGame, onClose]);
 
-  if (!isOpen) return null;
-
   return (
-    <div
-      className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+    <ModalOverlay
+      isOpen={isOpen}
+      onClose={onClose}
+      zIndexClass="z-100"
+      backdropClass="bg-black/60"
+      ariaLabelledBy="settings-title"
     >
       <div
         className="rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col bg-cream"
-        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 text-white bg-gradient-to-r from-cheddar-500 to-cheddar-600">
-          <h2 className="text-xl font-bold flex items-center gap-2 font-display">
+          <h2 id="settings-title" className="text-xl font-bold flex items-center gap-2 font-display">
             <span className="text-2xl">&#9881;</span>
             Settings
           </h2>
@@ -202,7 +203,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
           </Button>
         </div>
       </div>
-    </div>
+    </ModalOverlay>
   );
 }
 
@@ -590,7 +591,7 @@ function DataSettings({
           placeholder="Paste your save data here..."
           className="w-full h-24 px-3 py-2 border border-cheddar-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-cheddar-500"
         />
-        {importError && <p className="text-red-500 text-xs mt-1">{importError}</p>}
+        {importError && <p className="text-error text-xs mt-1">{importError}</p>}
         <Button variant="secondary" size="sm" onClick={onImport} className="mt-2">
           Import Save
         </Button>

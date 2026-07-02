@@ -5,6 +5,7 @@ import { heroRegistry, equipmentRegistry } from '../../domain';
 import { formatNumber } from '../../utils/formatNumber';
 import { playPurchaseSound } from '../../systems/audioSystem';
 import { ModalOverlay } from './shared/ModalOverlay';
+import { DISABLED_BUTTON_CLASSES } from './shared/Button';
 import type { EquipmentSlot, Equipment } from '../../types/game';
 
 const SLOT_LABELS: Record<EquipmentSlot, string> = {
@@ -116,7 +117,7 @@ function EquipmentCard({
             className={`
               w-full py-1.5 rounded text-sm font-medium transition-colors
               ${isEquippedByOther
-                ? 'bg-gray-200 text-gray-700 cursor-not-allowed'
+                ? DISABLED_BUTTON_CLASSES
                 : 'bg-cheddar-600 hover:bg-cheddar-700 text-white'
               }
             `}
@@ -131,7 +132,7 @@ function EquipmentCard({
               w-full py-1.5 rounded text-sm font-medium transition-colors
               ${canAfford
                 ? 'bg-maple-500 hover:bg-maple-600 text-white'
-                : 'bg-gray-200 text-gray-700 cursor-not-allowed'
+                : DISABLED_BUTTON_CLASSES
               }
             `}
           >

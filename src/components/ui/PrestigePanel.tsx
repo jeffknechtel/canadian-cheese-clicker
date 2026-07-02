@@ -16,6 +16,9 @@ import {
 import { AgingConfirmModal } from './AgingConfirmModal';
 import { PrestigeStats } from './PrestigeStats';
 import { FirstTimeHint } from './shared/FirstTimeHint';
+import { TabButton } from './shared/TabButton';
+import { PanelContainer } from './shared/PanelContainer';
+import { DISABLED_BUTTON_CLASSES } from './shared/Button';
 import type { AgingUpgrade } from '../../types/game';
 import Decimal from 'decimal.js';
 import {
@@ -136,7 +139,7 @@ function AgingUpgradeCard({ upgrade, purchaseCount, canPurchase, onPurchase }: A
           </div>
           <p className="text-xs text-gray-600 mt-0.5">{upgrade.description}</p>
           {isLocked && requirementText && (
-            <p className="text-xs text-red-500 mt-1 italic">{requirementText}</p>
+            <p className="text-xs text-error mt-1 italic">{requirementText}</p>
           )}
         </div>
 
@@ -305,7 +308,7 @@ export function PrestigePanel() {
 
   return (
     <FirstTimeHint hintId="firstPrestige" position="top">
-      <div className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain relative overflow-hidden">
+      <PanelContainer className="relative overflow-hidden">
         {/* Prestige Animation Overlay */}
       {showPrestigeAnimation && (
         <div className="absolute inset-0 pointer-events-none z-10">
@@ -354,42 +357,15 @@ export function PrestigePanel() {
 
       {/* Tabs */}
       <div className="flex gap-1 mb-3">
-        <button
-          onClick={() => setActiveTab('aging')}
-          className={`
-            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
-            ${activeTab === 'aging'
-              ? 'bg-amber-600 text-white border-amber-700'
-              : 'bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-200'
-            }
-          `}
-        >
+        <TabButton variant="amber" active={activeTab === 'aging'} onClick={() => setActiveTab('aging')}>
           Aging
-        </button>
-        <button
-          onClick={() => setActiveTab('upgrades')}
-          className={`
-            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
-            ${activeTab === 'upgrades'
-              ? 'bg-amber-600 text-white border-amber-700'
-              : 'bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-200'
-            }
-          `}
-        >
+        </TabButton>
+        <TabButton variant="amber" active={activeTab === 'upgrades'} onClick={() => setActiveTab('upgrades')}>
           Upgrades ({prestige.agingUpgrades.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('stats')}
-          className={`
-            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
-            ${activeTab === 'stats'
-              ? 'bg-amber-600 text-white border-amber-700'
-              : 'bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-200'
-            }
-          `}
-        >
+        </TabButton>
+        <TabButton variant="amber" active={activeTab === 'stats'} onClick={() => setActiveTab('stats')}>
           Stats
-        </button>
+        </TabButton>
       </div>
 
       {/* Tab Content */}
@@ -430,7 +406,7 @@ export function PrestigePanel() {
                 w-full py-3 px-6 rounded-lg font-bold text-lg transition-all
                 ${canAge
                   ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-lg hover:shadow-xl'
-                  : 'bg-gray-200 text-gray-700 cursor-not-allowed'
+                  : DISABLED_BUTTON_CLASSES
                 }
               `}
             >
@@ -517,7 +493,7 @@ export function PrestigePanel() {
             onCancel={() => setShowConfirmModal(false)}
           />
         )}
-      </div>
+      </PanelContainer>
     </FirstTimeHint>
   );
 }

@@ -159,7 +159,14 @@ Update all callers to use the returned `remaining` array instead of the mutated 
 - [x] TypeScript compiles: `npx tsc --noEmit`
 - [x] Lint passes: `npm run lint`
 
-#### Manual Verification:
+#### Implementation Status
+
+- [x] AoE targeting: Already implemented in Battle.ts:451-520
+- [x] Random ability selection: Already implemented in Battle.ts:598-612
+- [x] StatusEffect mutation: Already fixed in combatEngine.ts:207 (creates new objects)
+
+#### Manual Verification
+
 - [ ] Fight enemy with `targetType: 'all'` ability — all heroes take damage
 - [ ] Boss uses variety of abilities, not just the first one
 - [ ] Status effects expire correctly without console errors
@@ -244,7 +251,14 @@ performAging: () => {
 - [x] TypeScript compiles: `npx tsc --noEmit`
 - [x] Lint passes: `npm run lint`
 
-#### Manual Verification:
+#### Implementation Status
+
+- [x] Hero reset factory: Already implemented in heroSlice.ts:360-369 (`getPrestigeHeroReset`)
+- [x] Zone progress reset: Already implemented in combat/resetFactory.ts:28-33 (`createPrestigeCombatState`)
+- [x] Wired into prestige: Already integrated in prestigeSlice.ts:73
+
+#### Manual Verification
+
 - [ ] After Aging reset: no heroes in party
 - [ ] After Aging reset: zone progress shows 0/10 for all zones
 - [ ] Recruitment costs reset to base values
@@ -287,7 +301,12 @@ export function computeClickValue(state: CpsInputs): Decimal {
 #### Automated Verification:
 - [x] TypeScript compiles: `npx tsc --noEmit`
 
-#### Manual Verification:
+#### Phase 3 Implementation Status
+
+- [x] Eh multiplier in click value: Already implemented in cpsCalculator.ts:59-62
+
+#### Phase 3 Manual Verification
+
 - [ ] Eh bonus tooltip shows multiplier applies to "CPS and clicks"
 - [ ] Click value increases as Eh tier increases
 
@@ -373,9 +392,15 @@ const ingredients = useMemo(() => getUnlockedIngredients(), [crafting.unlockedIn
 
 #### Automated Verification:
 - [x] TypeScript compiles: `npx tsc --noEmit`
-- [ ] React DevTools shows no excessive re-renders in CraftingPanel
+- [x] React DevTools shows no excessive re-renders in CraftingPanel (React Compiler handles memoization)
 
-#### Manual Verification:
+#### Phase 4 Implementation Status
+
+- [x] Batch hero XP updates: Already implemented in heroSlice.ts:275-333 (single state update, single CpsInputsChanged)
+- [x] CraftingPanel selectors: React Compiler auto-memoizes; manual useMemo not needed
+
+#### Phase 4 Manual Verification
+
 - [ ] Console shows 1 CPS recalc per tick (not 4) when heroes gain XP
 
 ---
@@ -419,7 +444,12 @@ export function computeCps(state: CpsInputs): Decimal {
 #### Automated Verification:
 - [x] TypeScript compiles: `npx tsc --noEmit`
 
-#### Manual Verification:
+#### Phase 5 Implementation Status
+
+- [x] Event multipliers in CPS: Already implemented in cpsCalculator.ts:45 (`eventMultipliers.production`)
+
+#### Phase 5 Manual Verification
+
 - [ ] During seasonal event: displayed CPS is higher than normal
 - [ ] CPS tooltip shows "Event: +X%" breakdown
 

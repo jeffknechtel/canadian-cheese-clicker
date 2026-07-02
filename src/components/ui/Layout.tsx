@@ -19,7 +19,7 @@ export function Layout({ children }: LayoutProps) {
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.02]"
         style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, #8b7355 1px, transparent 0)`,
+          backgroundImage: `radial-gradient(circle at 1px 1px, var(--color-rind) 1px, transparent 0)`,
           backgroundSize: '40px 40px',
         }}
       />

@@ -2,7 +2,7 @@ import type { SliceCreator } from '../../types';
 import type { CombatSlice } from './types';
 import { createEmptyCombatState, createPrestigeCombatState } from './resetFactory';
 import { publish } from '../../../domain/events';
-import { COMBAT_LOG_MAX_ENTRIES } from '../../../data/constants';
+import { COMBAT_LOG_MAX_ENTRIES, COMBAT_FEEDBACK_GRID } from '../../../data/constants';
 import {
   initializeCombat,
   calculateCombatRewards,
@@ -39,17 +39,11 @@ import {
 } from '../../../systems/haptics';
 
 function getGridPosition(target: 'hero' | 'enemy', slotIndex: number): { x: number; y: number } {
-  if (target === 'hero') {
-    return {
-      x: 20 + (slotIndex % 2) * 5,
-      y: 15 + slotIndex * 18,
-    };
-  } else {
-    return {
-      x: 75 + (slotIndex % 2) * 5,
-      y: 20 + slotIndex * 12,
-    };
-  }
+  const grid = COMBAT_FEEDBACK_GRID[target];
+  return {
+    x: grid.baseX + (slotIndex % 2) * grid.staggerX,
+    y: grid.baseY + slotIndex * grid.rowHeight,
+  };
 }
 
 export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
@@ -77,7 +71,10 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     const combatState = initializeCombat(zoneId, stageNumber, state.heroes, state.party);
     if (!combatState) return false;
 
-    set({ combat: combatState });
+    // Snapshot party stats once per battle: composition/levels/equipment cannot
+    // change mid-battle (XP applies at claimCombatRewards), so combat reads the
+    // snapshot instead of recomputing getPartyStats() per tick.
+    set({ combat: { ...combatState, partyStats: state.getPartyStats() } });
 
     const isBoss = isBossStage(zoneId, stageNumber);
     trackCombatStart(zoneId, stageNumber, isBoss);
@@ -97,7 +94,7 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     const state = get();
     if (!state.combat.isInCombat || state.combat.battleResult !== 'ongoing') return;
 
-    const partyStats = state.getPartyStats();
+    const partyStats = state.combat.partyStats;
     const synergyDamageBonus = state.getSynergyBuffCombatDamageBonus();
     const heroDamageMultiplier = 1 + synergyDamageBonus;
 
@@ -269,7 +266,7 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
       return false;
     }
 
-    const partyStats = state.getPartyStats();
+    const partyStats = state.combat.partyStats;
     const battle = Battle.from(state.combat);
     const { battle: updated, logs, success } = battle.useAbility(heroId, partyStats, targetId);
 
@@ -295,7 +292,7 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
       return false;
     }
 
-    const partyStats = state.getPartyStats();
+    const partyStats = state.combat.partyStats;
     const battle = Battle.from(state.combat);
     const { battle: updated, logs, success } = battle.useLimitBreak(heroId, partyStats);
 

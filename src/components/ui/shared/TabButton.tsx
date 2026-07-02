@@ -4,6 +4,7 @@ interface TabButtonProps {
   children: React.ReactNode;
   className?: string;
   variant?: 'timber' | 'amber' | 'cheddar';
+  size?: 'sm' | 'md';
 }
 
 const VARIANT_STYLES = {
@@ -21,12 +22,18 @@ const VARIANT_STYLES = {
   },
 };
 
+const SIZE_STYLES = {
+  sm: 'px-2 py-1.5 text-xs',
+  md: 'px-3 py-1.5 text-sm',
+};
+
 export function TabButton({
   active,
   onClick,
   children,
   className = '',
   variant = 'timber',
+  size = 'md',
 }: TabButtonProps) {
   const styles = VARIANT_STYLES[variant];
 
@@ -34,7 +41,7 @@ export function TabButton({
     <button
       onClick={onClick}
       className={`
-        flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border btn-scale
+        flex-1 ${SIZE_STYLES[size]} rounded font-medium transition-colors border btn-scale
         ${active ? styles.active : styles.inactive}
         ${className}
       `}

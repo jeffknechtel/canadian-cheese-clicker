@@ -1,5 +1,6 @@
 import { useState, memo, useCallback, useRef, useEffect } from 'react';
 import { useGameStore } from '../../stores';
+import { useGameStoreShallow } from '../../utils/zustandOptimization';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { formatNumber } from '../../utils/formatNumber';
 import { playPurchaseSound } from '../../systems/audioSystem';
@@ -7,6 +8,8 @@ import type { Upgrade } from '../../types/game';
 import { generatorRegistry } from '../../domain';
 import { SynergiesPanel } from './SynergiesPanel';
 import { EmptyState } from './shared/EmptyState';
+import { TabButton } from './shared/TabButton';
+import { PanelContainer } from './shared/PanelContainer';
 
 type MainTabType = 'upgrades' | 'synergies';
 type UpgradeTabType = 'available' | 'purchased';
@@ -161,43 +164,21 @@ const UpgradeCard = memo(function UpgradeCard({ upgrade, isPurchased, index }: U
 export function UpgradePanel() {
   const [mainTab, setMainTab] = useState<MainTabType>('upgrades');
   const [upgradeTab, setUpgradeTab] = useState<UpgradeTabType>('available');
-  const getAvailableUpgrades = useGameStore((s) => s.getAvailableUpgrades);
-  const getPurchasedUpgrades = useGameStore((s) => s.getPurchasedUpgrades);
-  const getClickMultiplier = useGameStore((s) => s.getClickMultiplier);
+  const availableUpgrades = useGameStoreShallow((s) => s.getAvailableUpgrades());
+  const purchasedUpgrades = useGameStoreShallow((s) => s.getPurchasedUpgrades());
+  const clickMultiplier = useGameStore((s) => s.getClickMultiplier());
   const synergyPurchased = useGameStore((state) => state.synergy.purchased);
 
-  const availableUpgrades = getAvailableUpgrades();
-  const purchasedUpgrades = getPurchasedUpgrades();
-  const clickMultiplier = getClickMultiplier();
-
   return (
-    <div className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain">
+    <PanelContainer>
       {/* Main Tabs (Upgrades vs Synergies) */}
       <div className="flex gap-1 mb-3">
-        <button
-          onClick={() => setMainTab('upgrades')}
-          className={`
-            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
-            ${mainTab === 'upgrades'
-              ? 'bg-timber-500 text-white border-timber-600'
-              : 'bg-timber-100 text-timber-700 border-timber-300 hover:bg-timber-200'
-            }
-          `}
-        >
+        <TabButton active={mainTab === 'upgrades'} onClick={() => setMainTab('upgrades')}>
           Upgrades
-        </button>
-        <button
-          onClick={() => setMainTab('synergies')}
-          className={`
-            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
-            ${mainTab === 'synergies'
-              ? 'bg-timber-500 text-white border-timber-600'
-              : 'bg-timber-100 text-timber-700 border-timber-300 hover:bg-timber-200'
-            }
-          `}
-        >
+        </TabButton>
+        <TabButton active={mainTab === 'synergies'} onClick={() => setMainTab('synergies')}>
           Synergies ({synergyPurchased.length}/5)
-        </button>
+        </TabButton>
       </div>
 
       {mainTab === 'synergies' ? (
@@ -216,30 +197,12 @@ export function UpgradePanel() {
 
           {/* Upgrade Sub-Tabs */}
           <div className="flex gap-1 mb-3">
-            <button
-              onClick={() => setUpgradeTab('available')}
-              className={`
-                flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
-                ${upgradeTab === 'available'
-                  ? 'bg-timber-400 text-white border-timber-500'
-                  : 'bg-timber-50 text-timber-600 border-timber-200 hover:bg-timber-100'
-                }
-              `}
-            >
+            <TabButton active={upgradeTab === 'available'} onClick={() => setUpgradeTab('available')}>
               Available ({availableUpgrades.length})
-            </button>
-            <button
-              onClick={() => setUpgradeTab('purchased')}
-              className={`
-                flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
-                ${upgradeTab === 'purchased'
-                  ? 'bg-timber-400 text-white border-timber-500'
-                  : 'bg-timber-50 text-timber-600 border-timber-200 hover:bg-timber-100'
-                }
-              `}
-            >
+            </TabButton>
+            <TabButton active={upgradeTab === 'purchased'} onClick={() => setUpgradeTab('purchased')}>
               Owned ({purchasedUpgrades.length})
-            </button>
+            </TabButton>
           </div>
 
           {/* Upgrade List */}
@@ -282,6 +245,6 @@ export function UpgradePanel() {
           </div>
         </>
       )}
-    </div>
+    </PanelContainer>
   );
 }

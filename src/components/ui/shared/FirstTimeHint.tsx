@@ -31,10 +31,8 @@ const HINT_CONTENT: Record<HintId, { title: string; message: string }> = {
 };
 
 export function FirstTimeHint({ hintId, children, position = 'bottom' }: FirstTimeHintProps) {
-  const isHintShown = useGameStore((s) => s.isHintShown);
+  const shouldShow = useGameStore((s) => !s.isHintShown(hintId));
   const markHintShown = useGameStore((s) => s.markHintShown);
-
-  const shouldShow = !isHintShown(hintId);
   const content = HINT_CONTENT[hintId];
 
   if (!shouldShow) {

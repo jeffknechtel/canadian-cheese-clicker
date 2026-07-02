@@ -8,6 +8,8 @@
 import { useState, useCallback } from 'react';
 import { GAME_VERSION } from '../../config/version';
 import { storeBetaAgreement } from '../../hooks/useBetaAgreement';
+import { ModalOverlay } from './shared/ModalOverlay';
+import { DISABLED_BUTTON_CLASSES } from './shared/Button';
 
 interface BetaAgreementProps {
   onAccept: () => void;
@@ -31,14 +33,21 @@ export function BetaAgreement({ onAccept, onDecline }: BetaAgreementProps) {
   }, [onAccept]);
 
   return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
+    <ModalOverlay
+      isOpen={true}
+      onClose={() => {}}
+      zIndexClass="z-100"
+      dismissible={false}
+      backdropClass="bg-black/70 backdrop-blur-xs"
+      ariaLabelledBy="beta-agreement-title"
+    >
       <div className="w-full max-w-lg bg-white rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
         {/* Header */}
         <div className="px-6 py-4 bg-linear-to-r from-maple-600 to-maple-700 text-white">
           <div className="flex items-center gap-3">
             <span className="text-3xl">🧀</span>
             <div>
-              <h2 className="text-xl font-bold font-display">Beta Tester Agreement</h2>
+              <h2 id="beta-agreement-title" className="text-xl font-bold font-display">Beta Tester Agreement</h2>
               <p className="text-sm text-white/80 font-display">The Great Canadian Cheese Quest v{GAME_VERSION}</p>
             </div>
           </div>
@@ -132,7 +141,7 @@ export function BetaAgreement({ onAccept, onDecline }: BetaAgreementProps) {
             className={`flex-1 py-2.5 px-4 rounded-lg font-medium transition-all ${
               hasScrolledToBottom
                 ? 'bg-maple-600 hover:bg-maple-700 text-white'
-                : 'bg-gray-200 text-gray-600 cursor-not-allowed'
+                : DISABLED_BUTTON_CLASSES
             }`}
             title={hasScrolledToBottom ? undefined : 'Please read the full agreement first'}
           >
@@ -140,7 +149,7 @@ export function BetaAgreement({ onAccept, onDecline }: BetaAgreementProps) {
           </button>
         </div>
       </div>
-    </div>
+    </ModalOverlay>
   );
 }
 

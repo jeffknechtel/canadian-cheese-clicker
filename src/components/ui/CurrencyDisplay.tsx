@@ -23,11 +23,10 @@ export function CurrencyDisplay() {
     agingResetCount: state.prestige.agingResetCount,
     currencyAnimationTrigger: state.currencyAnimationTrigger,
   }));
-  const getPotentialRennet = useGameStore((state) => state.getPotentialRennet);
+  const potentialRennet = useGameStore((state) => state.getPotentialRennet());
   const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
   const hasPrestiged = agingResetCount > 0 || prestigeRennet > 0;
-  const potentialRennet = getPotentialRennet();
   const showRennet = hasPrestiged || potentialRennet > 0;
 
   return (

@@ -50,6 +50,11 @@
   --color-snow: #f8fafc;
   --color-ice: #e0f2fe;
 
+  /* Semantic state colors — .high-contrast overrides these (see high-contrast block) */
+  --color-success: #16a34a; /* green-600 */
+  --color-error: #dc2626; /* red-600 */
+  --color-warning: #d97706; /* amber-600 */
+
   /* ===== Custom Fonts ===== */
   --font-display: 'Righteous', cursive;
 

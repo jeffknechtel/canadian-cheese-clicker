@@ -1,11 +1,16 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useGameStore } from '../../stores';
+import { useSettingsStore } from '../../stores/settingsStore';
 import { HEROES } from '../../data/heroes';
 import { heroRegistry } from '../../domain';
 import { formatNumber } from '../../utils/formatNumber';
 import { playPurchaseSound, playMilestoneChime } from '../../systems/audioSystem';
 import { calculateHeroStats } from '../../systems/productionEngine';
 import { showHeroRecruitDialogue } from '../../systems/dialogueSystem';
+import { TabButton } from './shared/TabButton';
+import { PanelContainer } from './shared/PanelContainer';
+import { ProgressBar } from './shared/ProgressBar';
+import { DISABLED_BUTTON_CLASSES } from './shared/Button';
 import type { HeroDefinition, HeroState, EquipmentSlot } from '../../types/game';
 
 type TabType = 'roster' | 'recruit';
@@ -43,7 +48,7 @@ interface HeroCardProps {
 }
 
 function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, isInCombat }: HeroCardProps) {
-  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
   // Memoize stats calculation to prevent recalculating on every render
   const stats = useMemo(
     () => calculateHeroStats(hero.id, heroState),
@@ -80,12 +85,14 @@ function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, 
           <p className="text-xs text-gray-500 italic truncate" title={hero.title}>{hero.title}</p>
 
           {/* XP Bar */}
-          <div className="mt-1.5 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-linear-to-r from-cheddar-400 to-cheddar-600 transition-all duration-500 ease-out"
-              style={{ width: `${xpProgress}%` }}
-            />
-          </div>
+          <ProgressBar
+            percent={xpProgress}
+            height="h-1.5"
+            className="mt-1.5"
+            fillColor="bg-linear-to-r from-cheddar-400 to-cheddar-600"
+            transitionClass="transition-all duration-500 ease-out"
+            ariaLabel={`XP: ${Math.floor(heroState.xp)} of ${heroState.xpToNextLevel}`}
+          />
           <p className="text-xs text-gray-500 mt-0.5">
             XP: {Math.floor(heroState.xp)}/{heroState.xpToNextLevel}
           </p>
@@ -152,7 +159,7 @@ function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, 
         className={`
           mt-2 w-full py-1.5 rounded text-sm font-medium transition-all duration-200 btn-scale
           ${isInCombat
-            ? 'bg-gray-200 text-gray-700 border border-gray-300 cursor-not-allowed'
+            ? `${DISABLED_BUTTON_CLASSES} border border-gray-300`
             : isInParty
               ? 'bg-maple-100 text-maple-600 border border-maple-300 cursor-default'
               : 'bg-linear-to-r from-maple-600 to-maple-700 hover:from-maple-700 hover:to-maple-800 text-white shadow-xs hover:shadow-md'
@@ -170,8 +177,9 @@ interface HeroRecruitCardProps {
 }
 
 function HeroRecruitCard({ hero }: HeroRecruitCardProps) {
-  const { recruitHero, canAffordHero } = useGameStore();
-  const canAfford = canAffordHero(hero.id);
+  const recruitHero = useGameStore((s) => s.recruitHero);
+  // Primitive boolean subscription — updates as curds cross the recruit cost
+  const canAfford = useGameStore((s) => s.canAffordHero(hero.id));
 
   const handleRecruit = () => {
     if (canAfford) {
@@ -266,7 +274,7 @@ function HeroRecruitCard({ hero }: HeroRecruitCardProps) {
           mt-2 w-full py-2 rounded font-medium text-sm transition-all duration-200 btn-scale
           ${canAfford
             ? 'bg-linear-to-r from-maple-500 to-maple-600 hover:from-maple-600 hover:to-maple-700 text-white shadow-xs hover:shadow-md'
-            : 'bg-gray-200 text-gray-700 cursor-not-allowed'
+            : DISABLED_BUTTON_CLASSES
           }
         `}
       >
@@ -286,13 +294,12 @@ export function HeroPanel({ onEquipmentClick }: HeroPanelProps) {
   const heroes = useGameStore((state) => state.heroes);
   const party = useGameStore((state) => state.party);
   const assignToParty = useGameStore((state) => state.assignToParty);
-  const getHeroMultiplier = useGameStore((state) => state.getHeroMultiplier);
+  const heroMultiplier = useGameStore((state) => state.getHeroMultiplier());
   const isInCombat = useGameStore((state) => state.combat.isInCombat);
-  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
   const recruitedHeroes = HEROES.filter((h) => heroes[h.id] !== undefined);
   const availableHeroes = HEROES.filter((h) => heroes[h.id] === undefined);
-  const heroMultiplier = getHeroMultiplier();
 
   // Check if hero is in party (memoized to prevent recreation on each render)
   const isHeroInParty = useCallback((heroId: string): boolean => {
@@ -320,7 +327,7 @@ export function HeroPanel({ onEquipmentClick }: HeroPanelProps) {
   }, [onEquipmentClick]);
 
   return (
-    <div className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain">
+    <PanelContainer>
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-lg font-bold text-timber-700 flex items-center gap-2">
@@ -341,30 +348,12 @@ export function HeroPanel({ onEquipmentClick }: HeroPanelProps) {
 
       {/* Tabs */}
       <div className="flex gap-1 mb-3">
-        <button
-          onClick={() => setActiveTab('roster')}
-          className={`
-            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
-            ${activeTab === 'roster'
-              ? 'bg-timber-500 text-white border-timber-600'
-              : 'bg-timber-100 text-timber-700 border-timber-300 hover:bg-timber-200'
-            }
-          `}
-        >
+        <TabButton active={activeTab === 'roster'} onClick={() => setActiveTab('roster')}>
           Roster ({recruitedHeroes.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('recruit')}
-          className={`
-            flex-1 px-3 py-1.5 text-sm rounded font-medium transition-colors border
-            ${activeTab === 'recruit'
-              ? 'bg-timber-500 text-white border-timber-600'
-              : 'bg-timber-100 text-timber-700 border-timber-300 hover:bg-timber-200'
-            }
-          `}
-        >
+        </TabButton>
+        <TabButton active={activeTab === 'recruit'} onClick={() => setActiveTab('recruit')}>
           Recruit ({availableHeroes.length})
-        </button>
+        </TabButton>
       </div>
 
       {/* Content */}
@@ -403,6 +392,6 @@ export function HeroPanel({ onEquipmentClick }: HeroPanelProps) {
           )
         )}
       </div>
-    </div>
+    </PanelContainer>
   );
 }

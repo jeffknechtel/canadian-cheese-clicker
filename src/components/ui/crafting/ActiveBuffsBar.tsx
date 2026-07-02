@@ -1,19 +1,12 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useGameStore } from '../../../stores';
+import { useNow } from '../../../hooks/useNow';
 import type { CheeseActiveBuff } from '../../../types/game';
 
 export function ActiveBuffsBar() {
   const storeActiveBuffs = useGameStore((s) => s.crafting.activeBuffs);
-  const [currentTime, setCurrentTime] = useState(() => Date.now());
-
-  // Force re-render every second to update timers
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(Date.now());
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
+  // Re-render every second to update timers
+  const currentTime = useNow();
 
   // Filter to only show active (non-expired) buffs
   const activeBuffs = useMemo(() => {

@@ -1,5 +1,11 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 
+/**
+ * Shared disabled treatment for bespoke buttons that can't adopt <Button>
+ * (dense grids, card buttons). Single source for the disabled combo.
+ */
+export const DISABLED_BUTTON_CLASSES = 'bg-gray-200 text-gray-700 cursor-not-allowed';
+
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg';
 

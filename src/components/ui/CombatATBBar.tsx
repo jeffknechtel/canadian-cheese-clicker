@@ -1,5 +1,7 @@
-import { useGameStore } from '../../stores';
+import { useSettingsStore } from '../../stores/settingsStore';
 import { ATB_MAX, LIMIT_BREAK_MAX } from '../../systems/combatEngine';
+import { ProgressBar } from './shared/ProgressBar';
+import { DISABLED_BUTTON_CLASSES } from './shared/Button';
 
 interface CombatATBBarProps {
   currentValue: number; // 0-100
@@ -22,7 +24,7 @@ export function CombatATBBar({
   showLabel = true,
   size = 'md',
 }: CombatATBBarProps) {
-  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
   const percentage = Math.min(100, (currentValue / maxValue) * 100);
 
   const sizeClasses = {
@@ -49,7 +51,7 @@ export function CombatATBBar({
           className={`
             shrink-0 text-center
             ${size === 'sm' ? 'text-sm w-5' : size === 'md' ? 'text-base w-6' : 'text-lg w-8'}
-            ${isReady ? 'animate-bounce' : ''}
+            ${isReady && !reducedMotion ? 'animate-bounce' : ''}
           `}
         >
           {icon}
@@ -69,15 +71,13 @@ export function CombatATBBar({
         )}
 
         {/* Progress Bar */}
-        <div className={`${sizeClasses[size]} bg-gray-200 rounded-full overflow-hidden`}>
-          <div
-            className={`
-              h-full rounded-full transition-all duration-100 ease-linear
-              ${gradientClasses[color]}
-            `}
-            style={{ width: `${percentage}%` }}
-          />
-        </div>
+        <ProgressBar
+          percent={percentage}
+          height={sizeClasses[size]}
+          fillColor={gradientClasses[color]}
+          transitionClass="transition-all duration-100 ease-linear"
+          ariaLabel={label ? `${label} ATB gauge` : 'ATB gauge'}
+        />
       </div>
     </div>
   );
@@ -94,7 +94,7 @@ export function LimitBreakGauge({
   onActivate,
   isDisabled = false,
 }: LimitBreakGaugeProps) {
-  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
   const isReady = currentValue >= LIMIT_BREAK_MAX;
   const percentage = Math.min(LIMIT_BREAK_MAX, currentValue);
 
@@ -106,18 +106,18 @@ export function LimitBreakGauge({
       </div>
 
       {/* Gauge */}
-      <div className="h-4 bg-gray-200 rounded-full overflow-hidden mb-2">
-        <div
-          className={`
-            h-full rounded-full transition-all duration-200
-            ${isReady
-              ? `bg-linear-to-r from-amber-400 via-orange-500 to-red-500 ${!reducedMotion ? 'animate-pulse' : ''}`
-              : 'bg-linear-to-r from-amber-300 to-amber-500'
-            }
-          `}
-          style={{ width: `${percentage}%` }}
-        />
-      </div>
+      <ProgressBar
+        percent={percentage}
+        height="h-4"
+        className="mb-2"
+        fillColor={
+          isReady
+            ? `bg-linear-to-r from-amber-400 via-orange-500 to-red-500 ${!reducedMotion ? 'animate-pulse' : ''}`
+            : 'bg-linear-to-r from-amber-300 to-amber-500'
+        }
+        transitionClass="transition-all duration-200"
+        ariaLabel="Limit break gauge"
+      />
 
       {/* Activate Button */}
       <button
@@ -127,7 +127,7 @@ export function LimitBreakGauge({
           w-full py-2 rounded font-bold text-sm transition-all duration-200
           ${isReady && !isDisabled
             ? 'bg-linear-to-r from-amber-500 to-red-500 text-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
-            : 'bg-gray-200 text-gray-700 cursor-not-allowed'
+            : DISABLED_BUTTON_CLASSES
           }
         `}
       >

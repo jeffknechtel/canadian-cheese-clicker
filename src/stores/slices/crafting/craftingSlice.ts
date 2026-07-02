@@ -5,6 +5,7 @@ import { createInitialCraftingState, createPrestigeCraftingState } from './reset
 import { recipeRegistry, publish } from '../../../domain';
 import { CHEESE_RECIPES } from '../../../data/cheeseRecipes';
 import { getCaveById, CAVES } from '../../../data/caves';
+import { INTERACTION_LIMITS } from '../../../data/constants';
 import {
   getIngredientById,
   getMilkByType,
@@ -411,16 +412,6 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     if (!job) return false;
 
     if (now >= job.endTime) return false;
-
-    // Per-type interaction limits
-    const INTERACTION_LIMITS: Record<string, number> = {
-      rind_wash: 3,
-      turn: 10,
-      flavor_addition: 2,
-      brine: 5,
-      smoke: 2,
-      press: 3,
-    };
 
     // Check interaction limit for this type
     const limit = INTERACTION_LIMITS[interaction.type] ?? Infinity;

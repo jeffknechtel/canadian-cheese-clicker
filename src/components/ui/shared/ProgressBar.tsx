@@ -1,4 +1,4 @@
-import { useGameStore } from '../../../stores';
+import { useSettingsStore } from '../../../stores/settingsStore';
 
 interface ProgressBarProps {
   percent: number;
@@ -8,6 +8,9 @@ interface ProgressBarProps {
   className?: string;
   showShimmer?: boolean;
   glowOnNearComplete?: boolean;
+  /** Override the fill transition (e.g. `transition-all duration-100 ease-linear` for ATB bars). */
+  transitionClass?: string;
+  ariaLabel?: string;
 }
 
 export function ProgressBar({
@@ -18,8 +21,10 @@ export function ProgressBar({
   className = '',
   showShimmer = false,
   glowOnNearComplete = false,
+  transitionClass = 'transition-all duration-300',
+  ariaLabel,
 }: ProgressBarProps) {
-  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
   const nearComplete = percent >= 90 && percent < 100;
   const clampedPercent = Math.min(100, Math.max(0, percent));
 
@@ -28,9 +33,14 @@ export function ProgressBar({
       className={`${height} ${bgColor} rounded-full overflow-hidden relative ${className} ${
         glowOnNearComplete && nearComplete && !reducedMotion ? 'animate-pulse-glow' : ''
       }`}
+      role="progressbar"
+      aria-valuenow={Math.round(clampedPercent)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={ariaLabel}
     >
       <div
-        className={`h-full ${fillColor} transition-all duration-300 relative`}
+        className={`h-full ${fillColor} ${transitionClass} relative`}
         style={{ width: `${clampedPercent}%` }}
       >
         {showShimmer && !reducedMotion && clampedPercent > 0 && clampedPercent < 100 && (

@@ -44,9 +44,9 @@ export function DamageNumberDisplay({ damage, onComplete }: DamageNumberProps) {
   const getTypeStyles = () => {
     switch (damage.type) {
       case 'damage':
-        return 'text-red-500 text-lg';
+        return 'text-error text-lg';
       case 'heal':
-        return 'text-green-500 text-lg';
+        return 'text-success text-lg';
       case 'crit':
         return 'text-orange-500 text-xl font-bold';
       case 'miss':
