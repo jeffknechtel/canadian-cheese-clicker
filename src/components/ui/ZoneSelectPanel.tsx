@@ -206,8 +206,8 @@ export function ZoneSelectPanel({ onStartCombat }: ZoneSelectPanelProps) {
       {/* No Party Warning */}
       {!hasPartyMembers && (
         <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-700 font-medium">⚠️ No heroes in party!</p>
-          <p className="text-xs text-red-600 mt-1">
+          <p className="text-sm text-error font-medium">⚠️ No heroes in party!</p>
+          <p className="text-xs text-error mt-1">
             Add heroes to your party before entering combat.
           </p>
         </div>

@@ -339,10 +339,10 @@ Token names MUST match the `.high-contrast` block (`success`/`error`/`warning`, 
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Type check + build passes: `pnpm build`
-- [ ] Lint passes: `pnpm lint`
-- [ ] `grep -rn "8b7355" src/ --include="*.tsx" --include="*.ts" | grep -v index.css | grep -v sceneColors` returns nothing
-- [ ] `grep -n "MIN_SPAWN_DELAY\|FRENZY\|TSUNAMI" src/data/constants.ts` shows the golden-cheese constants landed
+- [x] Type check + build passes: `pnpm build`
+- [x] Lint passes: `pnpm lint`
+- [x] `grep -rn "8b7355" src/ --include="*.tsx" --include="*.ts" | grep -v index.css | grep -v sceneColors` returns nothing
+- [x] `grep -n "MIN_SPAWN_DELAY\|FRENZY\|TSUNAMI" src/data/constants.ts` shows the golden-cheese constants landed
 
 #### Manual Verification:
 - [ ] Normal mode: migrated text/fills look unchanged (same hues)

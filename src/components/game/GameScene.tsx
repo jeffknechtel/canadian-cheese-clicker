@@ -10,6 +10,7 @@ import { useGameStore } from '../../stores';
 import { isMobile } from '../../systems/gameLoop';
 import { playClickSound, resumeAudioContext } from '../../systems/audioSystem';
 import { announce } from '../../systems/accessibilityAnnouncer';
+import { SCENE_COLORS } from './sceneColors';
 
 // Defer non-critical scene elements for faster initial load
 const DEFER_DETAILS_MS = 100;
@@ -57,12 +58,12 @@ const CanadianBackdrop = memo(function CanadianBackdrop() {
 
     // Gradient from top (deep blue) to bottom (warm cream/golden for horizon)
     const gradient = ctx.createLinearGradient(0, 0, 0, 256);
-    gradient.addColorStop(0, '#1e3a5f'); // Deep Canadian blue
-    gradient.addColorStop(0.3, '#4a7c9b'); // Medium blue
-    gradient.addColorStop(0.6, '#89b4c8'); // Light blue
-    gradient.addColorStop(0.8, '#f5e6d3'); // Cream (Tim Hortons inspired)
-    gradient.addColorStop(0.9, '#fcd34d'); // Golden horizon (cheddar)
-    gradient.addColorStop(1, '#c9a875'); // Timber ground
+    gradient.addColorStop(0, SCENE_COLORS.skyDeepBlue);
+    gradient.addColorStop(0.3, SCENE_COLORS.skyMediumBlue);
+    gradient.addColorStop(0.6, SCENE_COLORS.skyLightBlue);
+    gradient.addColorStop(0.8, SCENE_COLORS.skyCream);
+    gradient.addColorStop(0.9, SCENE_COLORS.skyGoldenHorizon);
+    gradient.addColorStop(1, SCENE_COLORS.skyTimberGround);
 
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 2, 256);
@@ -153,12 +154,12 @@ const CanadianBackdrop = memo(function CanadianBackdrop() {
 
       {/* Mountain silhouette - back layer (darker) */}
       <mesh position={[0, -2, -15]} geometry={mountainGeometry}>
-        <meshBasicMaterial color="#2d3748" transparent opacity={0.6} />
+        <meshBasicMaterial color={SCENE_COLORS.mountainBack} transparent opacity={0.6} />
       </mesh>
 
       {/* Mountain silhouette - front layer (slightly lighter) */}
       <mesh position={[5, -3, -12]} scale={[0.8, 0.6, 1]} geometry={mountainGeometry}>
-        <meshBasicMaterial color="#4a5568" transparent opacity={0.8} />
+        <meshBasicMaterial color={SCENE_COLORS.mountainFront} transparent opacity={0.8} />
       </mesh>
 
       {/* Pine tree silhouettes - deferred for faster initial load */}
@@ -169,14 +170,14 @@ const CanadianBackdrop = memo(function CanadianBackdrop() {
           geometry={treeGeometry}
           scale={tree.scale}
         >
-          <meshBasicMaterial color="#1a202c" transparent opacity={0.7} />
+          <meshBasicMaterial color={SCENE_COLORS.pineTree} transparent opacity={0.7} />
         </mesh>
       ))}
 
       {/* Ground plane - extended to match sky coverage */}
       <mesh position={[0, -4, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[200, 80]} />
-        <meshStandardMaterial color="#8b7355" roughness={1} />
+        <meshStandardMaterial color={SCENE_COLORS.ground} roughness={1} />
       </mesh>
 
       {/* Northern Lights effect (subtle aurora) - deferred */}
@@ -184,7 +185,7 @@ const CanadianBackdrop = memo(function CanadianBackdrop() {
         <mesh position={[0, 8, -18]}>
           <planeGeometry args={[40, 8]} />
           <meshBasicMaterial
-            color="#4ade80"
+            color={SCENE_COLORS.aurora}
             transparent
             opacity={0.1}
             blending={THREE.AdditiveBlending}

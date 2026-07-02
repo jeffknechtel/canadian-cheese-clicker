@@ -3,17 +3,18 @@ import {
   GAME_TICK_INTERVAL_MS,
   MOBILE_TICK_INTERVAL_MS,
   FRAME_BUDGET_MS,
+  EVENT_CHECK_INTERVAL_MS,
+  ACHIEVEMENT_CHECK_INTERVAL_MS,
+  MAX_TICK_DELTA_MS,
 } from '../data/constants';
 
 let lastTime: number | null = null;
 let animationFrameId: number | null = null;
 let isRunning = false;
 let lastEventCheckTime = 0;
-const EVENT_CHECK_INTERVAL_MS = 60 * 60 * 1000; // Check hourly
 
 // Periodic achievement check for pure-idle players
 let lastAchievementCheckTime = 0;
-const ACHIEVEMENT_CHECK_INTERVAL_MS = 5000; // Check every 5 seconds
 
 // Track when tab was hidden for offline progress calculation
 let hiddenTimestamp: number | null = null;
@@ -50,7 +51,7 @@ function tick(currentTime: number) {
   if (lastTime !== null) {
     const deltaMs = currentTime - lastTime;
     // Cap delta to prevent huge jumps if tab was hidden
-    const cappedDelta = Math.min(deltaMs, 100);
+    const cappedDelta = Math.min(deltaMs, MAX_TICK_DELTA_MS);
     const store = useGameStore.getState();
 
     // Accumulate time for batched game logic updates

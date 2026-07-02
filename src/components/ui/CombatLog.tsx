@@ -5,10 +5,10 @@ import type { CombatLogEntry } from '../../types/game';
 const LOG_TYPE_COLORS: Record<CombatLogEntry['type'], string> = {
   attack: 'text-timber-700',
   ability: 'text-purple-600',
-  damage: 'text-red-600',
-  heal: 'text-green-600',
-  status: 'text-amber-600',
-  defeat: 'text-red-700 font-semibold',
+  damage: 'text-error',
+  heal: 'text-success',
+  status: 'text-warning',
+  defeat: 'text-error font-semibold',
   victory: 'text-cheddar-600 font-bold',
   phaseChange: 'text-purple-700 font-semibold',
 };

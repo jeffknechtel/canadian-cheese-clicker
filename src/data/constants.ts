@@ -57,6 +57,16 @@ export const MAX_PRESTIGE_COST_REDUCTION = 0.9;
 /** Cheese affinity divisor for quality calculation */
 export const CHEESE_AFFINITY_DIVISOR = 1000;
 
+/** Per-type interaction limits during cheese aging */
+export const INTERACTION_LIMITS: Record<string, number> = {
+  rind_wash: 3,
+  turn: 10,
+  flavor_addition: 2,
+  brine: 5,
+  smoke: 2,
+  press: 3,
+};
+
 // ===== Game Loop =====
 
 /** Game logic tick interval in milliseconds */
@@ -70,6 +80,19 @@ export const TARGET_FPS = 60;
 
 /** Frame budget in milliseconds (1000 / TARGET_FPS) */
 export const FRAME_BUDGET_MS = 16;
+
+/** Seasonal event lifecycle check interval (hourly, not per-tick) */
+export const EVENT_CHECK_INTERVAL_MS = 60 * 60 * 1000;
+
+/** Periodic achievement check interval for pure-idle players */
+export const ACHIEVEMENT_CHECK_INTERVAL_MS = 5000;
+
+/**
+ * Cap on per-frame delta to prevent huge jumps if the tab was hidden.
+ * NOTE (S-6): the loop clamps BEFORE accumulating, so time beyond the cap is
+ * dropped rather than deferred — behavior preserved here, only the number named.
+ */
+export const MAX_TICK_DELTA_MS = 100;
 
 // ===== Combat Balance =====
 
@@ -108,6 +131,17 @@ export const INITIAL_ATB_VARIANCE = 20;
 
 /** Boss HP recovery on phase transition (% of max HP) */
 export const BOSS_PHASE_HEAL_PERCENT = 0.1;
+
+// ===== Combat UI =====
+
+/**
+ * Feedback overlay grid positions (percentage coordinates) for damage/heal
+ * numbers: column base x, alternating-slot x stagger, row base y and height.
+ */
+export const COMBAT_FEEDBACK_GRID = {
+  hero: { baseX: 20, staggerX: 5, baseY: 15, rowHeight: 18 },
+  enemy: { baseX: 75, staggerX: 5, baseY: 20, rowHeight: 12 },
+} as const;
 
 // ===== Cheese Crafting Quality/Value =====
 
@@ -199,6 +233,41 @@ export const CLICK_CRIT_BASE_MULTIPLIER = 2;
 /** Generator purchase counts that trigger milestone celebrations */
 export const BUY_MILESTONES = [25, 50, 100, 150, 200, 250, 300, 400, 500] as const;
 export type BuyMilestone = (typeof BUY_MILESTONES)[number];
+
+// ===== Golden Cheese =====
+
+/** Minimum delay before the next golden cheese spawns */
+export const MIN_SPAWN_DELAY_MS = 3 * 60 * 1000; // 3 minutes
+
+/** Maximum delay before the next golden cheese spawns */
+export const MAX_SPAWN_DELAY_MS = 10 * 60 * 1000; // 10 minutes
+
+/** How long a spawned golden cheese stays clickable */
+export const VISIBLE_DURATION_MS = 15 * 1000; // 15 seconds
+
+/* Reward durations */
+export const CHEESE_FRENZY_DURATION_MS = 77 * 1000;
+export const CLICK_STORM_DURATION_MS = 13 * 1000;
+export const HERO_RALLY_DURATION_MS = 60 * 1000;
+export const CURD_TSUNAMI_DURATION_MS = 7 * 1000;
+
+/* Reward multipliers */
+export const CHEESE_FRENZY_MULTIPLIER = 7;
+export const CLICK_STORM_MULTIPLIER = 77;
+export const HERO_RALLY_MULTIPLIER = 5;
+export const CURD_TSUNAMI_MULTIPLIER = 777;
+export const LUCKY_CURDS_MINUTES = 15;
+
+// ===== UI Timing =====
+
+/** Minimum delay between random Canadian dialogue bubbles */
+export const RANDOM_DIALOGUE_MIN_MS = 60_000;
+
+/** Maximum delay between random Canadian dialogue bubbles */
+export const RANDOM_DIALOGUE_MAX_MS = 120_000;
+
+/** Milestone check interval */
+export const MILESTONE_CHECK_INTERVAL_MS = 1000;
 
 // ===== Boss Reward Multipliers =====
 

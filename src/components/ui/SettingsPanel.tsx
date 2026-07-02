@@ -591,7 +591,7 @@ function DataSettings({
           placeholder="Paste your save data here..."
           className="w-full h-24 px-3 py-2 border border-cheddar-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-cheddar-500"
         />
-        {importError && <p className="text-red-500 text-xs mt-1">{importError}</p>}
+        {importError && <p className="text-error text-xs mt-1">{importError}</p>}
         <Button variant="secondary" size="sm" onClick={onImport} className="mt-2">
           Import Save
         </Button>

@@ -109,7 +109,7 @@ export const EnemyCard = memo(function EnemyCard({ enemy, showATB = true }: Enem
           <span className="text-gray-500">HP</span>
           <span
             className={`font-medium ${
-              isLowHp ? 'text-red-600' : isMediumHp ? 'text-amber-600' : 'text-timber-600'
+              isLowHp ? 'text-error' : isMediumHp ? 'text-warning' : 'text-timber-600'
             }`}
           >
             {enemy.currentHp}/{enemy.maxHp}

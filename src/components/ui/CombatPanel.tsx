@@ -118,7 +118,7 @@ const HeroCombatCard = memo(function HeroCombatCard({ heroState, isSelected = fa
           <span className="text-gray-500" id={`hp-label-${heroState.heroId}`}>HP</span>
           <span
             className={`font-medium ${
-              isLowHp ? 'text-red-600' : isMediumHp ? 'text-amber-600' : 'text-green-600'
+              isLowHp ? 'text-error' : isMediumHp ? 'text-warning' : 'text-success'
             }`}
             aria-label={`${heroState.currentHp} of ${heroState.maxHp} hit points`}
           >

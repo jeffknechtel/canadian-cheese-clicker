@@ -139,7 +139,7 @@ function AgingUpgradeCard({ upgrade, purchaseCount, canPurchase, onPurchase }: A
           </div>
           <p className="text-xs text-gray-600 mt-0.5">{upgrade.description}</p>
           {isLocked && requirementText && (
-            <p className="text-xs text-red-500 mt-1 italic">{requirementText}</p>
+            <p className="text-xs text-error mt-1 italic">{requirementText}</p>
           )}
         </div>
 

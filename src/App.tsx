@@ -49,11 +49,12 @@ import { useGameStore } from './stores';
 import { useHeroLevelUpEvents } from './hooks/useHeroEvents';
 import { useSettingsStore, initializeSettingsAudio, setupReducedMotionListener } from './stores/settingsStore';
 import { ACHIEVEMENTS } from './data/achievements';
+import {
+  RANDOM_DIALOGUE_MIN_MS,
+  RANDOM_DIALOGUE_MAX_MS,
+  MILESTONE_CHECK_INTERVAL_MS,
+} from './data/constants';
 import type { EquipmentSlot, CombatRewards } from './types/game';
-
-const RANDOM_DIALOGUE_MIN_MS = 60_000; // 60 seconds minimum
-const RANDOM_DIALOGUE_MAX_MS = 120_000; // 120 seconds maximum
-const MILESTONE_CHECK_INTERVAL_MS = 1000; // Check milestones every second
 
 // Loading fallback for lazy-loaded panels
 function PanelLoader() {
