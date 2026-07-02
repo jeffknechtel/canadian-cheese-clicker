@@ -64,8 +64,8 @@ export interface CombatTickResult {
  */
 export function calculateAtbFillRate(speed: number, combatSpeed: 1 | 2 | 4): number {
   // Base rate modified by speed stat and combat speed setting
-  // At speed 100, fills at base rate. Speed 200 = 2x faster, etc.
-  return BASE_ATB_RATE * (speed / 100) * combatSpeed;
+  // At speed 0, fills at base rate. Higher speed = faster fill.
+  return BASE_ATB_RATE * (1 + speed / 100) * combatSpeed;
 }
 
 /**
@@ -525,6 +525,16 @@ export function createCombatEnemy(
     isBoss,
     currentPhase: isBoss ? 1 : undefined,
     phaseTriggered: isBoss ? { 1: true } : undefined,
+    // Persist scaled stats at combat init (includes stage scaling)
+    scaledStats: {
+      attack: enemy.stats.attack,
+      defense: enemy.stats.defense,
+      speed: enemy.stats.speed,
+    },
+    scaledRewards: {
+      xpReward: enemy.xpReward,
+      curdReward: enemy.curdReward,
+    },
   };
 }
 
@@ -657,11 +667,9 @@ export function calculateCombatRewards(
       bossMultiplier = BOSS_REWARD_MULTIPLIERS[enemy.id];
     }
 
-    // Add curd reward
-    totalCurds = totalCurds.plus(enemyDef.curdReward);
-
-    // Add XP reward
-    totalXp += enemyDef.xpReward;
+    // Use scaled rewards from enemy (includes stage scaling), not unscaled registry
+    totalCurds = totalCurds.plus(enemy.scaledRewards.curdReward);
+    totalXp += enemy.scaledRewards.xpReward;
 
     // Roll for drops - bosses have guaranteed drops for items with chance >= 0.5
     // Apply drop rate bonus to improve chances

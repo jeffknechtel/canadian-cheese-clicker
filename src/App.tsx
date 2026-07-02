@@ -360,28 +360,27 @@ function App() {
   }, [endCombat, currentZone, currentStage]);
 
   const handleCombatResultsContinue = useCallback(() => {
-    if (combatResults?.result) {
-      endCombat(combatResults.result);
-      if (combatResults.result === 'victory') {
-        const rewards = claimCombatRewards();
-        if (rewards) {
-          playMilestoneChime();
-        }
+    if (combatResults?.result === 'victory') {
+      // Victory: now claim rewards (which resets combat state)
+      const rewards = claimCombatRewards();
+      if (rewards) {
+        playMilestoneChime();
       }
     }
+    // For defeat/flee, combat state already reset by endCombat
     setCombatResults(null);
-  }, [combatResults?.result, endCombat, claimCombatRewards]);
+  }, [combatResults?.result, claimCombatRewards]);
 
   const handleCombatRetry = useCallback(() => {
     if (combatResults) {
-      const { zoneId, stageNumber, result } = combatResults;
-      endCombat(result);
+      const { zoneId, stageNumber } = combatResults;
+      // Combat state already reset for defeat/flee
       setCombatResults(null);
       if (zoneId) {
         handleStartCombat(zoneId, stageNumber);
       }
     }
-  }, [combatResults, endCombat, handleStartCombat]);
+  }, [combatResults, handleStartCombat]);
 
   // Keyboard navigation handler for panels
   const handleKeyboardNavigate = useCallback(
