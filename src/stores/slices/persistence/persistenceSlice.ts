@@ -5,15 +5,32 @@ import { saveGame, loadGame, calculateOfflineProgress } from '../../../systems/s
 import { createInitialProductionState } from '../production/resetFactory';
 import { createEmptyCombatState } from '../combat/resetFactory';
 import { createInitialCraftingState } from '../crafting/resetFactory';
+import { createInitialPrestigeState } from '../prestige/resetFactory';
+import { createInitialChallengeState } from '../challenge/resetFactory';
 import { useSettingsStore } from '../../settingsStore';
+
+// Module-level flag to prevent save during import
+let isImportingFlag = false;
+
+export function setImportingFlag(value: boolean) {
+  isImportingFlag = value;
+}
+
+export function isImporting() {
+  return isImportingFlag;
+}
 
 export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get) => ({
   // State
   lastSaved: Date.now(),
+  lastSimulated: Date.now(),
   gameStarted: Date.now(),
 
   // Actions
   save: () => {
+    // Don't save during import - the imported file would be overwritten
+    if (isImportingFlag) return;
+
     const state = get();
     saveGame(state);
     set({ lastSaved: Date.now() });
@@ -35,19 +52,24 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
       lastSaved: Date.now(),
     });
 
-    // Recalculate CPS with proper inputs (generators, upgrades, prestige, heroes, etc.)
-    get().recalculateCps();
-    get().recalculateClickValue();
-
-    // NOW check events AFTER loading saved state - will update activeEvents based on current date
+    // Check events FIRST - this may add/remove activeEvents based on current date
+    // The subscriber will recalc CPS when events change
     get().checkEventActivation();
+
     // Initialize or rollover weekly challenge
     get().initializeChallenge();
 
-    // Now calculate offline progress with the correct CPS, respecting user's cap setting
+    // Recalculate CPS with correct event state
+    // (also handles case where checkEventActivation didn't change anything)
+    get().recalculateCps();
+    get().recalculateClickValue();
+
+    // Use lastSimulated (when game actually ran) not lastSaved (when autosave ran)
+    // This fixes offline progress loss when tab is hidden → closed (autosave runs but game loop pauses)
     const { curdPerSecond } = get();
     const offlineProgressCapHours = useSettingsStore.getState().game.offlineProgressCap;
-    const offlineProgress = calculateOfflineProgress(curdPerSecond, savedState.lastSaved, offlineProgressCapHours);
+    const lastActiveTime = savedState.lastSimulated ?? savedState.lastSaved;
+    const offlineProgress = calculateOfflineProgress(curdPerSecond, lastActiveTime, offlineProgressCapHours);
 
     // Apply offline earnings
     set((s) => ({
@@ -79,34 +101,8 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
       combat: createEmptyCombatState(),
       zoneProgress: {},
 
-      // Prestige state
-      prestige: {
-        rennet: 0,
-        totalRennet: 0,
-        agingResetCount: 0,
-        agingUpgrades: [],
-        vintageWheels: 0,
-        totalVintageWheels: 0,
-        vintageResetCount: 0,
-        vintageUnlocks: [],
-        legacy: 0,
-        legacyBonuses: {
-          ontario: 0,
-          quebec: 0,
-          alberta: 0,
-          manitoba: 0,
-          saskatchewan: 0,
-          yukon: 0,
-          bc: 0,
-          nova_scotia: 0,
-          new_brunswick: 0,
-          pei: 0,
-          newfoundland: 0,
-          nwt: 0,
-          nunavut: 0,
-        },
-        legacyResetCount: 0,
-      },
+      // Prestige state - DELEGATED to factory
+      prestige: createInitialPrestigeState(),
 
       // Crafting state - DELEGATED to factory
       crafting: createInitialCraftingState(),
@@ -120,14 +116,8 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
       // Synergy state - permanent, NOT reset
       synergy: get().synergy,
 
-      // Challenge state - reset to trigger re-initialization
-      challenge: {
-        activeChallengeId: null,
-        weekStartTimestamp: 0,
-        progress: 0,
-        completed: false,
-        claimed: false,
-      },
+      // Challenge state - DELEGATED to factory
+      challenge: createInitialChallengeState(),
 
       // Progressive unlock state - reset to fresh game experience
       unlockedFeatures: new Set<FeatureId>(['upgrades', 'achievements']),
@@ -135,6 +125,7 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
 
       // Persistence state
       lastSaved: Date.now(),
+      lastSimulated: Date.now(),
       gameStarted: Date.now(),
     });
     // Initialize challenge after reset
@@ -162,6 +153,7 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
       curds: s.curds.plus(curdsEarned),
       totalCurdsEarned: s.totalCurdsEarned.plus(curdsEarned),
       currencyAnimationTrigger: s.currencyAnimationTrigger + 1,
+      lastSimulated: Date.now(),
     }));
 
     return { curdsEarned, secondsAway: elapsedSeconds };

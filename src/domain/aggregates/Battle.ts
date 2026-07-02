@@ -532,7 +532,7 @@ export class Battle {
 
           logs.push({
             timestamp: Date.now(),
-            type: 'buff',
+            type: 'status',
             source: enemyDef.name,
             target: enemyDef.name,
             message: `${enemyDef.name} uses ${ability.name}!`,

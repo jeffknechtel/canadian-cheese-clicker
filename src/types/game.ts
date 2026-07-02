@@ -125,6 +125,7 @@ export interface GameState {
   ehCount: number; // Tracks Canadian phrase triggers for bonus
   lastMilestone: number; // Last milestone threshold triggered
   lastSaved: number;
+  lastSimulated: number; // When game logic last ticked (for offline progress)
   gameStarted: number;
 
   // Hero system

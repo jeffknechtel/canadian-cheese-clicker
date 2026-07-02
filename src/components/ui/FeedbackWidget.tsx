@@ -78,6 +78,7 @@ export function FeedbackWidget({ className = '' }: FeedbackWidgetProps) {
         ehCount: state.ehCount,
         lastMilestone: state.lastMilestone,
         lastSaved: state.lastSaved,
+        lastSimulated: state.lastSimulated,
         gameStarted: state.gameStarted,
         heroes: state.heroes,
         party: state.party,

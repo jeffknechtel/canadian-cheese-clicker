@@ -367,4 +367,13 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
     },
     equipmentInventory: [],
   }),
+
+  grantEquipment: (equipmentId: string) => {
+    const { equipmentInventory } = get();
+    if (!equipmentInventory.includes(equipmentId)) {
+      set({
+        equipmentInventory: [...equipmentInventory, equipmentId],
+      });
+    }
+  },
 });
