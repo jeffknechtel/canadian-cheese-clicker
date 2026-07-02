@@ -1,4 +1,4 @@
-import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { ModalOverlay } from './shared/ModalOverlay';
 
 interface KeyboardHelpModalProps {
   isOpen: boolean;
@@ -52,31 +52,14 @@ const SHORTCUT_CATEGORIES: ShortcutCategory[] = [
 ];
 
 export function KeyboardHelpModal({ isOpen, onClose }: KeyboardHelpModalProps) {
-  const containerRef = useFocusTrap<HTMLDivElement>(isOpen, onClose);
-
-  if (!isOpen) return null;
-
   return (
-    <div
-      className="fixed inset-0 z-70 flex items-center justify-center p-4 animate-backdrop-in"
-      role="presentation"
+    <ModalOverlay
+      isOpen={isOpen}
+      onClose={onClose}
+      zIndexClass="z-70"
+      ariaLabelledBy="keyboard-help-title"
+      className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[85vh] overflow-hidden panel-wood-solid"
     >
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-xs"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      {/* Modal */}
-      <div
-        ref={containerRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="keyboard-help-title"
-        className="relative bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[85vh] overflow-hidden animate-modal-in panel-wood-solid"
-        tabIndex={-1}
-      >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-timber-200 header-timmys text-white">
           <h2 id="keyboard-help-title" className="text-xl font-bold flex items-center gap-2">
@@ -144,7 +127,6 @@ export function KeyboardHelpModal({ isOpen, onClose }: KeyboardHelpModalProps) {
             Got it! (Press Escape to close)
           </button>
         </div>
-      </div>
-    </div>
+    </ModalOverlay>
   );
 }

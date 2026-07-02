@@ -4,6 +4,7 @@ import { formatNumber } from '../../../utils/formatNumber';
 import { formatAgingDuration } from '../../../data/cheeseRecipes';
 import { getMilkByType, getCultureByType, getRennetByType } from '../../../data/ingredients';
 import { playPurchaseSound } from '../../../systems/audioSystem';
+import { DISABLED_BUTTON_CLASSES } from '../shared/Button';
 import type { CheeseRecipe, MilkType, CultureType, RennetType, CheeseEffect } from '../../../types/game';
 
 interface RecipeCardProps {
@@ -227,7 +228,7 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
                 px-4 py-2 rounded-lg font-medium text-sm transition-all
                 ${canCraft
                   ? 'bg-cheddar-700 hover:bg-cheddar-800 text-white shadow-md hover:shadow-lg active:scale-95'
-                  : 'bg-gray-200 text-gray-700 cursor-not-allowed'
+                  : DISABLED_BUTTON_CLASSES
                 }
               `}
             >

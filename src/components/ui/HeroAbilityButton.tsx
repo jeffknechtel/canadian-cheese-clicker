@@ -5,6 +5,7 @@ import { useSettingsStore } from '../../stores/settingsStore';
 import { getHeroAbility, getHeroLimitBreak, heroHasLimitBreak } from '../../data/heroes';
 import { heroRegistry } from '../../domain';
 import { getAbilityCooldown, isAbilityReady, LIMIT_BREAK_MAX } from '../../systems/combatEngine';
+import { DISABLED_BUTTON_CLASSES } from './shared/Button';
 import type { HeroCombatState } from '../../types/game';
 
 interface HeroAbilityButtonProps {
@@ -66,7 +67,7 @@ export const HeroAbilityButton = memo(function HeroAbilityButton({ heroState, si
           ${abilityIsReady && !isDisabled
             ? 'bg-linear-to-r from-maple-500 to-maple-600 text-white shadow-md hover:shadow-lg'
             : isDisabled
-              ? 'bg-gray-200 text-gray-700 cursor-not-allowed'
+              ? DISABLED_BUTTON_CLASSES
               : 'bg-maple-200 text-maple-700 cursor-not-allowed'
           }
         `}
@@ -131,7 +132,7 @@ export const LimitBreakButton = memo(function LimitBreakButton({ heroId, size = 
         rounded font-bold transition-all duration-200 w-full btn-scale
         ${canUse && !isDisabled
           ? `bg-linear-to-r from-amber-500 via-orange-500 to-red-500 text-white shadow-lg hover:shadow-xl ${!reducedMotion ? 'animate-pulse' : ''}`
-          : 'bg-gray-200 text-gray-700 cursor-not-allowed'
+          : DISABLED_BUTTON_CLASSES
         }
       `}
     >

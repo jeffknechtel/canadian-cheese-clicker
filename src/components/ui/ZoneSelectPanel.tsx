@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useGameStore } from '../../stores';
 import { ZONES, getProvinceDisplayName, isZoneUnlocked, getTotalStages, getZoneCompletionPercent } from '../../data/zones';
 import { FirstTimeHint } from './shared/FirstTimeHint';
+import { PanelContainer } from './shared/PanelContainer';
+import { ProgressBar } from './shared/ProgressBar';
+import { DISABLED_BUTTON_CLASSES } from './shared/Button';
 import type { ZoneDefinition, Province } from '../../types/game';
 
 const PROVINCE_ICONS: Record<Province, string> = {
@@ -88,16 +91,18 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
 
         {/* Progress Bar */}
         {isUnlocked && (
-          <div className="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-            <div
-              className={`h-full transition-all duration-500 ${
-                progress?.bossDefeated
-                  ? 'bg-linear-to-r from-cheddar-400 to-cheddar-600'
-                  : 'bg-linear-to-r from-maple-400 to-maple-600'
-              }`}
-              style={{ width: `${completion}%` }}
-            />
-          </div>
+          <ProgressBar
+            percent={completion}
+            height="h-1.5"
+            className="mt-2"
+            fillColor={
+              progress?.bossDefeated
+                ? 'bg-linear-to-r from-cheddar-400 to-cheddar-600'
+                : 'bg-linear-to-r from-maple-400 to-maple-600'
+            }
+            transitionClass="transition-all duration-500"
+            ariaLabel={`${zone.name} completion: ${completion}%`}
+          />
         )}
       </button>
 
@@ -121,7 +126,7 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
                         ? 'bg-cheddar-100 text-cheddar-700 border border-cheddar-300'
                         : canAttempt
                           ? 'bg-maple-100 text-maple-700 border border-maple-300 hover:bg-maple-200 hover:shadow-xs'
-                          : 'bg-gray-200 text-gray-600 border border-gray-300 cursor-not-allowed'
+                          : `${DISABLED_BUTTON_CLASSES} border border-gray-300`
                       }
                     `}
                   >
@@ -145,7 +150,7 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
                     ? 'bg-cheddar-100 text-cheddar-700 border border-cheddar-300'
                     : (progress?.highestStageCleared || 0) >= zone.stages.length
                       ? 'bg-red-100 text-red-700 border border-red-300 hover:bg-red-200 hover:shadow-xs'
-                      : 'bg-gray-200 text-gray-600 border border-gray-300 cursor-not-allowed'
+                      : `${DISABLED_BUTTON_CLASSES} border border-gray-300`
                   }
                 `}
               >
@@ -186,7 +191,7 @@ export function ZoneSelectPanel({ onStartCombat }: ZoneSelectPanelProps) {
 
   return (
     <FirstTimeHint hintId="firstCombat" position="top">
-      <div className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain">
+      <PanelContainer>
         {/* Header */}
         <div className="mb-3">
           <h2 className="text-lg font-bold text-timber-700 flex items-center gap-2">
@@ -239,7 +244,7 @@ export function ZoneSelectPanel({ onStartCombat }: ZoneSelectPanelProps) {
             </span>
           </div>
         </div>
-      </div>
+      </PanelContainer>
     </FirstTimeHint>
   );
 }

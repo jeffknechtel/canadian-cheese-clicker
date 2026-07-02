@@ -2,6 +2,7 @@ import { memo } from 'react';
 import type { CombatEnemy, StatusEffect } from '../../types/game';
 import { getAnyEnemy } from '../../domain';
 import { CombatATBBar } from './CombatATBBar';
+import { ProgressBar } from './shared/ProgressBar';
 import { ATB_MAX, HP_LOW_THRESHOLD, HP_MEDIUM_THRESHOLD } from '../../systems/combatEngine';
 
 interface StatusEffectBadgeProps {
@@ -114,20 +115,18 @@ export const EnemyCard = memo(function EnemyCard({ enemy, showATB = true }: Enem
             {enemy.currentHp}/{enemy.maxHp}
           </span>
         </div>
-        <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className={`
-              h-full rounded-full transition-all duration-300
-              ${isLowHp
-                ? 'bg-linear-to-r from-red-400 to-red-600'
-                : isMediumHp
-                  ? 'bg-linear-to-r from-amber-400 to-amber-600'
-                  : 'bg-linear-to-r from-green-400 to-green-600'
-              }
-            `}
-            style={{ width: `${hpPercentage}%` }}
-          />
-        </div>
+        <ProgressBar
+          percent={hpPercentage}
+          height="h-2.5"
+          fillColor={
+            isLowHp
+              ? 'bg-linear-to-r from-red-400 to-red-600'
+              : isMediumHp
+                ? 'bg-linear-to-r from-amber-400 to-amber-600'
+                : 'bg-linear-to-r from-green-400 to-green-600'
+          }
+          ariaLabel={`${enemyDef.name} HP: ${enemy.currentHp} of ${enemy.maxHp}`}
+        />
       </div>
 
       {/* ATB Bar */}

@@ -14,6 +14,7 @@ import {
   type BugCategory,
 } from '../../systems/bugReporter';
 import { GAME_VERSION } from '../../config/version';
+import { DISABLED_BUTTON_CLASSES } from './shared/Button';
 
 interface FeedbackWidgetProps {
   className?: string;
@@ -242,7 +243,7 @@ export function FeedbackWidget({ className = '' }: FeedbackWidgetProps) {
               disabled={isSubmitting || !description.trim()}
               className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
                 isSubmitting || !description.trim()
-                  ? 'bg-gray-200 text-gray-600 cursor-not-allowed'
+                  ? DISABLED_BUTTON_CLASSES
                   : 'bg-maple-600 hover:bg-maple-700 text-white'
               }`}
             >

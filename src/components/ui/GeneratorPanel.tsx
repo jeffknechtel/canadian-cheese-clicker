@@ -11,6 +11,8 @@ import { announceGeneratorPurchase } from '../../systems/accessibilityAnnouncer'
 import type { Generator } from '../../types/game';
 import { CpsBreakdownPanel } from './CpsBreakdownPanel';
 import { FirstTimeHint } from './shared/FirstTimeHint';
+import { PanelContainer } from './shared/PanelContainer';
+import { DISABLED_BUTTON_CLASSES } from './shared/Button';
 
 type BuyAmount = 1 | 10 | 100 | 'max';
 
@@ -145,7 +147,7 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
               ? isCanadianTier
                 ? 'bg-red-600 hover:bg-red-700 text-white cursor-pointer'
                 : 'bg-amber-600 hover:bg-amber-700 text-white cursor-pointer'
-              : 'bg-gray-200 text-gray-700 cursor-not-allowed'
+              : DISABLED_BUTTON_CLASSES
           }`}
         >
           <div className="text-center" aria-hidden="true">
@@ -183,7 +185,7 @@ export function GeneratorPanel() {
   const canadianGenerators = useMemo(() => visibleGenerators.filter((_, i) => i >= CANADIAN_TIER_START), [visibleGenerators]);
 
   return (
-    <section className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain gap-3" aria-labelledby="generators-heading">
+    <PanelContainer as="section" className="gap-3" aria-labelledby="generators-heading">
       <div className="flex items-center justify-between mb-3">
         <h2 id="generators-heading" className="text-lg font-bold flex items-center gap-2 text-timber-700">
           <span>Generators</span>
@@ -259,6 +261,6 @@ export function GeneratorPanel() {
         )}
       </div>
       <CpsBreakdownPanel />
-    </section>
+    </PanelContainer>
   );
 }

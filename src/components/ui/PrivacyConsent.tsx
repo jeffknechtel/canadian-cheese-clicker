@@ -5,8 +5,9 @@
  * Displays on first run and can be accessed from settings.
  */
 
-import { useState, useCallback, useEffect, type ReactElement } from 'react';
+import { useState, useCallback, type ReactElement } from 'react';
 import { analytics } from '../../systems/analyticsService';
+import { ModalOverlay } from './shared/ModalOverlay';
 
 interface PrivacyConsentProps {
   isOpen: boolean;
@@ -24,20 +25,6 @@ export function PrivacyConsent({
 }: PrivacyConsentProps): ReactElement | null {
   const [showDetails, setShowDetails] = useState(false);
 
-  // Handle escape key
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
   const handleAccept = useCallback(() => {
     analytics.setEnabled(true);
     onConsentChange?.(true);
@@ -50,14 +37,13 @@ export function PrivacyConsent({
     onClose();
   }, [onClose, onConsentChange]);
 
-  if (!isOpen) return null;
-
   return (
-    <div
-      className="fixed inset-0 z-80 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="privacy-consent-title"
+    <ModalOverlay
+      isOpen={isOpen}
+      onClose={onClose}
+      zIndexClass="z-80"
+      dismissible={false}
+      ariaLabelledBy="privacy-consent-title"
     >
       <div className="bg-cream rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border-2 border-cheddar-300">
         {/* Header */}
@@ -154,7 +140,7 @@ export function PrivacyConsent({
           </button>
         </div>
       </div>
-    </div>
+    </ModalOverlay>
   );
 }
 

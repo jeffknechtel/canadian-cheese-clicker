@@ -3,6 +3,7 @@ import type { CombatRewards } from '../../types/game';
 import { formatNumber } from '../../utils/formatNumber';
 import { heroRegistry, zoneRegistry } from '../../domain';
 import { useSettingsStore } from '../../stores/settingsStore';
+import { ModalOverlay } from './shared/ModalOverlay';
 
 // Canadian victory/defeat phrases
 const VICTORY_PHRASES = [
@@ -56,7 +57,15 @@ export function CombatResultsModal({
   const isBossStage = zone ? stageNumber === zone.bossStage.stageNumber : false;
 
   return (
-    <div className={`fixed inset-0 bg-black/60 flex items-center justify-center z-60 ${!reducedMotion ? 'animate-backdrop-in' : ''}`}>
+    // Not dismissible: closing must go through the Continue button so
+    // endCombat/claimCombatRewards run (see C-1 softlock fix).
+    <ModalOverlay
+      isOpen={true}
+      onClose={onContinue}
+      zIndexClass="z-60"
+      dismissible={false}
+      backdropClass="bg-black/60"
+    >
       <div
         className={`
           mx-4 max-w-md w-full rounded-lg shadow-2xl overflow-hidden panel-wood-solid
@@ -207,6 +216,6 @@ export function CombatResultsModal({
           </button>
         </div>
       </div>
-    </div>
+    </ModalOverlay>
   );
 }

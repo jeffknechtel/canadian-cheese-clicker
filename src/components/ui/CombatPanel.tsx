@@ -16,6 +16,8 @@ import {
 } from './CombatFeedback';
 import { announce } from '../../systems/accessibilityAnnouncer';
 import { ATB_MAX, LIMIT_BREAK_MAX, HP_LOW_THRESHOLD, HP_MEDIUM_THRESHOLD } from '../../systems/combatEngine';
+import { PanelContainer } from './shared/PanelContainer';
+import { ProgressBar } from './shared/ProgressBar';
 import type { HeroCombatState } from '../../types/game';
 
 interface HeroCombatCardProps {
@@ -123,27 +125,18 @@ const HeroCombatCard = memo(function HeroCombatCard({ heroState, isSelected = fa
             {heroState.currentHp}/{heroState.maxHp}
           </span>
         </div>
-        <div
-          className="h-2 bg-gray-200 rounded-full overflow-hidden"
-          role="progressbar"
-          aria-valuenow={heroState.currentHp}
-          aria-valuemin={0}
-          aria-valuemax={heroState.maxHp}
-          aria-labelledby={`hp-label-${heroState.heroId}`}
-        >
-          <div
-            className={`
-              h-full rounded-full transition-all duration-300
-              ${isLowHp
-                ? 'bg-linear-to-r from-red-400 to-red-600'
-                : isMediumHp
-                  ? 'bg-linear-to-r from-amber-400 to-amber-600'
-                  : 'bg-linear-to-r from-green-400 to-green-600'
-              }
-            `}
-            style={{ width: `${hpPercentage}%` }}
-          />
-        </div>
+        <ProgressBar
+          percent={hpPercentage}
+          height="h-2"
+          fillColor={
+            isLowHp
+              ? 'bg-linear-to-r from-red-400 to-red-600'
+              : isMediumHp
+                ? 'bg-linear-to-r from-amber-400 to-amber-600'
+                : 'bg-linear-to-r from-green-400 to-green-600'
+          }
+          ariaLabel={`${heroState.currentHp} of ${heroState.maxHp} hit points`}
+        />
       </div>
 
       {/* ATB Bar */}
@@ -386,13 +379,13 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
   // This prevents white screen errors when combat data is missing
   if (!isInitialized) {
     return (
-      <section className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col items-center justify-center panel-wood wood-grain">
+      <PanelContainer as="section" className="items-center justify-center">
         <div className="text-center">
           <div className="text-4xl mb-4">⚔️</div>
           <p className="text-timber-700 font-medium">Initializing combat...</p>
           <p className="text-sm text-gray-500 mt-2">If this persists, try selecting a zone again.</p>
         </div>
-      </section>
+      </PanelContainer>
     );
   }
 
@@ -414,8 +407,9 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
     : '';
 
   return (
-    <section
-      className={`relative p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain focus:outline-none focus:ring-2 focus:ring-cheddar-400 ${shakeClass}`}
+    <PanelContainer
+      as="section"
+      className={`relative focus:outline-none focus:ring-2 focus:ring-cheddar-400 ${shakeClass}`}
       aria-labelledby="combat-heading"
       aria-describedby="battle-status"
       tabIndex={0}
@@ -569,7 +563,7 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
           )}
         </>
       )}
-    </section>
+    </PanelContainer>
   );
 }
 

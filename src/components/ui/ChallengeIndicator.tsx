@@ -3,6 +3,8 @@ import { useGameStore } from '../../stores';
 import { useGameStoreShallow } from '../../utils/zustandOptimization';
 import { getChallengeById } from '../../data/challenges';
 import { formatNumber } from '../../utils/formatNumber';
+import { ModalOverlay } from './shared/ModalOverlay';
+import { ProgressBar } from './shared/ProgressBar';
 
 export const ChallengeIndicator = memo(function ChallengeIndicator() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -47,19 +49,12 @@ export const ChallengeIndicator = memo(function ChallengeIndicator() {
         )}
       </button>
 
-      {modalOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-          onClick={() => setModalOpen(false)}
-        >
-          <div
-            className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
+      <ModalOverlay isOpen={modalOpen} onClose={() => setModalOpen(false)} ariaLabelledBy="challenge-modal-title">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
             <div className="flex items-center gap-3 mb-4">
               <span className="text-3xl">{challengeData.icon}</span>
               <div>
-                <h2 className="text-xl font-bold text-cheddar-700">{challengeData.name}</h2>
+                <h2 id="challenge-modal-title" className="text-xl font-bold text-cheddar-700">{challengeData.name}</h2>
                 <p className="text-sm text-gray-600">Weekly Challenge</p>
               </div>
             </div>
@@ -73,14 +68,12 @@ export const ChallengeIndicator = memo(function ChallengeIndicator() {
                   {progress}/{challengeData.goal.target}
                 </span>
               </div>
-              <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all duration-300 ${
-                    completed ? 'bg-green-500' : 'bg-blue-500'
-                  }`}
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
+              <ProgressBar
+                percent={progressPercent}
+                height="h-3"
+                fillColor={completed ? 'bg-green-500' : 'bg-blue-500'}
+                ariaLabel={`Challenge progress: ${progress} of ${challengeData.goal.target}`}
+              />
             </div>
 
             <div className="p-3 bg-cream rounded-lg mb-4">
@@ -118,8 +111,7 @@ export const ChallengeIndicator = memo(function ChallengeIndicator() {
               </button>
             </div>
           </div>
-        </div>
-      )}
+      </ModalOverlay>
     </>
   );
 });

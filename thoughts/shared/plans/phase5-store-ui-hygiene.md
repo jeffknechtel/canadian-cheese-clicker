@@ -283,10 +283,10 @@ Make the shared primitives the single styling source for tabs, bars, modals, and
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Type check + build passes: `pnpm build`
-- [ ] Lint passes: `pnpm lint`
-- [ ] `grep -rn "cursor-not-allowed" src/components --include="*.tsx" | grep -v shared/` returns no raw copies (only primitive usages/`DISABLED_BUTTON_CLASSES` references)
-- [ ] `grep -rn "fixed inset-0" src/components/ui --include="*.tsx" | grep -v shared/ModalOverlay` returns no modal-backdrop duplicates (non-modal overlays like LoadingScreen may remain)
+- [x] Type check + build passes: `pnpm build`
+- [x] Lint passes: `pnpm lint`
+- [x] `grep -rn "cursor-not-allowed" src/components --include="*.tsx" | grep -v shared/` returns no raw copies (only primitive usages/`DISABLED_BUTTON_CLASSES` references; remaining hits are intentionally distinct styles: ZoneCard container, flee button's lighter gray, ability button's maple cooldown state)
+- [x] `grep -rn "fixed inset-0" src/components/ui --include="*.tsx" | grep -v shared/ModalOverlay` returns no modal-backdrop duplicates (non-modal overlays like LoadingScreen may remain)
 
 #### Manual Verification:
 - [ ] Every migrated tab set (Upgrades, Heroes, Prestige, Crafting) looks equivalent and switches correctly

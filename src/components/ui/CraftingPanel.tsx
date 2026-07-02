@@ -6,6 +6,8 @@ import { CaveCard } from './crafting/CaveCard';
 import { CheeseInventoryCard } from './crafting/CheeseInventoryCard';
 import { CheeseCollectionView } from './crafting/CheeseCollectionView';
 import { AnimatedTabContent } from './shared/AnimatedTabContent';
+import { TabButton } from './shared/TabButton';
+import { PanelContainer } from './shared/PanelContainer';
 import { CHEESE_RECIPES } from '../../data/cheeseRecipes';
 
 type CraftingTab = 'recipes' | 'caves' | 'inventory' | 'collection';
@@ -27,7 +29,7 @@ export function CraftingPanel() {
   ];
 
   return (
-    <div className="p-4 bg-cream/80 backdrop-blur rounded-lg shadow-lg h-full flex flex-col panel-wood wood-grain">
+    <PanelContainer>
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-lg font-bold text-timber-700 flex items-center gap-2">
@@ -43,16 +45,11 @@ export function CraftingPanel() {
       {/* Tabs */}
       <div className="flex gap-1 mb-3">
         {tabs.map((tab) => (
-          <button
+          <TabButton
             key={tab.id}
+            size="sm"
+            active={activeTab === tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`
-              flex-1 px-2 py-1.5 text-xs rounded font-medium transition-colors border btn-scale
-              ${activeTab === tab.id
-                ? 'bg-timber-500 text-white border-timber-600'
-                : 'bg-timber-100 text-timber-700 border-timber-300 hover:bg-timber-200'
-              }
-            `}
           >
             {tab.label}
             {tab.count !== undefined && tab.count > 0 && (
@@ -60,7 +57,7 @@ export function CraftingPanel() {
                 ({tab.count})
               </span>
             )}
-          </button>
+          </TabButton>
         ))}
       </div>
 
@@ -81,7 +78,7 @@ export function CraftingPanel() {
           )}
         </AnimatedTabContent>
       </div>
-    </div>
+    </PanelContainer>
   );
 }
 
