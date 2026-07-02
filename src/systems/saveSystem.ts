@@ -8,8 +8,14 @@ import {
   setAudioPreferences,
 } from './audioSystem';
 import { showSaveToast } from './saveToast';
+import { createInitialCraftingState } from '../stores/slices/crafting/resetFactory';
+import { createInitialPrestigeState } from '../stores/slices/prestige/resetFactory';
+import { createInitialGoldenCheeseState } from '../stores/slices/goldenCheese/resetFactory';
+import { createInitialSynergyState } from '../stores/slices/synergy/resetFactory';
+import { createInitialChallengeState } from '../stores/slices/challenge/resetFactory';
+import { createEmptyCombatState } from '../stores/slices/combat/resetFactory';
 
-const SAVE_KEY = 'canadian_cheese_quest_save';
+export const SAVE_KEY = 'canadian_cheese_quest_save';
 const AUDIO_PREFS_KEY = 'canadian_cheese_quest_audio';
 
 interface SaveData {
@@ -29,6 +35,7 @@ interface SerializedGameState {
   ehCount: number;
   lastMilestone: number;
   lastSaved: number;
+  lastSimulated?: number; // When game logic last ticked (for offline progress)
   gameStarted: number;
   // Hero system
   heroes?: Record<string, HeroState>;
@@ -65,6 +72,7 @@ function serializeState(state: GameState): SerializedGameState {
     ehCount: state.ehCount,
     lastMilestone: state.lastMilestone,
     lastSaved: state.lastSaved,
+    lastSimulated: state.lastSimulated,
     gameStarted: state.gameStarted,
     // Hero system (no Decimal values, so straightforward)
     heroes: state.heroes,
@@ -107,45 +115,11 @@ function deserializeState(serialized: SerializedGameState): GameState {
   };
   const equipmentInventory = serialized.equipmentInventory ?? [];
 
-  // Handle migration from v5 (add crafting system defaults)
-  const crafting: CraftingState = serialized.crafting ?? {
-    unlockedIngredients: ['milk_cow', 'culture_basic', 'rennet_animal'],
-    unlockedRecipes: ['cottage_cheese', 'ricotta', 'cream_cheese'],
-    unlockedCaves: ['basic_cellar'],
-    activeJobs: [],
-    cheeseInventory: [],
-    cheeseCollection: {},
-    activeBuffs: [],
-  };
+  // Handle migration from v5 (add crafting system defaults) - use factory
+  const crafting: CraftingState = serialized.crafting ?? createInitialCraftingState();
 
-  // Handle migration from v4 (add prestige system defaults)
-  const prestige: PrestigeState = serialized.prestige ?? {
-    rennet: 0,
-    totalRennet: 0,
-    agingResetCount: 0,
-    agingUpgrades: [],
-    vintageWheels: 0,
-    totalVintageWheels: 0,
-    vintageResetCount: 0,
-    vintageUnlocks: [],
-    legacy: 0,
-    legacyBonuses: {
-      ontario: 0,
-      quebec: 0,
-      alberta: 0,
-      manitoba: 0,
-      saskatchewan: 0,
-      yukon: 0,
-      bc: 0,
-      nova_scotia: 0,
-      new_brunswick: 0,
-      pei: 0,
-      newfoundland: 0,
-      nwt: 0,
-      nunavut: 0,
-    },
-    legacyResetCount: 0,
-  };
+  // Handle migration from v4 (add prestige system defaults) - use factory
+  const prestige: PrestigeState = serialized.prestige ?? createInitialPrestigeState();
 
   // CPS and click values are placeholders here - they will be recalculated
   // after state is loaded via store.recalculateCps() and store.recalculateClickValue()
@@ -166,31 +140,14 @@ function deserializeState(serialized: SerializedGameState): GameState {
     ehCount,
     lastMilestone,
     lastSaved: serialized.lastSaved,
+    lastSimulated: serialized.lastSimulated ?? serialized.lastSaved,
     gameStarted: serialized.gameStarted,
     // Hero system
     heroes,
     party,
     equipmentInventory,
-    // Combat system - reset combat state on load (don't persist mid-combat state)
-    combat: {
-      isInCombat: false,
-      currentZone: null,
-      currentStage: 0,
-      enemies: [],
-      heroStates: {},
-      combatLog: [],
-      combatSpeed: 1,
-      limitBreakGauge: 0,
-      battleResult: null,
-      feedback: {
-        damageNumbers: [],
-        comboCount: 0,
-        maxCombo: 0,
-        isFlashing: false,
-        flashColor: null,
-        shakeIntensity: null,
-      },
-    },
+    // Combat system - reset combat state on load (don't persist mid-combat state) - use factory
+    combat: createEmptyCombatState(),
     // Restore zone progress from save or start fresh
     zoneProgress: serialized.zoneProgress || {},
     // Prestige system - already deserialized above with v4 migration handling
@@ -199,27 +156,12 @@ function deserializeState(serialized: SerializedGameState): GameState {
     crafting,
     // Event system - v7 migration with empty default
     activeEvents: serialized.activeEvents ?? [],
-    // Golden cheese system - default for migration from older saves
-    goldenCheese: serialized.goldenCheese ?? {
-      nextSpawnAt: 0,
-      isVisible: false,
-      expiresAt: 0,
-      currentReward: null,
-      totalCollected: 0,
-    },
-    // Synergy system - default for migration from older saves
-    synergy: serialized.synergy ?? {
-      purchased: [],
-      zoneGeneratorBonuses: {},
-    },
-    // Challenge system - default for migration from older saves
-    challenge: serialized.challenge ?? {
-      activeChallengeId: null,
-      weekStartTimestamp: 0,
-      progress: 0,
-      completed: false,
-      claimed: false,
-    },
+    // Golden cheese system - default for migration from older saves - use factory
+    goldenCheese: serialized.goldenCheese ?? createInitialGoldenCheeseState(),
+    // Synergy system - default for migration from older saves - use factory
+    synergy: serialized.synergy ?? createInitialSynergyState(),
+    // Challenge system - default for migration from older saves - use factory
+    challenge: serialized.challenge ?? createInitialChallengeState(),
     // Progressive unlock system - for existing saves, unlock all features to preserve experience
     unlockedFeatures: serialized.unlockedFeatures
       ? new Set(serialized.unlockedFeatures)

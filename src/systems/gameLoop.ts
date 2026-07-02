@@ -11,6 +11,10 @@ let isRunning = false;
 let lastEventCheckTime = 0;
 const EVENT_CHECK_INTERVAL_MS = 60 * 60 * 1000; // Check hourly
 
+// Periodic achievement check for pure-idle players
+let lastAchievementCheckTime = 0;
+const ACHIEVEMENT_CHECK_INTERVAL_MS = 5000; // Check every 5 seconds
+
 // Track when tab was hidden for offline progress calculation
 let hiddenTimestamp: number | null = null;
 
@@ -66,8 +70,17 @@ function tick(currentTime: number) {
         accumulatedGameLogicTime -= gameLogicInterval;
       }
 
+      // Update lastSimulated - tracks when game logic actually ran (for offline progress)
+      useGameStore.setState({ lastSimulated: currentTime });
+
       // Check for newly unlocked features (after production updates)
       store.checkUnlocks();
+
+      // Periodic achievement check for pure-idle players
+      if (currentTime - lastAchievementCheckTime > ACHIEVEMENT_CHECK_INTERVAL_MS) {
+        store.checkAchievements();
+        lastAchievementCheckTime = currentTime;
+      }
     }
 
     // Combat tick: runs every frame for smooth ATB bars
@@ -107,6 +120,7 @@ export function startGameLoop() {
   lastTime = null;
   accumulatedGameLogicTime = 0;
   frameBudgetWarnings = 0;
+  lastAchievementCheckTime = 0;
   animationFrameId = requestAnimationFrame(tick);
 }
 

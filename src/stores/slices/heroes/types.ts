@@ -35,6 +35,7 @@ export interface HeroSliceActions {
   getHeroMultiplier: () => number;
   getPartyStats: () => Record<string, HeroStats>;
   getPrestigeHeroReset: () => HeroSliceState;
+  grantEquipment: (equipmentId: string) => void;
 }
 
 export type HeroSlice = HeroSliceState & HeroSliceActions;

@@ -63,8 +63,8 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
     const state = get();
     const baseClickValue = state.getClickValue();
     const buffMultipliers = state.getActiveBuffMultipliers();
-    const eventMultipliers = state.getEventMultipliers();
-    let clickValue = baseClickValue.mul(buffMultipliers.click).mul(eventMultipliers.click);
+    // Event multipliers already baked into curdPerClick via computeClickValue
+    let clickValue = baseClickValue.mul(buffMultipliers.click);
 
     // Roll for critical hit
     const isCrit = Math.random() < CLICK_CRIT_BASE_CHANCE;
@@ -91,8 +91,8 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
     if (curdPerSecond.isZero()) return;
 
     const buffMultipliers = state.getActiveBuffMultipliers();
-    const eventMultipliers = state.getEventMultipliers();
-    const effectiveCps = curdPerSecond.mul(buffMultipliers.production).mul(eventMultipliers.production);
+    // Event multipliers already baked into curdPerSecond via computeCps
+    const effectiveCps = curdPerSecond.mul(buffMultipliers.production);
 
     const secondsElapsed = deltaMs / 1000;
     const curdsEarned = effectiveCps.mul(secondsElapsed);

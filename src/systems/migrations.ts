@@ -3,6 +3,10 @@
  * Each migration transforms data from one version to the next.
  */
 
+import { createInitialPrestigeState } from '../stores/slices/prestige/resetFactory';
+import { createInitialCraftingState } from '../stores/slices/crafting/resetFactory';
+import { createInitialSynergyState } from '../stores/slices/synergy/resetFactory';
+
 export const CURRENT_VERSION = 9;
 
 interface SerializedGameState {
@@ -48,33 +52,7 @@ const migrations: Migration[] = [
     toVersion: 4,
     migrate: (data) => ({
       ...data,
-      prestige: data.prestige ?? {
-        rennet: 0,
-        totalRennet: 0,
-        agingResetCount: 0,
-        agingUpgrades: [],
-        vintageWheels: 0,
-        totalVintageWheels: 0,
-        vintageResetCount: 0,
-        vintageUnlocks: [],
-        legacy: 0,
-        legacyBonuses: {
-          ontario: 0,
-          quebec: 0,
-          alberta: 0,
-          manitoba: 0,
-          saskatchewan: 0,
-          yukon: 0,
-          bc: 0,
-          nova_scotia: 0,
-          new_brunswick: 0,
-          pei: 0,
-          newfoundland: 0,
-          nwt: 0,
-          nunavut: 0,
-        },
-        legacyResetCount: 0,
-      },
+      prestige: data.prestige ?? createInitialPrestigeState(),
       zoneProgress: data.zoneProgress ?? {},
     }),
   },
@@ -83,15 +61,7 @@ const migrations: Migration[] = [
     toVersion: 5,
     migrate: (data) => ({
       ...data,
-      crafting: data.crafting ?? {
-        unlockedIngredients: ['milk_cow', 'culture_basic', 'rennet_animal'],
-        unlockedRecipes: ['cottage_cheese', 'ricotta', 'cream_cheese'],
-        unlockedCaves: ['basic_cellar'],
-        activeJobs: [],
-        cheeseInventory: [],
-        cheeseCollection: {},
-        activeBuffs: [],
-      },
+      crafting: data.crafting ?? createInitialCraftingState(),
     }),
   },
   {
@@ -159,10 +129,7 @@ const migrations: Migration[] = [
     toVersion: 9,
     migrate: (data) => ({
       ...data,
-      synergy: data.synergy ?? {
-        purchased: [],
-        zoneGeneratorBonuses: {},
-      },
+      synergy: data.synergy ?? createInitialSynergyState(),
     }),
   },
 ];

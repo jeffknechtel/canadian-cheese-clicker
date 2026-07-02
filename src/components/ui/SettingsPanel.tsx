@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { useGameStore } from '../../stores';
-import { deleteSave, saveGame as saveGameToStorage } from '../../systems/saveSystem';
+import { deleteSave, saveGame as saveGameToStorage, SAVE_KEY } from '../../systems/saveSystem';
+import { setImportingFlag } from '../../stores/slices/persistence/persistenceSlice';
 import { showSaveToast } from '../../systems/saveToast';
 import { PrivacyToggle } from './PrivacyConsent';
 import { AnimatedTabContent } from './shared/AnimatedTabContent';
@@ -30,7 +31,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
   // Export game save
   const handleExportSave = useCallback(() => {
     try {
-      const saveData = localStorage.getItem('canadian_cheese_quest_save');
+      const saveData = localStorage.getItem(SAVE_KEY);
       if (saveData) {
         const blob = new Blob([saveData], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -54,7 +55,9 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
       }
       const parsed = JSON.parse(importValue);
       if (parsed.version && parsed.state) {
-        localStorage.setItem('canadian_cheese_quest_save', importValue);
+        // Set flag BEFORE reload to prevent beforeunload save from clobbering import
+        setImportingFlag(true);
+        localStorage.setItem(SAVE_KEY, importValue);
         setImportError('');
         setImportValue('');
         window.location.reload();

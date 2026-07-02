@@ -23,6 +23,7 @@ export interface PrestigeSliceActions {
   canPerformLegacy: () => boolean;
   performLegacy: () => { legacyGained: number };
   spendRennet: (amount: number) => boolean;
+  grantRennet: (amount: number) => void;
 }
 
 export type PrestigeSlice = PrestigeSliceState & PrestigeSliceActions;

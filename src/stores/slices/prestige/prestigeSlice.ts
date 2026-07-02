@@ -289,6 +289,23 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
         },
       };
     });
+
+    // Rennet affects CPS via held-rennet bonus
+    if (success) {
+      publish({ type: 'CpsInputsChanged' });
+    }
+
     return success;
+  },
+
+  grantRennet: (amount: number) => {
+    set((s) => ({
+      prestige: {
+        ...s.prestige,
+        rennet: s.prestige.rennet + amount,
+        totalRennet: s.prestige.totalRennet + amount,
+      },
+    }));
+    publish({ type: 'CpsInputsChanged' });
   },
 });

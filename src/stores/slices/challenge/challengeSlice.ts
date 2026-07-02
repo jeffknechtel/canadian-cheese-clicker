@@ -7,14 +7,7 @@ import {
   getChallengeForWeek,
   getChallengeById,
 } from '../../../data/challenges';
-
-const createInitialChallengeState = () => ({
-  activeChallengeId: null as string | null,
-  weekStartTimestamp: 0,
-  progress: 0,
-  completed: false,
-  claimed: false,
-});
+import { createInitialChallengeState } from './resetFactory';
 
 export const createChallengeSlice: SliceCreator<ChallengeSlice> = (set, get) => ({
   challenge: createInitialChallengeState(),
@@ -70,35 +63,19 @@ export const createChallengeSlice: SliceCreator<ChallengeSlice> = (set, get) => 
     const store = get();
     const reward = challenge.reward;
 
+    // Route rewards through proper slice actions to ensure side effects fire
     switch (reward.type) {
       case 'curds':
         store.addCurds(new Decimal(reward.amount));
         break;
       case 'rennet':
-        set({
-          prestige: {
-            ...store.prestige,
-            rennet: store.prestige.rennet + reward.amount,
-            totalRennet: store.prestige.totalRennet + reward.amount,
-          },
-        });
+        store.grantRennet(reward.amount);
         break;
       case 'ingredient':
-        if (!store.crafting.unlockedIngredients.includes(reward.ingredientId)) {
-          set({
-            crafting: {
-              ...store.crafting,
-              unlockedIngredients: [...store.crafting.unlockedIngredients, reward.ingredientId],
-            },
-          });
-        }
+        store.unlockIngredient(reward.ingredientId);
         break;
       case 'equipment':
-        if (!store.equipmentInventory.includes(reward.equipmentId)) {
-          set({
-            equipmentInventory: [...store.equipmentInventory, reward.equipmentId],
-          });
-        }
+        store.grantEquipment(reward.equipmentId);
         break;
     }
 

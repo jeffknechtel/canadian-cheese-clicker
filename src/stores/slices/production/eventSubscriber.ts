@@ -10,10 +10,10 @@ export function initProductionEventSubscriber(): () => void {
     const store = useGameStore.getState();
 
     // Add rewards (production-owned state)
+    // Note: addCurds already updates totalCurdsEarned, so we don't duplicate it here
     store.addCurds(event.rewards.curds);
     useGameStore.setState((s) => ({
       whey: s.whey.plus(event.rewards.whey),
-      totalCurdsEarned: s.totalCurdsEarned.plus(event.rewards.curds),
       currencyAnimationTrigger: s.currencyAnimationTrigger + 1,
     }));
   });
@@ -24,8 +24,23 @@ export function initProductionEventSubscriber(): () => void {
     store.recalculateClickValue();
   });
 
+  // Recalc CPS when seasonal events change
+  const unsubEventActivated = subscribe('SeasonalEventActivated', () => {
+    const store = useGameStore.getState();
+    store.recalculateCps();
+    store.recalculateClickValue();
+  });
+
+  const unsubEventDeactivated = subscribe('SeasonalEventDeactivated', () => {
+    const store = useGameStore.getState();
+    store.recalculateCps();
+    store.recalculateClickValue();
+  });
+
   return () => {
     unsubBattleWon();
     unsubCpsChanged();
+    unsubEventActivated();
+    unsubEventDeactivated();
   };
 }

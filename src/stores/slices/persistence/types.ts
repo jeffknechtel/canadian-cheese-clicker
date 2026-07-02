@@ -2,6 +2,7 @@ import type { OfflineProgress } from '../../../systems/saveSystem';
 
 export interface PersistenceSliceState {
   lastSaved: number;
+  lastSimulated: number; // When game logic last ticked (used for offline progress)
   gameStarted: number;
 }
 
