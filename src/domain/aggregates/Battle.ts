@@ -40,6 +40,7 @@ import {
   ATB_MAX,
   BOSS_PHASE_HEAL_PERCENT,
 } from '../../systems/combatEngine';
+import { CLICK_CRIT_BASE_CHANCE, CLICK_CRIT_BASE_MULTIPLIER } from '../../data/constants';
 import { heroRegistry, bossRegistry, getAnyEnemy } from '../index';
 
 export interface BattleTickResult {
@@ -190,21 +191,22 @@ export class Battle {
     const enemyActionResult = this.#executeEnemyActions(enemies, heroStates, partyStats, logs, audioEvents, feedbackEvents);
     damageTaken += enemyActionResult.damageTaken;
 
-    // Phase 5: Process hero status effects
-    const heroStatusResult = this.#processHeroStatusEffects(heroStates, logs, audioEvents, feedbackEvents);
+    // Phase 5: Process hero status effects ONLY for heroes who acted this tick
+    const heroStatusResult = this.#processHeroStatusEffects(heroStates, logs, audioEvents, feedbackEvents, heroActionResult.actedHeroIds);
     damageTaken += heroStatusResult.damageTaken;
 
-    // Phase 6: Process enemy status effects
-    this.#processEnemyStatusEffects(enemies, logs);
+    // Phase 6: Process enemy status effects ONLY for enemies who acted this tick
+    this.#processEnemyStatusEffects(enemies, logs, enemyActionResult.actedEnemyIndices);
+
+    // Phase 6.5: Check boss phase transitions for all alive bosses
+    // This catches damage from abilities, limit breaks, DoTs, etc.
+    this.#checkAllBossPhases(enemies, logs);
 
     // Phase 7: Update limit break gauge
     limitBreakGauge = updateLimitBreakGauge(limitBreakGauge, damageDealt, damageTaken);
 
     // Phase 8: Check outcome (THE SINGLE PLACE for victory/defeat invariant)
     const battleResult = this.#checkOutcome(heroStates, enemies, logs);
-
-    // Decrement cooldowns
-    this.#decrementCooldowns(heroStates, enemies);
 
     const newState: CombatState = {
       ...this.#state,
@@ -344,10 +346,8 @@ export class Battle {
     for (const enemy of enemies) {
       if (!enemy.isAlive) continue;
 
-      const enemyDef = getAnyEnemy(enemy.id);
-      if (!enemyDef) continue;
-
-      let baseSpeed = enemyDef.stats.speed;
+      // Use scaled stats (includes stage scaling), with boss phase modifiers on top
+      let baseSpeed = enemy.scaledStats.speed;
       if (enemy.isBoss) {
         const bossDef = bossRegistry.get(enemy.id);
         if (bossDef) {
@@ -375,8 +375,9 @@ export class Battle {
     audioEvents: CombatAudioEvent[],
     feedbackEvents: CombatFeedbackEvent[],
     heroDamageMultiplier = 1
-  ): { damageDealt: number } {
+  ): { damageDealt: number; actedHeroIds: string[] } {
     let damageDealt = 0;
+    const actedHeroIds: string[] = [];
 
     for (const heroId of Object.keys(heroStates)) {
       const heroState = heroStates[heroId];
@@ -391,11 +392,14 @@ export class Battle {
       const target = selectEnemyTarget(enemies);
       if (!target) continue;
 
+      actedHeroIds.push(heroId);
+
       const attackModifier = getStatModifierFromEffects(heroState.statusEffects, 'attack');
       const effectiveAttack = Math.max(1, heroStats.attack + attackModifier);
 
+      // Use scaled defense (includes stage scaling), with boss phase modifiers on top
       const enemyDef = getAnyEnemy(target.id);
-      let baseDefense = enemyDef?.stats.defense || 10;
+      let baseDefense = target.scaledStats.defense;
       if (target.isBoss) {
         const bossDef = bossRegistry.get(target.id);
         if (bossDef) {
@@ -406,16 +410,20 @@ export class Battle {
       const defenseModifier = getStatModifierFromEffects(target.statusEffects, 'defense');
       const effectiveDefense = Math.max(0, baseDefense + defenseModifier);
 
+      // Roll for crit before damage calculation
+      const isCrit = Math.random() < CLICK_CRIT_BASE_CHANCE;
       const baseDamage = calculateDamage(effectiveAttack, effectiveDefense);
-      const damage = Math.floor(baseDamage * heroDamageMultiplier);
+      let damage = Math.floor(baseDamage * heroDamageMultiplier);
+      if (isCrit) {
+        damage = Math.floor(damage * CLICK_CRIT_BASE_MULTIPLIER);
+      }
       target.currentHp = applyDamage(target.currentHp, damage);
       damageDealt += damage;
 
-      audioEvents.push({ type: 'attack', variant: 'physical' });
+      audioEvents.push({ type: 'attack', variant: isCrit ? 'critical' : 'physical' });
 
       // Emit feedback events
       const enemyIndex = enemies.indexOf(target);
-      const isCrit = damage > effectiveAttack * 1.5;
       feedbackEvents.push({
         type: 'damage',
         target: 'enemy',
@@ -455,9 +463,16 @@ export class Battle {
       }
 
       heroState.atbGauge = 0;
+
+      // Decrement this hero's cooldowns on their turn
+      for (const abilityId of Object.keys(heroState.abilityCooldowns)) {
+        if (heroState.abilityCooldowns[abilityId] > 0) {
+          heroState.abilityCooldowns[abilityId] -= 1;
+        }
+      }
     }
 
-    return { damageDealt };
+    return { damageDealt, actedHeroIds };
   }
 
   #executeEnemyActions(
@@ -467,22 +482,27 @@ export class Battle {
     logs: CombatLogEntry[],
     audioEvents: CombatAudioEvent[],
     feedbackEvents: CombatFeedbackEvent[]
-  ): { damageTaken: number } {
+  ): { damageTaken: number; actedEnemyIndices: number[] } {
     let damageTaken = 0;
+    const actedEnemyIndices: number[] = [];
 
-    for (const enemy of enemies) {
+    for (let enemyIndex = 0; enemyIndex < enemies.length; enemyIndex++) {
+      const enemy = enemies[enemyIndex];
       if (!enemy.isAlive || enemy.atbGauge < ATB_MAX) continue;
 
       const enemyDef = getAnyEnemy(enemy.id);
       if (!enemyDef) continue;
 
-      let effectiveEnemyStats = enemyDef.stats;
+      actedEnemyIndices.push(enemyIndex);
+
+      // Use scaled stats (includes stage scaling), with boss phase modifiers on top
+      let baseAttack = enemy.scaledStats.attack;
       let availableAbilities = enemyDef.abilities;
 
       if (enemy.isBoss) {
         const bossDef = bossRegistry.get(enemy.id);
         if (bossDef) {
-          effectiveEnemyStats = getBossEffectiveStats(enemy, bossDef);
+          baseAttack = getBossEffectiveStats(enemy, bossDef).attack;
           availableAbilities = getBossCurrentAbilities(enemy, bossDef);
         }
       }
@@ -491,10 +511,50 @@ export class Battle {
       const ability =
         this.#selectAbilityFromCooldowns(availableAbilities, enemy.abilityCooldowns) ||
         availableAbilities[0];
-      const abilityMultiplier = ability?.damage || 1.0;
+      // Use ?? to preserve damage: 0 for self-buff abilities
+      const abilityMultiplier = ability?.damage ?? 1.0;
 
       const attackModifier = getStatModifierFromEffects(enemy.statusEffects, 'attack');
-      const effectiveAttack = Math.max(1, effectiveEnemyStats.attack + attackModifier);
+      const effectiveAttack = Math.max(1, baseAttack + attackModifier);
+
+      // Self-targeting ability: apply buff/heal to self, don't attack heroes
+      if (ability?.targetType === 'self') {
+        if (ability.effect) {
+          const effect: StatusEffect = {
+            id: `${enemy.instanceId}_${ability.id}_${Date.now()}`,
+            type: ability.effect.type,
+            stat: ability.effect.stat,
+            value: ability.effect.value,
+            duration: ability.effect.duration,
+            source: enemyDef.name,
+          };
+          enemy.statusEffects.push(effect);
+
+          logs.push({
+            timestamp: Date.now(),
+            type: 'buff',
+            source: enemyDef.name,
+            target: enemyDef.name,
+            message: `${enemyDef.name} uses ${ability.name}!`,
+          });
+          audioEvents.push({ type: 'buff' });
+        }
+
+        // Set cooldown and reset ATB
+        if (ability.cooldown) {
+          enemy.abilityCooldowns[ability.id] = ability.cooldown;
+        }
+        enemy.atbGauge = 0;
+
+        // Decrement cooldowns on this enemy's turn
+        for (const abilityId of Object.keys(enemy.abilityCooldowns)) {
+          if (enemy.abilityCooldowns[abilityId] > 0) {
+            enemy.abilityCooldowns[abilityId] -= 1;
+          }
+        }
+
+        continue; // Skip to next enemy, don't execute attack
+      }
 
       // Check for AoE targeting
       if (ability?.targetType === 'all') {
@@ -674,9 +734,16 @@ export class Battle {
       }
 
       enemy.atbGauge = 0;
+
+      // Decrement this enemy's cooldowns on their turn
+      for (const abilityId of Object.keys(enemy.abilityCooldowns)) {
+        if (enemy.abilityCooldowns[abilityId] > 0) {
+          enemy.abilityCooldowns[abilityId] -= 1;
+        }
+      }
     }
 
-    return { damageTaken };
+    return { damageTaken, actedEnemyIndices };
   }
 
   #selectAbilityFromCooldowns(
@@ -700,10 +767,12 @@ export class Battle {
     heroStates: Record<string, HeroCombatState>,
     logs: CombatLogEntry[],
     audioEvents: CombatAudioEvent[],
-    feedbackEvents: CombatFeedbackEvent[]
+    feedbackEvents: CombatFeedbackEvent[],
+    onlyHeroIds?: string[]
   ): { damageTaken: number } {
     let damageTaken = 0;
-    const heroIds = Object.keys(heroStates);
+    const heroIds = onlyHeroIds || Object.keys(heroStates);
+    const allHeroIds = Object.keys(heroStates);
 
     for (const heroId of heroIds) {
       const heroState = heroStates[heroId];
@@ -723,7 +792,7 @@ export class Battle {
       }
 
       if (result.healing > 0) {
-        const heroIndex = heroIds.indexOf(heroId);
+        const heroIndex = allHeroIds.indexOf(heroId);
         feedbackEvents.push({
           type: 'heal',
           target: 'hero',
@@ -750,14 +819,16 @@ export class Battle {
     return { damageTaken };
   }
 
-  #processEnemyStatusEffects(enemies: CombatEnemy[], logs: CombatLogEntry[]): void {
-    for (const enemy of enemies) {
-      if (!enemy.isAlive || enemy.statusEffects.length === 0) continue;
+  #processEnemyStatusEffects(enemies: CombatEnemy[], logs: CombatLogEntry[], onlyIndices?: number[]): void {
+    const indicesToProcess = onlyIndices ?? enemies.map((_, i) => i);
+
+    for (const index of indicesToProcess) {
+      const enemy = enemies[index];
+      if (!enemy || !enemy.isAlive || enemy.statusEffects.length === 0) continue;
 
       const enemyDef = getAnyEnemy(enemy.id);
-      const maxHp = enemyDef?.stats.hp || enemy.maxHp;
-
-      const result = processStatusEffects(enemy.currentHp, maxHp, enemy.statusEffects);
+      // Use enemy.maxHp which was already scaled at combat init
+      const result = processStatusEffects(enemy.currentHp, enemy.maxHp, enemy.statusEffects);
 
       enemy.currentHp = result.newHp;
       enemy.statusEffects = result.updatedEffects;
@@ -836,24 +907,10 @@ export class Battle {
     }
   }
 
-  #decrementCooldowns(
-    heroStates: Record<string, HeroCombatState>,
-    enemies: CombatEnemy[]
-  ): void {
-    for (const heroState of Object.values(heroStates)) {
-      for (const abilityId of Object.keys(heroState.abilityCooldowns)) {
-        if (heroState.abilityCooldowns[abilityId] > 0) {
-          heroState.abilityCooldowns[abilityId] -= 1;
-        }
-      }
-    }
-
+  #checkAllBossPhases(enemies: CombatEnemy[], logs: CombatLogEntry[]): void {
     for (const enemy of enemies) {
-      for (const abilityId of Object.keys(enemy.abilityCooldowns)) {
-        if (enemy.abilityCooldowns[abilityId] > 0) {
-          enemy.abilityCooldowns[abilityId] -= 1;
-        }
-      }
+      if (!enemy.isBoss || !enemy.isAlive) continue;
+      this.#checkBossPhaseTransition(enemy, logs);
     }
   }
 }

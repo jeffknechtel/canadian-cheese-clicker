@@ -158,9 +158,13 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
       }
     }
 
+    // Preserve the updated feedback state (processed above) instead of using stale toState()
+    const currentFeedback = get().combat.feedback;
+
     set({
       combat: {
         ...updated.toState(),
+        feedback: currentFeedback,
         combatLog: [...state.combat.combatLog, ...logs].slice(-COMBAT_LOG_MAX_ENTRIES),
       },
     });
@@ -235,12 +239,19 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     stopAmbientSounds();
     setCurrentProvince(null);
 
-    set({
-      combat: {
-        ...state.combat,
-        battleResult: result === 'flee' ? 'defeat' : result,
-      },
-    });
+    if (result === 'victory') {
+      // Victory: set battleResult, keep isInCombat true until rewards claimed
+      set({
+        combat: {
+          ...state.combat,
+          battleResult: 'victory',
+        },
+      });
+    } else {
+      // Defeat/flee: reset to empty state immediately
+      // This prevents the infinite modal loop
+      set({ combat: createEmptyCombatState() });
+    }
   },
 
   setCombatSpeed: (speed: 1 | 2 | 4) => {

@@ -375,6 +375,16 @@ export interface CombatEnemy {
   isBoss?: boolean;
   currentPhase?: number;
   phaseTriggered?: Record<number, boolean>; // Track which phases have been triggered
+  // Scaled stats persisted at combat init (for stage scaling)
+  scaledStats: {
+    attack: number;
+    defense: number;
+    speed: number;
+  };
+  scaledRewards: {
+    xpReward: number;
+    curdReward: Decimal;
+  };
 }
 
 export type ImmunityType = 'freeze' | 'slow' | 'allDebuffs' | 'damageOverTime';
