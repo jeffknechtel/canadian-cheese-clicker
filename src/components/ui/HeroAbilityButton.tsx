@@ -1,4 +1,5 @@
 import { useGameStore } from '../../stores';
+import { useSettingsStore } from '../../stores/settingsStore';
 import { getHeroAbility, getHeroLimitBreak, heroHasLimitBreak } from '../../data/heroes';
 import { heroRegistry } from '../../domain';
 import { getAbilityCooldown, isAbilityReady, LIMIT_BREAK_MAX } from '../../systems/combatEngine';
@@ -80,7 +81,7 @@ interface LimitBreakButtonProps {
 export function LimitBreakButton({ heroId, size = 'md' }: LimitBreakButtonProps) {
   const canUseLimitBreakAction = useGameStore((state) => state.canUseLimitBreakAction);
   const combat = useGameStore((state) => state.combat);
-  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
   const hero = heroRegistry.get(heroId);
   const limitBreak = getHeroLimitBreak(heroId);

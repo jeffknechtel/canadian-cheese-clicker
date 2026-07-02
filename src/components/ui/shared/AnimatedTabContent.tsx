@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { useGameStore } from '../../../stores';
+import type { ReactNode } from 'react';
+import { useSettingsStore } from '../../../stores/settingsStore';
 
 interface AnimatedTabContentProps {
   children: ReactNode;
@@ -7,7 +7,7 @@ interface AnimatedTabContentProps {
 }
 
 export function AnimatedTabContent({ children, activeKey }: AnimatedTabContentProps) {
-  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
   return (
     <div

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useGameStore } from '../../stores';
+import { useSettingsStore } from '../../stores/settingsStore';
 import type { CombatLogEntry } from '../../types/game';
 
 const LOG_TYPE_COLORS: Record<CombatLogEntry['type'], string> = {
@@ -30,7 +30,7 @@ interface CombatLogEntryItemProps {
 }
 
 function CombatLogEntryItem({ entry, isNew = false }: CombatLogEntryItemProps) {
-  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
   const colorClass = LOG_TYPE_COLORS[entry.type];
   const icon = LOG_TYPE_ICONS[entry.type];
 

@@ -1,4 +1,4 @@
-import { useGameStore } from '../../stores';
+import { useSettingsStore } from '../../stores/settingsStore';
 import { ATB_MAX, LIMIT_BREAK_MAX } from '../../systems/combatEngine';
 
 interface CombatATBBarProps {
@@ -22,7 +22,7 @@ export function CombatATBBar({
   showLabel = true,
   size = 'md',
 }: CombatATBBarProps) {
-  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
   const percentage = Math.min(100, (currentValue / maxValue) * 100);
 
   const sizeClasses = {
@@ -94,7 +94,7 @@ export function LimitBreakGauge({
   onActivate,
   isDisabled = false,
 }: LimitBreakGaugeProps) {
-  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
   const isReady = currentValue >= LIMIT_BREAK_MAX;
   const percentage = Math.min(LIMIT_BREAK_MAX, currentValue);
 

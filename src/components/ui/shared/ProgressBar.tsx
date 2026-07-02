@@ -1,4 +1,4 @@
-import { useGameStore } from '../../../stores';
+import { useSettingsStore } from '../../../stores/settingsStore';
 
 interface ProgressBarProps {
   percent: number;
@@ -19,7 +19,7 @@ export function ProgressBar({
   showShimmer = false,
   glowOnNearComplete = false,
 }: ProgressBarProps) {
-  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
   const nearComplete = percent >= 90 && percent < 100;
   const clampedPercent = Math.min(100, Math.max(0, percent));
 

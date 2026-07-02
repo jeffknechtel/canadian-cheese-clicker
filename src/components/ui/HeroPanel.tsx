@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useGameStore } from '../../stores';
+import { useSettingsStore } from '../../stores/settingsStore';
 import { HEROES } from '../../data/heroes';
 import { heroRegistry } from '../../domain';
 import { formatNumber } from '../../utils/formatNumber';
@@ -43,7 +44,7 @@ interface HeroCardProps {
 }
 
 function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, isInCombat }: HeroCardProps) {
-  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
   // Memoize stats calculation to prevent recalculating on every render
   const stats = useMemo(
     () => calculateHeroStats(hero.id, heroState),
@@ -288,7 +289,7 @@ export function HeroPanel({ onEquipmentClick }: HeroPanelProps) {
   const assignToParty = useGameStore((state) => state.assignToParty);
   const getHeroMultiplier = useGameStore((state) => state.getHeroMultiplier);
   const isInCombat = useGameStore((state) => state.combat.isInCombat);
-  const reducedMotion = useGameStore((state) => state.settings.reducedMotion);
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
   const recruitedHeroes = HEROES.filter((h) => heroes[h.id] !== undefined);
   const availableHeroes = HEROES.filter((h) => heroes[h.id] === undefined);
