@@ -382,6 +382,8 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
 
     const value = calculateCheeseValue(recipe, cheese.quality);
 
+    // Route through addCurds to respect slice boundaries
+    get().addCurds(value);
     set((s) => {
       const currentIndex = s.crafting.cheeseInventory.findIndex((c) => c.id === cheeseId);
       if (currentIndex === -1) return s;
@@ -390,12 +392,11 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
       newInventory.splice(currentIndex, 1);
 
       return {
-        curds: s.curds.plus(value),
-        totalCurdsEarned: s.totalCurdsEarned.plus(value),
         crafting: {
           ...s.crafting,
           cheeseInventory: newInventory,
         },
+        currencyAnimationTrigger: s.currencyAnimationTrigger + 1,
       };
     });
 

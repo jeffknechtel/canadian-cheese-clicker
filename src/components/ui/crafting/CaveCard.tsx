@@ -4,6 +4,7 @@ import { formatAgingDuration } from '../../../data/cheeseRecipes';
 import { recipeRegistry } from '../../../domain';
 import { playPurchaseSound } from '../../../systems/audioSystem';
 import { ProgressBar } from '../shared/ProgressBar';
+import { getInteractionQualityEffect } from '../../../systems/craftingEngine';
 import type { AffinageCave, CraftingJob } from '../../../types/game';
 
 interface CaveCardProps {
@@ -104,7 +105,7 @@ function AgingJobRow({ job }: AgingJobRowProps) {
 
     addInteraction(job.id, {
       type: 'turn',
-      qualityEffect: 1,
+      qualityEffect: getInteractionQualityEffect('turn'),
     });
   };
 

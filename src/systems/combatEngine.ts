@@ -37,32 +37,22 @@ import {
 } from '../data/constants';
 import { Stats } from '../domain/valueObjects';
 
-// Re-export constants for backwards compatibility with UI components and Battle aggregate
+// Re-export constants for UI components and Battle aggregate
 export {
   ATB_MAX,
-  BASE_ATB_RATE,
   LIMIT_BREAK_MAX,
-  LIMIT_BREAK_GAIN_FROM_DEALT,
-  LIMIT_BREAK_GAIN_FROM_TAKEN,
   HP_LOW_THRESHOLD,
   HP_MEDIUM_THRESHOLD,
   BOSS_PHASE_HEAL_PERCENT,
 };
 
-// ===== Combat Result Type =====
-
-export interface CombatTickResult {
-  stateUpdates: Partial<CombatState>;
-  newLogEntries: CombatLogEntry[];
-}
-
 // ===== ATB Calculations =====
 
 /**
  * Calculate ATB fill rate based on speed stat and combat speed multiplier
- * Higher speed = faster ATB fill
+ * Higher speed = faster ATB fill (internal helper)
  */
-export function calculateAtbFillRate(speed: number, combatSpeed: 1 | 2 | 4): number {
+function calculateAtbFillRate(speed: number, combatSpeed: 1 | 2 | 4): number {
   // Base rate modified by speed stat and combat speed setting
   // At speed 0, fills at base rate. Higher speed = faster fill.
   return BASE_ATB_RATE * (1 + speed / 100) * combatSpeed;
@@ -233,16 +223,6 @@ export function getStatModifierFromEffects(
   return modifier;
 }
 
-/**
- * Remove expired status effects
- */
-export function removeExpiredEffects(
-  statusEffects: StatusEffect[],
-  expiredIds: string[]
-): StatusEffect[] {
-  return statusEffects.filter((e) => !expiredIds.includes(e.id));
-}
-
 // ===== Boss Phase System =====
 
 export interface BossPhaseResult {
@@ -370,123 +350,12 @@ export function applyBossPhaseTransition(
   };
 }
 
-// ===== Boss Special Mechanics =====
-
-/**
- * Process boss special mechanics based on their specialMechanics array
- * Returns any minions that should be spawned
- */
-export interface BossMechanicResult {
-  minionsToSpawn: CombatEnemy[];
-  logEntries: CombatLogEntry[];
-  heroEffects?: { heroId: string; effect: StatusEffect }[];
-}
-
-/**
- * Check and apply boss special mechanics
- * Called periodically during combat to handle things like:
- * - Summon minions
- * - Remove buffs from heroes
- * - Apply field effects
- */
-export function processBossSpecialMechanics(
-  boss: CombatEnemy,
-  bossDef: BossDefinition,
-  combatTime: number, // Time in combat (seconds)
-  deltaSeconds: number // Time since last tick (seconds)
-): BossMechanicResult {
-  const result: BossMechanicResult = {
-    minionsToSpawn: [],
-    logEntries: [],
-  };
-
-  // Only process if boss is alive
-  if (!boss.isAlive) return result;
-
-  // Process mechanics based on boss ID
-  switch (bossDef.id) {
-    case 'bland_baron': {
-      // "Removes all flavor buffs at 50% HP" - handled by phase transition
-      // "Summons Processed Slimes every 30 seconds"
-      // Fix: Only spawn once when crossing the 30s boundary, not every frame during that second
-      const prevSecond = Math.floor(combatTime - deltaSeconds);
-      const currSecond = Math.floor(combatTime);
-      if (currSecond > 0 && currSecond % 30 === 0 && prevSecond % 30 !== 0) {
-        const slime = enemyRegistry.get('processed_slime');
-        if (slime) {
-          const minion = createCombatEnemy(slime, Date.now());
-          result.minionsToSpawn.push(minion);
-          result.logEntries.push({
-            timestamp: Date.now(),
-            type: 'ability',
-            source: bossDef.name,
-            target: '',
-            message: `${bossDef.name} summons a Processed Cheese Slime! "More for the factory!"`,
-          });
-        }
-      }
-      break;
-    }
-
-    case 'wheat_witch':
-      // "Summons grain minion swarm every phase"
-      // Grain minions are cheese rats flavored as grain minions
-      // This is handled when phase transitions occur
-      break;
-
-    case 'pacific_rim_crab':
-      // "Shell regenerates at 33% HP" - handled by phase defense modifier
-      // Phase 3 removes defense for "full offense mode"
-      break;
-
-    default:
-      break;
-  }
-
-  return result;
-}
-
-/**
- * Apply the "Remove Flavor" debuff - removes all buffs from heroes
- * Used by The Bland Baron at 50% HP
- */
-export function removeFlavourBuffs(
-  heroStates: Record<string, HeroCombatState>
-): { updatedStates: Record<string, HeroCombatState>; logEntries: CombatLogEntry[] } {
-  const logEntries: CombatLogEntry[] = [];
-  const updatedStates = { ...heroStates };
-
-  for (const heroId of Object.keys(updatedStates)) {
-    const heroState = updatedStates[heroId];
-    if (!heroState.isAlive) continue;
-
-    const buffCount = heroState.statusEffects.filter(e => e.type === 'buff').length;
-    if (buffCount > 0) {
-      updatedStates[heroId] = {
-        ...heroState,
-        statusEffects: heroState.statusEffects.filter(e => e.type !== 'buff'),
-      };
-
-      const heroDef = heroRegistry.get(heroId);
-      logEntries.push({
-        timestamp: Date.now(),
-        type: 'status',
-        source: 'The Bland Baron',
-        target: heroDef?.name || heroId,
-        message: `${heroDef?.name || heroId}'s flavor buffs have been removed! "No taste allowed in MY kingdom!"`,
-      });
-    }
-  }
-
-  return { updatedStates, logEntries };
-}
-
 // ===== Combat Initialization =====
 
 /**
- * Create initial combat state for a hero
+ * Create initial combat state for a hero (internal helper)
  */
-export function createHeroCombatState(
+function createHeroCombatState(
   heroId: string,
   heroState: HeroState
 ): HeroCombatState {
@@ -504,9 +373,9 @@ export function createHeroCombatState(
 }
 
 /**
- * Create initial combat state for an enemy
+ * Create initial combat state for an enemy (internal helper)
  */
-export function createCombatEnemy(
+function createCombatEnemy(
   enemy: EnemyDefinition,
   instanceIndex: number
 ): CombatEnemy {
@@ -724,31 +593,6 @@ export function calculateCombatRewards(
 // ===== Combat End Utilities =====
 
 /**
- * Create an empty/reset combat state
- */
-export function createEmptyCombatState(): CombatState {
-  return {
-    isInCombat: false,
-    currentZone: null,
-    currentStage: 0,
-    enemies: [],
-    heroStates: {},
-    combatLog: [],
-    combatSpeed: 1,
-    limitBreakGauge: 0,
-    battleResult: null,
-    feedback: {
-      damageNumbers: [],
-      comboCount: 0,
-      maxCombo: 0,
-      isFlashing: false,
-      flashColor: null,
-      shakeIntensity: null,
-    },
-  };
-}
-
-/**
  * Check if the stage is a boss stage
  */
 export function isBossStage(zoneId: string, stageNumber: number): boolean {
@@ -825,7 +669,7 @@ function applyAbilityEffect(
 
       for (const enemy of targets) {
         const enemyDef = getAnyEnemy(enemy.id);
-        const damage = calculateDamage(source.attack, enemyDef?.stats.defense || 10, effect.multiplier);
+        const damage = calculateDamage(source.attack, enemy.scaledStats.defense, effect.multiplier);
         enemy.currentHp = applyDamage(enemy.currentHp, damage);
         damageDealt += damage;
 

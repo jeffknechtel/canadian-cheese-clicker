@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import type { SliceCreator } from '../../types';
 import type { SynergySlice, SynergyState } from './types';
 import type { SynergyId } from '../../../types/game';
@@ -27,8 +28,9 @@ export const createSynergySlice: SliceCreator<SynergySlice> = (set, get) => ({
     if (!synergy) return false;
     if (!state.canPurchaseSynergy(id)) return false;
 
+    // Route through spendWhey to respect slice boundaries
+    state.spendWhey(new Decimal(synergy.cost));
     set({
-      whey: state.whey.minus(synergy.cost),
       synergy: {
         ...state.synergy,
         purchased: [...state.synergy.purchased, id],
