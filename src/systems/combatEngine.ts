@@ -467,6 +467,8 @@ export function initializeCombat(
     currentStage: stageNumber,
     enemies,
     heroStates,
+    // Filled by startCombat with the canonical getPartyStats() snapshot
+    partyStats: {},
     combatLog: [
       {
         timestamp: Date.now(),

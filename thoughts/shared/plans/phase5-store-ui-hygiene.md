@@ -218,10 +218,10 @@ Bound combat re-renders: per-frame renders only where per-frame data is displaye
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Type check + build passes: `pnpm build`
-- [ ] Lint passes: `pnpm lint`
-- [ ] No whole-combat subscriptions remain: `grep -rn "=> state.combat)" src/components/` returns nothing (all narrowed to fields or shallow objects)
-- [ ] `grep -n "getPartyStats" src/stores/slices/combat/combatSlice.ts` shows no call inside `tickCombat`
+- [x] Type check + build passes: `pnpm build`
+- [x] Lint passes: `pnpm lint`
+- [x] No whole-combat subscriptions remain: `grep -rn "=> state.combat)" src/components/` returns nothing (all narrowed to fields or shallow objects)
+- [x] `grep -n "getPartyStats" src/stores/slices/combat/combatSlice.ts` shows no call inside `tickCombat`
 
 #### Manual Verification:
 - [ ] Start a battle with React DevTools Profiler recording: `HeroAbilityButton` instances do NOT re-render on ATB-only frames (only when cooldowns/hp/battleResult change)

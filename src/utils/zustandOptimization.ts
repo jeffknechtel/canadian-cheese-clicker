@@ -19,23 +19,10 @@ export function useGameStoreShallow<T>(selector: (state: ReturnType<typeof useGa
   return useGameStore(useShallow(selector));
 }
 
-// ===== Common Selector Patterns =====
-
 /**
- * Optimized selector for currency display values.
- * Only triggers re-render when these specific values change.
- */
-export function useCurrencyState() {
-  return useGameStoreShallow((state) => ({
-    curds: state.curds,
-    curdPerSecond: state.curdPerSecond,
-    prestige: state.prestige,
-  }));
-}
-
-/**
- * Optimized selector for combat state.
- * Shallow equality prevents re-renders from combat object recreation.
+ * Optimized selector for combat state scalars.
+ * Shallow equality prevents re-renders from the per-tick combat object
+ * recreation — subscribers only re-render when one of these values changes.
  */
 export function useCombatState() {
   return useGameStoreShallow((state) => ({
@@ -46,62 +33,4 @@ export function useCombatState() {
     combatSpeed: state.combat.combatSpeed,
     limitBreakGauge: state.combat.limitBreakGauge,
   }));
-}
-
-/**
- * Optimized selector for party state.
- * Only updates when party composition changes.
- */
-export function usePartyState() {
-  return useGameStoreShallow((state) => ({
-    frontLeft: state.party.frontLeft,
-    frontRight: state.party.frontRight,
-    backLeft: state.party.backLeft,
-    backRight: state.party.backRight,
-  }));
-}
-
-/**
- * Optimized selector for prestige state.
- */
-export function usePrestigeState() {
-  return useGameStoreShallow((state) => ({
-    rennet: state.prestige.rennet,
-    totalRennet: state.prestige.totalRennet,
-    agingResetCount: state.prestige.agingResetCount,
-    vintageWheels: state.prestige.vintageWheels,
-    vintageResetCount: state.prestige.vintageResetCount,
-    legacy: state.prestige.legacy,
-  }));
-}
-
-/**
- * Optimized selector for crafting state counts.
- */
-export function useCraftingCounts() {
-  return useGameStoreShallow((state) => ({
-    activeJobsCount: state.crafting.activeJobs.length,
-    inventoryCount: state.crafting.cheeseInventory.length,
-    activeBuffsCount: state.crafting.activeBuffs.length,
-  }));
-}
-
-// ===== Selector Creation Utilities =====
-
-/**
- * Create a memoized selector that only updates when specific fields change.
- * Use this for complex objects where you only need a subset of fields.
- *
- * @example
- * const selectGeneratorInfo = createSelector(
- *   (state, id: string) => ({
- *     count: state.generators[id] ?? 0,
- *     cost: state.getGeneratorCost(id, 1),
- *   })
- * );
- */
-export function createGameSelector<Args extends unknown[], Result>(
-  selector: (state: ReturnType<typeof useGameStore.getState>, ...args: Args) => Result
-) {
-  return (...args: Args) => useGameStore(useShallow((state) => selector(state, ...args)));
 }

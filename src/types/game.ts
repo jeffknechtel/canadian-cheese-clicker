@@ -346,6 +346,12 @@ export interface CombatState {
   currentStage: number;
   enemies: CombatEnemy[];
   heroStates: Record<string, HeroCombatState>;
+  /**
+   * Party stats snapshot taken at battle start. Party composition, levels, and
+   * equipment cannot change mid-battle (XP applies at claimCombatRewards), so
+   * this replaces per-tick recomputation. Never persisted — combat resets on load.
+   */
+  partyStats: Record<string, HeroStats>;
   combatLog: CombatLogEntry[];
   combatSpeed: 1 | 2 | 4;
   limitBreakGauge: number; // 0-100

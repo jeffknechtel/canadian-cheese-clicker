@@ -1,5 +1,6 @@
 import { useCallback, useState, useEffect, memo } from 'react';
 import { useGameStore } from '../../stores';
+import { useCombatState, useGameStoreShallow } from '../../utils/zustandOptimization';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { getHeroAbility, heroHasLimitBreak } from '../../data/heroes';
 import { heroRegistry, zoneRegistry } from '../../domain';
@@ -230,10 +231,17 @@ interface CombatPanelProps {
 }
 
 export function CombatPanel({ onFlee }: CombatPanelProps) {
-  const combat = useGameStore((state) => state.combat);
+  // Low-frequency combat fields — change on turn/battle-level events only
+  const { currentZone, currentStage, battleResult, combatSpeed, limitBreakGauge } = useCombatState();
+  // Per-frame combat fields — this panel renders ATB/HP bars and feedback layers
+  const { heroStates: heroStatesById, enemies, feedback, combatLog } = useGameStoreShallow((state) => ({
+    heroStates: state.combat.heroStates,
+    enemies: state.combat.enemies,
+    feedback: state.combat.feedback,
+    combatLog: state.combat.combatLog,
+  }));
   const setCombatSpeed = useGameStore((state) => state.setCombatSpeed);
   const canUseHeroAbility = useGameStore((state) => state.canUseHeroAbility);
-  const feedback = useGameStore((state) => state.combat.feedback);
   const removeDamageNumber = useGameStore((state) => state.removeDamageNumber);
 
   // Track selected hero for keyboard navigation
@@ -241,8 +249,8 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
 
   // Derive values safely (these are needed for hooks below)
   // Must be computed before hooks to ensure consistent hook call order
-  const isInitialized = !!(combat && combat.heroStates && combat.enemies);
-  const heroStates = isInitialized ? Object.values(combat.heroStates) : [];
+  const isInitialized = !!(heroStatesById && enemies);
+  const heroStates = isInitialized ? Object.values(heroStatesById) : [];
   const aliveHeroes = heroStates.filter((h) => h.isAlive);
 
   // Reset selected hero index when heroes change
@@ -264,7 +272,7 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
 
   // Use selected hero's ability
   const handleUseSelectedAbility = useCallback(() => {
-    if (!isInitialized || combat.battleResult !== 'ongoing') return;
+    if (!isInitialized || battleResult !== 'ongoing') return;
     const selectedHero = aliveHeroes[selectedHeroIndex];
     if (!selectedHero) return;
 
@@ -278,12 +286,12 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
     } else if (reason) {
       announce(reason, 'polite');
     }
-  }, [isInitialized, combat.battleResult, aliveHeroes, selectedHeroIndex, canUseHeroAbility]);
+  }, [isInitialized, battleResult, aliveHeroes, selectedHeroIndex, canUseHeroAbility]);
 
   // Combat keyboard navigation handler
   const handleCombatKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
-      if (!isInitialized || combat.battleResult !== 'ongoing') return;
+      if (!isInitialized || battleResult !== 'ongoing') return;
 
       switch (event.key) {
         // Navigate between heroes with arrow keys
@@ -342,7 +350,7 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
         // Limit break with L key
         case 'l':
         case 'L':
-          if (combat.limitBreakGauge >= LIMIT_BREAK_MAX) {
+          if (limitBreakGauge >= LIMIT_BREAK_MAX) {
             event.preventDefault();
             handleLimitBreak();
             announce('Activated limit break', 'assertive');
@@ -371,7 +379,7 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
           break;
       }
     },
-    [isInitialized, combat.battleResult, combat.limitBreakGauge, aliveHeroes, handleUseSelectedAbility, onFlee, setCombatSpeed, handleLimitBreak]
+    [isInitialized, battleResult, limitBreakGauge, aliveHeroes, handleUseSelectedAbility, onFlee, setCombatSpeed, handleLimitBreak]
   );
 
   // Early return AFTER all hooks (React rules of hooks)
@@ -389,14 +397,14 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
   }
 
   // Get zone info (safe to access now that we know combat is initialized)
-  const zone = combat.currentZone ? zoneRegistry.get(combat.currentZone) : null;
-  const isBossStage = zone ? combat.currentStage === zone.bossStage.stageNumber : false;
-  const aliveEnemies = combat.enemies.filter((e) => e.isAlive);
+  const zone = currentZone ? zoneRegistry.get(currentZone) : null;
+  const isBossStage = zone ? currentStage === zone.bossStage.stageNumber : false;
+  const aliveEnemies = enemies.filter((e) => e.isAlive);
 
   // Build battle status description for screen readers
-  const battleStatusText = combat.battleResult === 'ongoing'
+  const battleStatusText = battleResult === 'ongoing'
     ? 'Battle in progress'
-    : combat.battleResult === 'victory'
+    : battleResult === 'victory'
       ? 'Victory'
       : 'Defeat';
 
@@ -429,11 +437,11 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
           </h2>
           {zone && (
             <p className="text-xs text-gray-500">
-              {zone.name} - Stage {combat.currentStage}
+              {zone.name} - Stage {currentStage}
             </p>
           )}
         </div>
-        <SpeedControl currentSpeed={combat.combatSpeed} onSpeedChange={setCombatSpeed} />
+        <SpeedControl currentSpeed={combatSpeed} onSpeedChange={setCombatSpeed} />
       </div>
 
       {/* Battle Status Bar */}
@@ -442,31 +450,31 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
         className="flex items-center justify-between px-3 py-2 bg-timber-100 rounded-lg mb-3"
         role="status"
         aria-live="polite"
-        aria-label={`${battleStatusText}. Heroes: ${aliveHeroes.length} of ${heroStates.length} alive. Enemies: ${aliveEnemies.length} of ${combat.enemies.length} remaining.`}
+        aria-label={`${battleStatusText}. Heroes: ${aliveHeroes.length} of ${heroStates.length} alive. Enemies: ${aliveEnemies.length} of ${enemies.length} remaining.`}
       >
         <div className="flex items-center gap-4 text-sm">
           <span className="text-maple-600 font-medium">
             Heroes: {aliveHeroes.length}/{heroStates.length}
           </span>
           <span className="text-red-600 font-medium">
-            Enemies: {aliveEnemies.length}/{combat.enemies.length}
+            Enemies: {aliveEnemies.length}/{enemies.length}
           </span>
         </div>
         <div
           className={`
             px-2 py-1 rounded text-xs font-bold
-            ${combat.battleResult === 'ongoing'
+            ${battleResult === 'ongoing'
               ? 'bg-amber-500 text-white'
-              : combat.battleResult === 'victory'
+              : battleResult === 'victory'
                 ? 'bg-green-600 text-white'
                 : 'bg-red-600 text-white'
             }
           `}
           aria-hidden="true"
         >
-          {combat.battleResult === 'ongoing'
+          {battleResult === 'ongoing'
             ? '⚔️ FIGHTING'
-            : combat.battleResult === 'victory'
+            : battleResult === 'victory'
               ? '🎉 VICTORY'
               : '💀 DEFEAT'}
         </div>
@@ -500,7 +508,7 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
             <span aria-hidden="true">👾</span> Enemies
           </h3>
           <div className="flex-1 overflow-y-auto scrollbar-thin" aria-labelledby="enemies-heading">
-            <EnemyDisplay enemies={combat.enemies} />
+            <EnemyDisplay enemies={enemies} />
           </div>
         </div>
       </div>
@@ -508,9 +516,9 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
       {/* Limit Break Gauge */}
       <div className="mt-3">
         <LimitBreakGauge
-          currentValue={combat.limitBreakGauge}
+          currentValue={limitBreakGauge}
           onActivate={handleLimitBreak}
-          isDisabled={combat.battleResult !== 'ongoing' || aliveHeroes.length === 0}
+          isDisabled={battleResult !== 'ongoing' || aliveHeroes.length === 0}
         />
       </div>
 
@@ -518,7 +526,7 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
       <div className="mt-3" aria-labelledby="combat-log-heading">
         <div id="combat-log-heading" className="text-xs font-semibold text-gray-500 mb-1">Recent Actions</div>
         <div className="bg-white/60 rounded-lg p-2 h-24 overflow-hidden" role="log" aria-live="polite" aria-atomic="false">
-          <CompactCombatLog entries={combat.combatLog} maxEntries={4} />
+          <CompactCombatLog entries={combatLog} maxEntries={4} />
         </div>
       </div>
 
@@ -526,12 +534,12 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
       <div className="mt-3 flex gap-2">
         <button
           onClick={onFlee}
-          disabled={combat.battleResult !== 'ongoing'}
+          disabled={battleResult !== 'ongoing'}
           aria-label="Flee from battle"
-          aria-disabled={combat.battleResult !== 'ongoing'}
+          aria-disabled={battleResult !== 'ongoing'}
           className={`
             flex-1 py-2 rounded font-medium text-sm transition-all btn-scale
-            ${combat.battleResult === 'ongoing'
+            ${battleResult === 'ongoing'
               ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
             }
@@ -556,8 +564,8 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
             count={feedback.comboCount}
             maxCombo={feedback.maxCombo}
           />
-          {combat.battleResult && combat.battleResult !== 'ongoing' && (
-            <CombatResultBanner result={combat.battleResult} />
+          {battleResult && battleResult !== 'ongoing' && (
+            <CombatResultBanner result={battleResult} />
           )}
         </>
       )}

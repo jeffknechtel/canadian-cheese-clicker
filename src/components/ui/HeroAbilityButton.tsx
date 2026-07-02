@@ -1,4 +1,6 @@
+import { memo } from 'react';
 import { useGameStore } from '../../stores';
+import { useGameStoreShallow } from '../../utils/zustandOptimization';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { getHeroAbility, getHeroLimitBreak, heroHasLimitBreak } from '../../data/heroes';
 import { heroRegistry } from '../../domain';
@@ -10,9 +12,25 @@ interface HeroAbilityButtonProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-export function HeroAbilityButton({ heroState, size = 'md' }: HeroAbilityButtonProps) {
+/**
+ * heroState is recreated every combat tick (Battle deep-copies), so default
+ * shallow prop comparison would re-render this button 60×/sec. Compare only the
+ * fields the button actually renders — ATB-only frames are skipped.
+ */
+function areHeroAbilityPropsEqual(prev: HeroAbilityButtonProps, next: HeroAbilityButtonProps): boolean {
+  if (prev.size !== next.size) return false;
+  const a = prev.heroState;
+  const b = next.heroState;
+  if (a.heroId !== b.heroId || a.isAlive !== b.isAlive) return false;
+  const aKeys = Object.keys(a.abilityCooldowns);
+  const bKeys = Object.keys(b.abilityCooldowns);
+  if (aKeys.length !== bKeys.length) return false;
+  return aKeys.every((k) => a.abilityCooldowns[k] === b.abilityCooldowns[k]);
+}
+
+export const HeroAbilityButton = memo(function HeroAbilityButton({ heroState, size = 'md' }: HeroAbilityButtonProps) {
   const canUseHeroAbility = useGameStore((state) => state.canUseHeroAbility);
-  const combat = useGameStore((state) => state.combat);
+  const battleResult = useGameStore((state) => state.combat.battleResult);
 
   const hero = heroRegistry.get(heroState.heroId);
   const ability = getHeroAbility(heroState.heroId);
@@ -22,7 +40,7 @@ export function HeroAbilityButton({ heroState, size = 'md' }: HeroAbilityButtonP
   const { canUse, reason } = canUseHeroAbility(heroState.heroId);
   const cooldown = getAbilityCooldown(heroState, heroState.heroId);
   const abilityIsReady = isAbilityReady(heroState, heroState.heroId);
-  const isDisabled = !canUse || combat.battleResult !== 'ongoing';
+  const isDisabled = !canUse || battleResult !== 'ongoing';
 
   const handleClick = () => {
     if (!isDisabled) {
@@ -71,16 +89,16 @@ export function HeroAbilityButton({ heroState, size = 'md' }: HeroAbilityButtonP
       )}
     </div>
   );
-}
+}, areHeroAbilityPropsEqual);
 
 interface LimitBreakButtonProps {
   heroId: string;
   size?: 'sm' | 'md' | 'lg';
 }
 
-export function LimitBreakButton({ heroId, size = 'md' }: LimitBreakButtonProps) {
+export const LimitBreakButton = memo(function LimitBreakButton({ heroId, size = 'md' }: LimitBreakButtonProps) {
   const canUseLimitBreakAction = useGameStore((state) => state.canUseLimitBreakAction);
-  const combat = useGameStore((state) => state.combat);
+  const battleResult = useGameStore((state) => state.combat.battleResult);
   const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
   const hero = heroRegistry.get(heroId);
@@ -89,7 +107,7 @@ export function LimitBreakButton({ heroId, size = 'md' }: LimitBreakButtonProps)
   if (!hero || !limitBreak) return null;
 
   const { canUse, reason } = canUseLimitBreakAction(heroId);
-  const isDisabled = !canUse || combat.battleResult !== 'ongoing';
+  const isDisabled = !canUse || battleResult !== 'ongoing';
 
   const handleClick = () => {
     if (!isDisabled) {
@@ -124,21 +142,27 @@ export function LimitBreakButton({ heroId, size = 'md' }: LimitBreakButtonProps)
       </div>
     </button>
   );
-}
+});
 
 interface HeroAbilityPanelProps {
   compact?: boolean;
 }
 
 export function HeroAbilityPanel({ compact = false }: HeroAbilityPanelProps) {
-  const combat = useGameStore((state) => state.combat);
+  // heroStates identity changes per tick, so this panel still renders per frame
+  // (it displays cooldown numbers) — but the memoized buttons below skip
+  // ATB-only frames via their custom prop comparison.
+  const { heroStates: heroStatesById, limitBreakGauge } = useGameStoreShallow((state) => ({
+    heroStates: state.combat.heroStates,
+    limitBreakGauge: state.combat.limitBreakGauge,
+  }));
 
-  const heroStates = Object.values(combat.heroStates);
+  const heroStates = Object.values(heroStatesById);
   const aliveHeroes = heroStates.filter((h) => h.isAlive);
 
   // Find heroes with limit breaks
   const heroesWithLimitBreak = aliveHeroes.filter((h) => heroHasLimitBreak(h.heroId));
-  const isLimitBreakReady = combat.limitBreakGauge >= LIMIT_BREAK_MAX;
+  const isLimitBreakReady = limitBreakGauge >= LIMIT_BREAK_MAX;
 
   if (aliveHeroes.length === 0) return null;
 

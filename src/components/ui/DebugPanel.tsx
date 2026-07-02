@@ -35,7 +35,9 @@ export function DebugPanel({ className = '' }: DebugPanelProps) {
   const curds = useGameStore((state) => state.curds);
   const prestige = useGameStore((state) => state.prestige);
   const achievements = useGameStore((state) => state.achievements);
-  const combat = useGameStore((state) => state.combat);
+  const isInCombat = useGameStore((state) => state.combat.isInCombat);
+  const currentZone = useGameStore((state) => state.combat.currentZone);
+  const currentStage = useGameStore((state) => state.combat.currentStage);
   const zoneProgress = useGameStore((state) => state.zoneProgress);
   const generators = useGameStore((state) => state.generators);
   const upgrades = useGameStore((state) => state.upgrades);
@@ -103,16 +105,16 @@ export function DebugPanel({ className = '' }: DebugPanelProps) {
   }, [log]);
 
   const handleWinCombat = useCallback(() => {
-    if (combat.isInCombat) {
+    if (isInCombat) {
       endCombat('victory');
       log('Combat won (debug)');
     } else {
       log('Not in combat');
     }
-  }, [combat.isInCombat, endCombat, log]);
+  }, [isInCombat, endCombat, log]);
 
   const handleSkipCombat = useCallback(() => {
-    if (combat.isInCombat) {
+    if (isInCombat) {
       // Kill all enemies
       useGameStore.setState((state) => ({
         combat: {
@@ -125,7 +127,7 @@ export function DebugPanel({ className = '' }: DebugPanelProps) {
     } else {
       log('Not in combat');
     }
-  }, [combat.isInCombat, log]);
+  }, [isInCombat, log]);
 
   const handleTimeWarp = useCallback((hours: number) => {
     const curdPerSecond = useGameStore.getState().curdPerSecond;
@@ -244,19 +246,19 @@ export function DebugPanel({ className = '' }: DebugPanelProps) {
             {activeTab === 'combat' && (
               <>
                 <div className="text-gray-400 mb-2">
-                  Status: {combat.isInCombat ? `In Combat (${combat.currentZone} #${combat.currentStage})` : 'Not in combat'}
+                  Status: {isInCombat ? `In Combat (${currentZone} #${currentStage})` : 'Not in combat'}
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={handleWinCombat}
-                    disabled={!combat.isInCombat}
+                    disabled={!isInCombat}
                     className="debug-btn disabled:opacity-50"
                   >
                     Win Combat
                   </button>
                   <button
                     onClick={handleSkipCombat}
-                    disabled={!combat.isInCombat}
+                    disabled={!isInCombat}
                     className="debug-btn disabled:opacity-50"
                   >
                     Skip Combat
@@ -268,19 +270,19 @@ export function DebugPanel({ className = '' }: DebugPanelProps) {
                         log(`Started combat: ${ZONES[0].id}`);
                       }
                     }}
-                    disabled={combat.isInCombat}
+                    disabled={isInCombat}
                     className="debug-btn disabled:opacity-50"
                   >
                     Start Combat
                   </button>
                   <button
                     onClick={() => {
-                      if (combat.isInCombat) {
+                      if (isInCombat) {
                         endCombat('flee');
                         log('Fled combat');
                       }
                     }}
-                    disabled={!combat.isInCombat}
+                    disabled={!isInCombat}
                     className="debug-btn disabled:opacity-50"
                   >
                     Flee Combat
