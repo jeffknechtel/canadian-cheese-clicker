@@ -15,6 +15,8 @@ import {
   HERO_RALLY_MULTIPLIER,
   CURD_TSUNAMI_MULTIPLIER,
   LUCKY_CURDS_MINUTES,
+  GOLDEN_CHEESE_META_TIERS,
+  GOLDEN_BUFF_DURATION_MULTIPLIER,
 } from '../data/constants';
 
 // Balance constants live in data/constants.ts (Golden Cheese section);
@@ -33,9 +35,45 @@ const REWARD_TABLE: GoldenCheeseReward[] = [
 
 const TOTAL_WEIGHT = REWARD_TABLE.reduce((sum, r) => sum + r.weight, 0);
 
-/** Returns a random delay between MIN and MAX spawn delay */
-export function getRandomSpawnDelay(): number {
-  return MIN_SPAWN_DELAY_MS + Math.random() * (MAX_SPAWN_DELAY_MS - MIN_SPAWN_DELAY_MS);
+/** Get unlocked perks based on totalCollected */
+export function getUnlockedPerks(totalCollected: number): Set<string> {
+  const perks = new Set<string>();
+  for (const tier of GOLDEN_CHEESE_META_TIERS) {
+    if (totalCollected >= tier.collected) {
+      perks.add(tier.perk);
+    }
+  }
+  return perks;
+}
+
+/** Get next perk tier info */
+export function getNextPerkTier(totalCollected: number): { collected: number; perk: string } | null {
+  for (const tier of GOLDEN_CHEESE_META_TIERS) {
+    if (totalCollected < tier.collected) {
+      return tier;
+    }
+  }
+  return null;
+}
+
+/** Returns a random delay between spawn window based on perks */
+export function getRandomSpawnDelay(totalCollected: number = 0): number {
+  const perks = getUnlockedPerks(totalCollected);
+
+  let minDelay = MIN_SPAWN_DELAY_MS;
+  let maxDelay = MAX_SPAWN_DELAY_MS;
+
+  if (perks.has('spawnWindow2')) {
+    // 2–7 minutes
+    minDelay = 2 * 60 * 1000;
+    maxDelay = 7 * 60 * 1000;
+  } else if (perks.has('spawnWindow1')) {
+    // 3–8 minutes (narrower window)
+    minDelay = MIN_SPAWN_DELAY_MS;
+    maxDelay = 8 * 60 * 1000;
+  }
+
+  return minDelay + Math.random() * (maxDelay - minDelay);
 }
 
 /** Weighted random selection from REWARD_TABLE */
@@ -52,14 +90,22 @@ export function rollReward(): GoldenCheeseRewardType {
 function createGoldenBuff(
   effect: 'productionBoost' | 'clickBoost' | 'xpBoost',
   multiplier: number,
-  durationMs: number
+  durationMs: number,
+  totalCollected: number = 0
 ): CheeseActiveBuff {
   const now = Date.now();
+  const perks = getUnlockedPerks(totalCollected);
+
+  // Apply buff duration multiplier if perk is unlocked
+  const actualDuration = perks.has('buffDuration')
+    ? Math.round(durationMs * GOLDEN_BUFF_DURATION_MULTIPLIER)
+    : durationMs;
+
   return {
     id: `golden_${effect}_${now}`,
-    effect: { type: effect, multiplier, duration: durationMs },
+    effect: { type: effect, multiplier, duration: actualDuration },
     startTime: now,
-    endTime: now + durationMs,
+    endTime: now + actualDuration,
     sourceCheeseId: 'golden_cheese',
   };
 }
@@ -70,12 +116,16 @@ export function applyReward(
   getState: () => GameStore
 ): { description: string; amount?: Decimal } {
   const state = getState();
+  const totalCollected = state.goldenCheese.totalCollected;
+  const perks = getUnlockedPerks(totalCollected);
+  const durationSuffix = perks.has('buffDuration') ? ' (extended!)' : '';
 
   switch (rewardType) {
     case 'cheeseFrenzy': {
-      const buff = createGoldenBuff('productionBoost', CHEESE_FRENZY_MULTIPLIER, CHEESE_FRENZY_DURATION_MS);
+      const buff = createGoldenBuff('productionBoost', CHEESE_FRENZY_MULTIPLIER, CHEESE_FRENZY_DURATION_MS, totalCollected);
       state.addBuff(buff);
-      return { description: `Cheese Frenzy! ${CHEESE_FRENZY_MULTIPLIER}x CPS for 77s` };
+      const durationSecs = Math.round(buff.effect.duration / 1000);
+      return { description: `Cheese Frenzy! ${CHEESE_FRENZY_MULTIPLIER}x CPS for ${durationSecs}s${durationSuffix}` };
     }
 
     case 'luckyCurds': {
@@ -85,9 +135,10 @@ export function applyReward(
     }
 
     case 'clickStorm': {
-      const buff = createGoldenBuff('clickBoost', CLICK_STORM_MULTIPLIER, CLICK_STORM_DURATION_MS);
+      const buff = createGoldenBuff('clickBoost', CLICK_STORM_MULTIPLIER, CLICK_STORM_DURATION_MS, totalCollected);
       state.addBuff(buff);
-      return { description: `Click Storm! ${CLICK_STORM_MULTIPLIER}x clicks for 13s` };
+      const durationSecs = Math.round(buff.effect.duration / 1000);
+      return { description: `Click Storm! ${CLICK_STORM_MULTIPLIER}x clicks for ${durationSecs}s${durationSuffix}` };
     }
 
     case 'rareIngredient': {
@@ -108,15 +159,17 @@ export function applyReward(
     }
 
     case 'heroRally': {
-      const buff = createGoldenBuff('xpBoost', HERO_RALLY_MULTIPLIER, HERO_RALLY_DURATION_MS);
+      const buff = createGoldenBuff('xpBoost', HERO_RALLY_MULTIPLIER, HERO_RALLY_DURATION_MS, totalCollected);
       state.addBuff(buff);
-      return { description: `Hero Rally! ${HERO_RALLY_MULTIPLIER}x XP for 60s` };
+      const durationSecs = Math.round(buff.effect.duration / 1000);
+      return { description: `Hero Rally! ${HERO_RALLY_MULTIPLIER}x XP for ${durationSecs}s${durationSuffix}` };
     }
 
     case 'curdTsunami': {
-      const buff = createGoldenBuff('productionBoost', CURD_TSUNAMI_MULTIPLIER, CURD_TSUNAMI_DURATION_MS);
+      const buff = createGoldenBuff('productionBoost', CURD_TSUNAMI_MULTIPLIER, CURD_TSUNAMI_DURATION_MS, totalCollected);
       state.addBuff(buff);
-      return { description: `CURD TSUNAMI! ${CURD_TSUNAMI_MULTIPLIER}x CPS for 7s` };
+      const durationSecs = Math.round(buff.effect.duration / 1000);
+      return { description: `CURD TSUNAMI! ${CURD_TSUNAMI_MULTIPLIER}x CPS for ${durationSecs}s${durationSuffix}` };
     }
   }
 }

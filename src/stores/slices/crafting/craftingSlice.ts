@@ -365,6 +365,14 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
 
     if (newBuffs.length > 0) {
       publish({ type: 'BuffActivated', buff: newBuffs[0], recipe });
+
+      // Recalc CPS if any heroBuff with cheeseAffinity was added
+      const hasAffinityBuff = newBuffs.some(
+        (b) => b.effect.type === 'heroBuff' && b.effect.stat === 'cheeseAffinity'
+      );
+      if (hasAffinityBuff) {
+        publish({ type: 'CpsInputsChanged' });
+      }
     }
 
     get().incrementChallengeProgress('consumeCheese', 1);
@@ -486,6 +494,14 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     for (const buff of expiredBuffs) {
       publish({ type: 'BuffExpired', buff });
     }
+
+    // Recalc CPS if any heroBuff with cheeseAffinity expired
+    const hasExpiredAffinityBuff = expiredBuffs.some(
+      (b) => b.effect.type === 'heroBuff' && b.effect.stat === 'cheeseAffinity'
+    );
+    if (hasExpiredAffinityBuff) {
+      publish({ type: 'CpsInputsChanged' });
+    }
   },
 
   addBuff: (buff: CheeseActiveBuff) => {
@@ -523,6 +539,24 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     }
 
     return { production, click, xp };
+  },
+
+  getActiveHeroBuffTotals: () => {
+    const state = get();
+    const now = Date.now();
+
+    const totals: Partial<Record<keyof import('../../../types/game').HeroStats, number>> = {};
+
+    for (const buff of state.crafting.activeBuffs) {
+      if (now >= buff.endTime) continue;
+
+      const effect = buff.effect;
+      if (effect.type === 'heroBuff') {
+        totals[effect.stat] = (totals[effect.stat] ?? 0) + effect.value;
+      }
+    }
+
+    return totals;
   },
 
   getUnlockedRecipes: () => {

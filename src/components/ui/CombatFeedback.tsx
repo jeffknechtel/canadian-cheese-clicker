@@ -16,7 +16,7 @@ import {
 export interface DamageNumber {
   id: string;
   value: number;
-  type: 'damage' | 'heal' | 'crit' | 'miss' | 'block';
+  type: 'damage' | 'heal' | 'crit' | 'miss' | 'block' | 'weak' | 'resist';
   x: number;
   y: number;
 }
@@ -53,6 +53,10 @@ export function DamageNumberDisplay({ damage, onComplete }: DamageNumberProps) {
         return 'text-gray-400 text-sm italic';
       case 'block':
         return 'text-blue-400 text-sm';
+      case 'weak':
+        return 'text-amber-400 text-xl font-bold';
+      case 'resist':
+        return 'text-slate-400 text-sm';
       default:
         return 'text-white text-lg';
     }

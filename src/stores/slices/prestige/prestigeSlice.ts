@@ -15,6 +15,10 @@ import {
   canPurchaseAgingUpgrade as canPurchaseAgingUpgradeHelper,
 } from '../../../data/agingUpgrades';
 import { trackPrestige } from '../../../systems/analyticsService';
+import {
+  VINTAGE_AGING_RESETS_REQUIRED,
+  VINTAGE_RENNET_COST,
+} from '../../../data/constants';
 
 export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
   // State
@@ -158,7 +162,7 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
 
   canPerformVintage: () => {
     const { prestige } = get();
-    return prestige.agingResetCount >= 100 && prestige.rennet >= 100;
+    return prestige.agingResetCount >= VINTAGE_AGING_RESETS_REQUIRED && prestige.rennet >= VINTAGE_RENNET_COST;
   },
 
   performVintage: () => {

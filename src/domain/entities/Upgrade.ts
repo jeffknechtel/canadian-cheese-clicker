@@ -33,7 +33,10 @@ export class Upgrade extends BaseEntity<UpgradeData> implements UpgradeData {
     if (
       this.effect.type === 'clickMultiplier' ||
       this.effect.type === 'generatorMultiplier' ||
-      this.effect.type === 'globalMultiplier'
+      this.effect.type === 'globalMultiplier' ||
+      this.effect.type === 'clickCpsPercent' ||
+      this.effect.type === 'critChance' ||
+      this.effect.type === 'critMultiplier'
     ) {
       return this.effect.value;
     }

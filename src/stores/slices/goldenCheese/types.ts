@@ -7,7 +7,7 @@ export interface GoldenCheeseSliceState {
 export interface GoldenCheeseSliceActions {
   tickGoldenCheese: (deltaMs: number) => void;
   collectGoldenCheese: () => GoldenCheeseRewardType | null;
-  scheduleNextGoldenCheese: () => void;
+  scheduleNextGoldenCheese: (forceDelayMs?: number) => void;
   resetGoldenCheeseOnPrestige: () => void;
 }
 

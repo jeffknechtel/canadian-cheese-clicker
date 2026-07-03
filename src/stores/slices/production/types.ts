@@ -15,6 +15,9 @@ export interface ProductionState {
   lastMilestone: number;
   currencyAnimationTrigger: number;
   lastClickWasCrit: boolean;
+  lastClickValue: Decimal;
+  clickCritChance: number;
+  clickCritMultiplier: number;
 }
 
 export interface ProductionActions {
@@ -40,6 +43,7 @@ export interface ProductionActions {
   setLastMilestone: (milestone: number) => void;
   getClickValue: () => Decimal;
   getClickMultiplier: () => number;
+  getClickCpsPercent: () => number;
   getGeneratorMultiplier: (id: string) => number;
   recalculateCps: () => void;
   recalculateClickValue: () => void;

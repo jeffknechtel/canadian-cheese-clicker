@@ -14,6 +14,7 @@ import type {
   PartyFormation,
   HeroAbilityDefinition,
   AbilityEffect,
+  DamageType,
 } from '../types/game';
 import { scaleEnemyStats } from '../data/enemies';
 import { getHeroAbility, getHeroLimitBreak, heroHasLimitBreak } from '../data/heroes';
@@ -33,6 +34,8 @@ import {
   INITIAL_ATB_VARIANCE,
   BOSS_PHASE_HEAL_PERCENT,
   BOSS_REWARD_MULTIPLIERS,
+  WEAKNESS_DAMAGE_MULTIPLIER,
+  RESISTANCE_DAMAGE_MULTIPLIER,
   DEFAULT_BOSS_REWARD_MULTIPLIER,
 } from '../data/constants';
 import { Stats } from '../domain/valueObjects';
@@ -80,16 +83,34 @@ export function updateAtbGauge(
  * - Base damage = attacker.attack * skillMultiplier
  * - Defense factor = 1 - (defense / (defense + 100))
  * - Variance = 0.9-1.1 random
+ * - Element multiplier: 1.5x on weakness, 0.5x on resistance
  */
 export function calculateDamage(
   attackerAttack: number,
   defenderDefense: number,
-  skillMultiplier: number = 1.0
-): number {
+  skillMultiplier: number = 1.0,
+  damageType?: DamageType,
+  defenderWeakness?: DamageType,
+  defenderResistance?: DamageType
+): { damage: number; elementResult: 'weak' | 'resist' | 'normal' } {
   const baseDamage = attackerAttack * skillMultiplier;
   const defenseFactor = 1 - defenderDefense / (defenderDefense + DEFENSE_DIVISOR);
   const variance = DAMAGE_VARIANCE_MIN + Math.random() * (DAMAGE_VARIANCE_MAX - DAMAGE_VARIANCE_MIN);
-  return Math.max(1, Math.floor(baseDamage * defenseFactor * variance));
+
+  // Calculate elemental multiplier
+  let elementMultiplier = 1;
+  let elementResult: 'weak' | 'resist' | 'normal' = 'normal';
+
+  if (damageType && defenderWeakness && damageType === defenderWeakness) {
+    elementMultiplier = WEAKNESS_DAMAGE_MULTIPLIER;
+    elementResult = 'weak';
+  } else if (damageType && defenderResistance && damageType === defenderResistance) {
+    elementMultiplier = RESISTANCE_DAMAGE_MULTIPLIER;
+    elementResult = 'resist';
+  }
+
+  const damage = Math.max(1, Math.floor(baseDamage * defenseFactor * variance * elementMultiplier));
+  return { damage, elementResult };
 }
 
 /**
@@ -357,14 +378,18 @@ export function applyBossPhaseTransition(
  */
 function createHeroCombatState(
   heroId: string,
-  heroState: HeroState
+  heroState: HeroState,
+  heroBuffTotals?: Partial<Record<keyof HeroStats, number>>
 ): HeroCombatState {
-  const stats = calculateHeroStats(heroId, heroState);
+  const baseStats = calculateHeroStats(heroId, heroState);
+
+  // Apply cheese heroBuffs as flat adds (party-wide)
+  const hp = baseStats.hp + (heroBuffTotals?.hp ?? 0);
 
   return {
     heroId,
-    currentHp: stats.hp,
-    maxHp: stats.hp,
+    currentHp: hp,
+    maxHp: hp,
     atbGauge: 0,
     isAlive: true,
     statusEffects: [],
@@ -404,6 +429,9 @@ function createCombatEnemy(
       xpReward: enemy.xpReward,
       curdReward: enemy.curdReward,
     },
+    // Copy elemental affinities from enemy definition
+    weakness: enemy.weakness,
+    resistance: enemy.resistance,
   };
 }
 
@@ -414,7 +442,8 @@ export function initializeCombat(
   zoneId: string,
   stageNumber: number,
   heroes: Record<string, HeroState>,
-  party: PartyFormation
+  party: PartyFormation,
+  heroBuffTotals?: Partial<Record<keyof HeroStats, number>>
 ): CombatState | null {
   const zone = zoneRegistry.get(zoneId);
   if (!zone) return null;
@@ -431,7 +460,7 @@ export function initializeCombat(
   for (const heroId of partyHeroIds) {
     const heroState = heroes[heroId];
     if (heroState) {
-      heroStates[heroId] = createHeroCombatState(heroId, heroState);
+      heroStates[heroId] = createHeroCombatState(heroId, heroState, heroBuffTotals);
     }
   }
 
@@ -503,12 +532,14 @@ export function initializeCombat(
  * - Guaranteed drops from boss loot tables
  *
  * @param heroStates - Optional hero states to check for drop rate bonuses
+ * @param cpsFloor - Minimum curd reward (seconds of CPS) so battles always pay
  */
 export function calculateCombatRewards(
   enemies: CombatEnemy[],
   partyHeroIds: string[],
   isBoss: boolean,
-  heroStates?: Record<string, HeroCombatState>
+  heroStates?: Record<string, HeroCombatState>,
+  cpsFloor: Decimal = new Decimal(0)
 ): CombatRewards {
   let totalCurds = new Decimal(0);
   let totalXp = 0;
@@ -574,6 +605,10 @@ export function calculateCombatRewards(
     totalXp = Math.floor(totalXp * bossMultiplier.xp);
   }
 
+  // Apply CPS floor so battles always pay proportionally to player's economy
+  // Floor is applied AFTER boss multipliers so the boost is visible
+  totalCurds = Decimal.max(totalCurds, cpsFloor);
+
   // Distribute XP among party members
   const xpPerHero = Math.floor(totalXp / partyHeroIds.length);
   const xpDistribution: Record<string, number> = {};
@@ -582,6 +617,7 @@ export function calculateCombatRewards(
   }
 
   // Boss battles give whey as bonus (percentage of curds)
+  // Whey derives from floored curds → boss whey scales with the economy too
   const wheyReward = isBoss ? totalCurds.mul(bossMultiplier.wheyPercent) : new Decimal(0);
 
   return {
@@ -671,17 +707,26 @@ function applyAbilityEffect(
 
       for (const enemy of targets) {
         const enemyDef = getAnyEnemy(enemy.id);
-        const damage = calculateDamage(source.attack, enemy.scaledStats.defense, effect.multiplier);
+        // Get weakness/resistance from the enemy definition
+        const { damage, elementResult } = calculateDamage(
+          source.attack,
+          enemy.scaledStats.defense,
+          effect.multiplier,
+          effect.damageType,
+          enemyDef?.weakness,
+          enemyDef?.resistance
+        );
         enemy.currentHp = applyDamage(enemy.currentHp, damage);
         damageDealt += damage;
 
+        const elementSuffix = elementResult === 'weak' ? ' (weak!)' : elementResult === 'resist' ? ' (resisted)' : '';
         logEntries.push({
           timestamp: Date.now(),
           type: 'ability',
           source: heroName,
           target: enemyDef?.name || enemy.id,
           value: damage,
-          message: `${heroName}'s ability hits ${enemyDef?.name || enemy.id} for ${damage} damage!`,
+          message: `${heroName}'s ability hits ${enemyDef?.name || enemy.id} for ${damage} damage${elementSuffix}!`,
         });
 
         if (enemy.currentHp <= 0) {
