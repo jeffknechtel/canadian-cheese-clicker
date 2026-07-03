@@ -228,11 +228,17 @@ export const CLICK_CRIT_BASE_CHANCE = 0.05;
 /** Base damage multiplier for critical clicks */
 export const CLICK_CRIT_BASE_MULTIPLIER = 2;
 
+/** Maximum crit chance from upgrades (50%) */
+export const CLICK_CRIT_CHANCE_CAP = 0.5;
+
 // ===== Buy Milestones =====
 
 /** Generator purchase counts that trigger milestone celebrations */
 export const BUY_MILESTONES = [25, 50, 100, 150, 200, 250, 300, 400, 500] as const;
 export type BuyMilestone = (typeof BUY_MILESTONES)[number];
+
+/** Production multiplier per milestone reached (cumulative: 1.5^milestones) */
+export const MILESTONE_MULTIPLIER = 1.5;
 
 // ===== Golden Cheese =====
 
@@ -258,6 +264,23 @@ export const HERO_RALLY_MULTIPLIER = 5;
 export const CURD_TSUNAMI_MULTIPLIER = 777;
 export const LUCKY_CURDS_MINUTES = 15;
 
+/** Lifetime-collection perk tiers. Cumulative; derived from goldenCheese.totalCollected. */
+export const GOLDEN_CHEESE_META_TIERS = [
+  { collected: 10, perk: 'spawnWindow1' },  // max spawn delay 10 → 8 min
+  { collected: 25, perk: 'buffDuration' },  // golden buff durations ×1.25
+  { collected: 50, perk: 'spawnWindow2' },  // spawn window → 2–7 min
+  { collected: 100, perk: 'goldenRush' },   // 10% chance on collect: next spawn in 15–45 s
+] as const;
+export type GoldenCheeseMetaPerk = (typeof GOLDEN_CHEESE_META_TIERS)[number]['perk'];
+
+export const GOLDEN_RUSH_CHANCE = 0.1;
+export const GOLDEN_RUSH_DELAY_MS = { min: 15_000, max: 45_000 };
+export const WELCOME_BACK_SPAWN_DELAY_MS = 30_000;
+export const WELCOME_BACK_MIN_OFFLINE_MS = 60 * 60 * 1000; // 1 hour
+
+/** Buff duration multiplier when buffDuration perk is unlocked */
+export const GOLDEN_BUFF_DURATION_MULTIPLIER = 1.25;
+
 // ===== UI Timing =====
 
 /** Minimum delay between random Canadian dialogue bubbles */
@@ -270,6 +293,31 @@ export const RANDOM_DIALOGUE_MAX_MS = 120_000;
 export const MILESTONE_CHECK_INTERVAL_MS = 1000;
 
 // ===== Boss Reward Multipliers =====
+
+// ===== Elemental Damage Multipliers =====
+
+/** Damage multiplier when attacking a weakness */
+export const WEAKNESS_DAMAGE_MULTIPLIER = 1.5;
+
+/** Damage multiplier when attacking a resistance */
+export const RESISTANCE_DAMAGE_MULTIPLIER = 0.5;
+
+// ===== Vintage/Legacy Gate Constants =====
+
+/** Number of aging resets required to unlock Vintage */
+export const VINTAGE_AGING_RESETS_REQUIRED = 10;
+
+/** Rennet cost for Vintage reset */
+export const VINTAGE_RENNET_COST = 100;
+
+// ===== Combat CPS Scaling =====
+
+/** Combat curd rewards are floored at seconds-of-CPS so battles always pay. */
+export const STAGE_REWARD_CPS_SECONDS_BASE = 15;
+export const STAGE_REWARD_CPS_SECONDS_PER_STAGE = 3;
+export const BOSS_REWARD_CPS_SECONDS = 180;
+
+// ===== Boss Rewards =====
 
 /** Default multiplier for any boss not in the table */
 export const DEFAULT_BOSS_REWARD_MULTIPLIER = { curds: 1.0, xp: 1.0, wheyPercent: 0.1 };

@@ -26,7 +26,7 @@ export function ClickEffects() {
   const [particles, setParticles] = useState<Particle[]>([]);
   const nextId = useRef(0);
   const totalClicks = useGameStore((state) => state.totalClicks);
-  const getClickValue = useGameStore((state) => state.getClickValue);
+  const lastClickValue = useGameStore((state) => state.lastClickValue);
   const lastClickWasCrit = useGameStore((state) => state.lastClickWasCrit);
   const lastClicks = useRef(0);
   const animationRef = useRef<number | undefined>(undefined);
@@ -40,7 +40,6 @@ export function ClickEffects() {
   // Watch for clicks and create floating numbers + particles
   useEffect(() => {
     if (totalClicks > lastClicks.current) {
-      const clickValue = getClickValue();
       const id = nextId.current++;
       const crit = lastClickWasCrit;
 
@@ -50,7 +49,7 @@ export function ClickEffects() {
 
       setFloatingNumbers((prev) => [
         ...prev,
-        { id, value: `+${formatNumber(clickValue)}`, x, y, opacity: 1, isCrit: crit },
+        { id, value: `+${formatNumber(lastClickValue)}`, x, y, opacity: 1, isCrit: crit },
       ]);
 
       // Create particles if enabled
@@ -73,7 +72,7 @@ export function ClickEffects() {
 
       lastClicks.current = totalClicks;
     }
-  }, [totalClicks, getClickValue, lastClickWasCrit, particlesEnabled, reducedMotion]);
+  }, [totalClicks, lastClickValue, lastClickWasCrit, particlesEnabled, reducedMotion]);
 
   // Animate and remove old numbers
   const hasFloatingNumbers = floatingNumbers.length > 0;

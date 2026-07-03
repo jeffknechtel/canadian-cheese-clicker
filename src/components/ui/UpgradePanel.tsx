@@ -167,6 +167,7 @@ export function UpgradePanel() {
   const availableUpgrades = useGameStoreShallow((s) => s.getAvailableUpgrades());
   const purchasedUpgrades = useGameStoreShallow((s) => s.getPurchasedUpgrades());
   const clickMultiplier = useGameStore((s) => s.getClickMultiplier());
+  const clickCpsPercent = useGameStore((s) => s.getClickCpsPercent());
   const synergyPurchased = useGameStore((state) => state.synergy.purchased);
 
   return (
@@ -188,9 +189,9 @@ export function UpgradePanel() {
           {/* Header with click multiplier info */}
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-lg font-bold text-timber-700">Upgrades</h2>
-            {clickMultiplier > 1 && (
+            {(clickMultiplier > 1 || clickCpsPercent > 0) && (
               <span className="text-xs bg-maple-100 text-maple-700 px-2 py-1 rounded border border-maple-200">
-                Click x{clickMultiplier}
+                Click x{clickMultiplier}{clickCpsPercent > 0 && ` + ${Math.round(clickCpsPercent * 100)}% CPS`}
               </span>
             )}
           </div>

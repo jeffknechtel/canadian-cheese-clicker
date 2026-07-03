@@ -11,6 +11,9 @@ import {
   LEGACY_POINT_MULTIPLIER,
   MAX_PRESTIGE_COST_REDUCTION,
   CHEESE_AFFINITY_DIVISOR,
+  CLICK_CRIT_BASE_CHANCE,
+  CLICK_CRIT_BASE_MULTIPLIER,
+  CLICK_CRIT_CHANCE_CAP,
 } from '../data/constants';
 import type { HeroState, HeroStats, PartyFormation, PrestigeState } from '../types/game';
 
@@ -94,6 +97,56 @@ export function calculateClickMultiplier(purchasedUpgradeIds: string[]): number 
   }
 
   return multiplier;
+}
+
+/**
+ * Calculate click CPS percent from all purchased upgrades (additive).
+ * Each click also earns this fraction of CPS.
+ */
+export function calculateClickCpsPercent(purchasedUpgradeIds: string[]): number {
+  let percent = 0;
+
+  for (const upgradeId of purchasedUpgradeIds) {
+    const upgrade = upgradeRegistry.get(upgradeId);
+    if (upgrade?.effect.type === 'clickCpsPercent') {
+      percent += upgrade.effect.value;
+    }
+  }
+
+  return percent;
+}
+
+/**
+ * Calculate crit chance from purchased upgrades (additive).
+ * Capped at CLICK_CRIT_CHANCE_CAP.
+ */
+export function calculateCritChance(purchasedUpgradeIds: string[]): number {
+  let bonusChance = 0;
+
+  for (const upgradeId of purchasedUpgradeIds) {
+    const upgrade = upgradeRegistry.get(upgradeId);
+    if (upgrade?.effect.type === 'critChance') {
+      bonusChance += upgrade.effect.value;
+    }
+  }
+
+  return Math.min(CLICK_CRIT_BASE_CHANCE + bonusChance, CLICK_CRIT_CHANCE_CAP);
+}
+
+/**
+ * Calculate crit multiplier from purchased upgrades (additive stacking).
+ */
+export function calculateCritMultiplier(purchasedUpgradeIds: string[]): number {
+  let bonusMultiplier = 0;
+
+  for (const upgradeId of purchasedUpgradeIds) {
+    const upgrade = upgradeRegistry.get(upgradeId);
+    if (upgrade?.effect.type === 'critMultiplier') {
+      bonusMultiplier += upgrade.effect.value;
+    }
+  }
+
+  return CLICK_CRIT_BASE_MULTIPLIER + bonusMultiplier;
 }
 
 /**
@@ -187,10 +240,12 @@ export function calculateHeroStats(
 /**
  * Calculate total CPS multiplier from all party heroes
  * Returns a multiplier where 1.0 = no bonus
+ * @param bonusAffinityPerHero Optional flat bonus added to each hero's affinity (from cheese buffs)
  */
 export function calculateHeroCpsMultiplier(
   heroes: Record<string, HeroState>,
-  party: PartyFormation
+  party: PartyFormation,
+  bonusAffinityPerHero: number = 0
 ): number {
   // Get all party member IDs
   const partyMemberIds = [
@@ -204,13 +259,13 @@ export function calculateHeroCpsMultiplier(
     return 1; // No bonus with empty party
   }
 
-  // Sum cheese affinity of all party members
+  // Sum cheese affinity of all party members (including bonus from cheese buffs)
   let totalAffinity = 0;
   for (const heroId of partyMemberIds) {
     const heroState = heroes[heroId];
     if (heroState) {
       const stats = calculateHeroStats(heroId, heroState);
-      totalAffinity += stats.cheeseAffinity;
+      totalAffinity += stats.cheeseAffinity + bonusAffinityPerHero;
     }
   }
 

@@ -5,7 +5,12 @@ import {
   rollReward,
   applyReward,
   VISIBLE_DURATION_MS,
+  getUnlockedPerks,
 } from '../../../systems/goldenCheeseSystem';
+import {
+  GOLDEN_RUSH_CHANCE,
+  GOLDEN_RUSH_DELAY_MS,
+} from '../../../data/constants';
 
 import type { GoldenCheeseRewardType } from '../../../types/game';
 
@@ -26,11 +31,13 @@ const createInitialGoldenCheeseState = (): {
 export const createGoldenCheeseSlice: SliceCreator<GoldenCheeseSlice> = (set, get) => ({
   goldenCheese: createInitialGoldenCheeseState(),
 
-  scheduleNextGoldenCheese: () => {
+  scheduleNextGoldenCheese: (forceDelayMs?: number) => {
+    const { totalCollected } = get().goldenCheese;
+    const delay = forceDelayMs ?? getRandomSpawnDelay(totalCollected);
     set({
       goldenCheese: {
         ...get().goldenCheese,
-        nextSpawnAt: Date.now() + getRandomSpawnDelay(),
+        nextSpawnAt: Date.now() + delay,
       },
     });
   },
@@ -82,17 +89,27 @@ export const createGoldenCheeseSlice: SliceCreator<GoldenCheeseSlice> = (set, ge
     const rewardType = gc.currentReward;
     applyReward(rewardType, get);
 
+    const newTotalCollected = gc.totalCollected + 1;
+
     set({
       goldenCheese: {
         ...gc,
         isVisible: false,
         expiresAt: 0,
         currentReward: null,
-        totalCollected: gc.totalCollected + 1,
+        totalCollected: newTotalCollected,
       },
     });
 
-    get().scheduleNextGoldenCheese();
+    // Check for Golden Rush perk: 10% chance for quick respawn
+    const perks = getUnlockedPerks(newTotalCollected);
+    if (perks.has('goldenRush') && Math.random() < GOLDEN_RUSH_CHANCE) {
+      const rushDelay = GOLDEN_RUSH_DELAY_MS.min + Math.random() * (GOLDEN_RUSH_DELAY_MS.max - GOLDEN_RUSH_DELAY_MS.min);
+      get().scheduleNextGoldenCheese(rushDelay);
+    } else {
+      get().scheduleNextGoldenCheese();
+    }
+
     return rewardType;
   },
 

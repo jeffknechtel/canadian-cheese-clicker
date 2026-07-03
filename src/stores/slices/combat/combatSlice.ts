@@ -2,7 +2,13 @@ import type { SliceCreator } from '../../types';
 import type { CombatSlice } from './types';
 import { createEmptyCombatState, createPrestigeCombatState } from './resetFactory';
 import { publish } from '../../../domain/events';
-import { COMBAT_LOG_MAX_ENTRIES, COMBAT_FEEDBACK_GRID } from '../../../data/constants';
+import {
+  COMBAT_LOG_MAX_ENTRIES,
+  COMBAT_FEEDBACK_GRID,
+  STAGE_REWARD_CPS_SECONDS_BASE,
+  STAGE_REWARD_CPS_SECONDS_PER_STAGE,
+  BOSS_REWARD_CPS_SECONDS,
+} from '../../../data/constants';
 import {
   initializeCombat,
   calculateCombatRewards,
@@ -68,12 +74,16 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
 
     if (partyHeroIds.length === 0) return false;
 
-    const combatState = initializeCombat(zoneId, stageNumber, state.heroes, state.party);
+    // Get active heroBuff totals from cheese (snapshot before battle)
+    const heroBuffTotals = state.getActiveHeroBuffTotals();
+
+    const combatState = initializeCombat(zoneId, stageNumber, state.heroes, state.party, heroBuffTotals);
     if (!combatState) return false;
 
     // Snapshot party stats once per battle: composition/levels/equipment cannot
     // change mid-battle (XP applies at claimCombatRewards), so combat reads the
     // snapshot instead of recomputing getPartyStats() per tick.
+    // Note: getPartyStats() already includes heroBuffTotals
     set({ combat: { ...combatState, partyStats: state.getPartyStats() } });
 
     const isBoss = isBossStage(zoneId, stageNumber);
@@ -350,7 +360,13 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
       state.party.backRight,
     ].filter((id): id is string => id !== null && state.heroes[id] !== undefined);
 
-    const rewards = calculateCombatRewards(state.combat.enemies, partyHeroIds, isBoss, state.combat.heroStates);
+    // Compute CPS floor: battles always pay proportionally to player's economy
+    const cpsSeconds = isBoss
+      ? BOSS_REWARD_CPS_SECONDS
+      : STAGE_REWARD_CPS_SECONDS_BASE + stageNumber * STAGE_REWARD_CPS_SECONDS_PER_STAGE;
+    const cpsFloor = state.curdPerSecond.mul(cpsSeconds);
+
+    const rewards = calculateCombatRewards(state.combat.enemies, partyHeroIds, isBoss, state.combat.heroStates, cpsFloor);
 
     // Publish event for cross-context handlers (production and heroes subscribe)
     publish({

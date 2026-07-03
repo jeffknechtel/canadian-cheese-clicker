@@ -8,6 +8,9 @@ import {
   calculateGeneratorCost,
   calculateMaxAffordable,
   calculateClickMultiplier,
+  calculateClickCpsPercent,
+  calculateCritChance,
+  calculateCritMultiplier,
   calculateGeneratorMultipliers,
   calculatePrestigeClickMultiplier,
   calculateAchievementClickMultiplier,
@@ -52,6 +55,9 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
   lastMilestone: 0,
   currencyAnimationTrigger: 0,
   lastClickWasCrit: false,
+  lastClickValue: new Decimal(0),
+  clickCritChance: CLICK_CRIT_BASE_CHANCE,
+  clickCritMultiplier: CLICK_CRIT_BASE_MULTIPLIER,
 
   // Actions
   click: () => {
@@ -61,10 +67,10 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
     // Event multipliers already baked into curdPerClick via computeClickValue
     let clickValue = baseClickValue.mul(buffMultipliers.click);
 
-    // Roll for critical hit
-    const isCrit = Math.random() < CLICK_CRIT_BASE_CHANCE;
+    // Roll for critical hit using cached crit stats
+    const isCrit = Math.random() < state.clickCritChance;
     if (isCrit) {
-      clickValue = clickValue.mul(CLICK_CRIT_BASE_MULTIPLIER);
+      clickValue = clickValue.mul(state.clickCritMultiplier);
       playCriticalSound();
       vibrateCrit();
     }
@@ -75,6 +81,7 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
       totalClicks: state.totalClicks + 1,
       currencyAnimationTrigger: state.currencyAnimationTrigger + 1,
       lastClickWasCrit: isCrit,
+      lastClickValue: clickValue,
     });
     get().incrementChallengeProgress('collectClicks', 1);
     get().checkAchievements();
@@ -129,10 +136,11 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
     const currentOwned = state.generators[id] ?? 0;
     const newOwned = currentOwned + count;
 
-    // Check if we crossed a buy milestone
-    const crossedMilestone = BUY_MILESTONES.find(
+    // Check if we crossed any buy milestones — celebrate the HIGHEST crossed
+    const crossedMilestones = BUY_MILESTONES.filter(
       (m) => currentOwned < m && newOwned >= m
     );
+    const highestMilestone = crossedMilestones.length > 0 ? crossedMilestones[crossedMilestones.length - 1] : null;
 
     set({
       curds: state.curds.minus(cost),
@@ -142,13 +150,14 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
 
     publish({ type: 'CpsInputsChanged' });
 
-    // Celebrate milestone
-    if (crossedMilestone) {
+    // Celebrate milestone with multiplier info
+    if (highestMilestone) {
       const generator = GENERATORS.find((g) => g.id === id);
-      playBuyMilestoneSound(crossedMilestone);
+      const multiplierGained = Math.pow(1.5, crossedMilestones.length);
+      playBuyMilestoneSound(highestMilestone);
       vibrateSuccess();
       emitParticles(window.innerWidth / 2, window.innerHeight / 3, 'fireworks');
-      announce(`${generator?.name ?? 'Generator'} milestone: ${crossedMilestone}!`, 'polite');
+      announce(`${generator?.name ?? 'Generator'} milestone: ${highestMilestone}! ×${multiplierGained.toFixed(1)} production`, 'polite');
     }
 
     trackGeneratorPurchase(id, count, newOwned);
@@ -301,6 +310,11 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
     return upgradeMultiplier * achievementMultiplier * prestigeMultiplier * ehMultiplier * eventMultipliers.click;
   },
 
+  getClickCpsPercent: () => {
+    const state = get();
+    return calculateClickCpsPercent(state.upgrades);
+  },
+
   getGeneratorMultiplier: (id: string) => {
     const { upgrades } = get();
     const multipliers = calculateGeneratorMultipliers(upgrades);
@@ -312,7 +326,12 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
   },
 
   recalculateClickValue: () => {
-    set({ curdPerClick: computeClickValue(get()) });
+    const state = get();
+    set({
+      curdPerClick: computeClickValue(state),
+      clickCritChance: calculateCritChance(state.upgrades),
+      clickCritMultiplier: calculateCritMultiplier(state.upgrades),
+    });
   },
 
   getPrestigeProductionReset: () => {

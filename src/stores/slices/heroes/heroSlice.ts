@@ -348,10 +348,21 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
     const party = Party.from(state.party, state.heroes);
     const partyHeroIds = party.getActiveHeroIds();
 
+    // Get active heroBuff totals from cheese
+    const heroBuffTotals = state.getActiveHeroBuffTotals();
+
     for (const heroId of partyHeroIds) {
       const heroState = state.heroes[heroId];
       if (heroState) {
-        stats[heroId] = calculateHeroStats(heroId, heroState);
+        const baseStats = calculateHeroStats(heroId, heroState);
+        // Apply cheese heroBuffs as flat adds (party-wide)
+        stats[heroId] = {
+          hp: baseStats.hp + (heroBuffTotals.hp ?? 0),
+          attack: baseStats.attack + (heroBuffTotals.attack ?? 0),
+          defense: baseStats.defense + (heroBuffTotals.defense ?? 0),
+          speed: baseStats.speed + (heroBuffTotals.speed ?? 0),
+          cheeseAffinity: baseStats.cheeseAffinity + (heroBuffTotals.cheeseAffinity ?? 0),
+        };
       }
     }
 

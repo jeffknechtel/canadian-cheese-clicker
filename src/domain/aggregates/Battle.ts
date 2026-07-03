@@ -16,7 +16,7 @@ export type CombatAudioEvent =
   | { type: 'debuff' };
 
 export type CombatFeedbackEvent =
-  | { type: 'damage'; target: 'hero' | 'enemy'; slotIndex: number; value: number; damageType: 'damage' | 'crit' | 'miss' | 'block' }
+  | { type: 'damage'; target: 'hero' | 'enemy'; slotIndex: number; value: number; damageType: 'damage' | 'crit' | 'miss' | 'block' | 'weak' | 'resist' }
   | { type: 'heal'; target: 'hero' | 'enemy'; slotIndex: number; value: number }
   | { type: 'comboHit' }
   | { type: 'comboBreak' }
@@ -412,7 +412,15 @@ export class Battle {
 
       // Roll for crit before damage calculation
       const isCrit = Math.random() < CLICK_CRIT_BASE_CHANCE;
-      const baseDamage = calculateDamage(effectiveAttack, effectiveDefense);
+      // Basic attacks are always physical
+      const { damage: baseDamage, elementResult } = calculateDamage(
+        effectiveAttack,
+        effectiveDefense,
+        1.0,
+        'physical',
+        target.weakness,
+        target.resistance
+      );
       let damage = Math.floor(baseDamage * heroDamageMultiplier);
       if (isCrit) {
         damage = Math.floor(damage * CLICK_CRIT_BASE_MULTIPLIER);
@@ -424,12 +432,16 @@ export class Battle {
 
       // Emit feedback events
       const enemyIndex = enemies.indexOf(target);
+      let feedbackDamageType: 'crit' | 'damage' | 'weak' | 'resist' = isCrit ? 'crit' : 'damage';
+      if (elementResult === 'weak') feedbackDamageType = 'weak';
+      else if (elementResult === 'resist') feedbackDamageType = 'resist';
+
       feedbackEvents.push({
         type: 'damage',
         target: 'enemy',
         slotIndex: enemyIndex,
         value: damage,
-        damageType: isCrit ? 'crit' : 'damage',
+        damageType: feedbackDamageType,
       });
       feedbackEvents.push({ type: 'comboHit' });
       if (isCrit) {
@@ -567,7 +579,8 @@ export class Battle {
           const defenseModifier = getStatModifierFromEffects(heroState.statusEffects, 'defense');
           const effectiveDefense = Math.max(0, (heroStats?.defense || 10) + defenseModifier);
 
-          const damage = calculateDamage(effectiveAttack, effectiveDefense, abilityMultiplier);
+          // Enemy→hero damage is element-less (heroes have no weakness/resistance)
+          const { damage } = calculateDamage(effectiveAttack, effectiveDefense, abilityMultiplier);
           heroState.currentHp = applyDamage(heroState.currentHp, damage);
           damageTaken += damage;
 
@@ -619,7 +632,8 @@ export class Battle {
         const defenseModifier = getStatModifierFromEffects(target.statusEffects, 'defense');
         const effectiveDefense = Math.max(0, (heroStats?.defense || 10) + defenseModifier);
 
-        const damage = calculateDamage(effectiveAttack, effectiveDefense, abilityMultiplier);
+        // Enemy→hero damage is element-less (heroes have no weakness/resistance)
+        const { damage } = calculateDamage(effectiveAttack, effectiveDefense, abilityMultiplier);
         target.currentHp = applyDamage(target.currentHp, damage);
         damageTaken += damage;
 

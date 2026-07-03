@@ -16,9 +16,10 @@ const LoonieIcon = memo(function LoonieIcon() {
 
 export function CurrencyDisplay() {
   // Optimized selectors - only re-render when these specific values change
-  const { curds, curdPerSecond, prestigeRennet, agingResetCount, currencyAnimationTrigger } = useGameStoreShallow((state) => ({
+  const { curds, curdPerSecond, whey, prestigeRennet, agingResetCount, currencyAnimationTrigger } = useGameStoreShallow((state) => ({
     curds: state.curds,
     curdPerSecond: state.curdPerSecond,
+    whey: state.whey,
     prestigeRennet: state.prestige.rennet,
     agingResetCount: state.prestige.agingResetCount,
     currencyAnimationTrigger: state.currencyAnimationTrigger,
@@ -28,6 +29,7 @@ export function CurrencyDisplay() {
 
   const hasPrestiged = agingResetCount > 0 || prestigeRennet > 0;
   const showRennet = hasPrestiged || potentialRennet > 0;
+  const showWhey = whey.gt(0);
 
   return (
     <div className="flex flex-col items-end gap-1">
@@ -45,6 +47,11 @@ export function CurrencyDisplay() {
             {formatNumber(curds)} Curds
           </span>
         </div>
+        {showWhey && (
+          <div className="hidden sm:block border-l border-white/30 pl-3 animate-fade-in">
+            <span className="text-blue-200 text-sm">💧 {formatNumber(whey)} Whey</span>
+          </div>
+        )}
         {showRennet && (
           <div className="hidden sm:block border-l border-white/30 pl-3 animate-fade-in">
             <RennetDisplay showPotential={potentialRennet > 0} className="text-white" />

@@ -188,7 +188,10 @@ export interface Upgrade {
 export type UpgradeEffect =
   | { type: 'clickMultiplier'; value: number }
   | { type: 'generatorMultiplier'; generatorId: string; value: number }
-  | { type: 'globalMultiplier'; value: number };
+  | { type: 'globalMultiplier'; value: number }
+  | { type: 'clickCpsPercent'; value: number }
+  | { type: 'critChance'; value: number }
+  | { type: 'critMultiplier'; value: number };
 
 export interface UpgradeRequirement {
   type: 'generatorOwned';
@@ -329,7 +332,7 @@ export interface CombatFeedbackState {
   damageNumbers: Array<{
     id: string;
     value: number;
-    type: 'damage' | 'heal' | 'crit' | 'miss' | 'block';
+    type: 'damage' | 'heal' | 'crit' | 'miss' | 'block' | 'weak' | 'resist';
     x: number;
     y: number;
   }>;
@@ -392,6 +395,9 @@ export interface CombatEnemy {
     xpReward: number;
     curdReward: Decimal;
   };
+  // Elemental affinities (copied from enemy definition)
+  weakness?: DamageType;
+  resistance?: DamageType;
 }
 
 export type ImmunityType = 'freeze' | 'slow' | 'allDebuffs' | 'damageOverTime';

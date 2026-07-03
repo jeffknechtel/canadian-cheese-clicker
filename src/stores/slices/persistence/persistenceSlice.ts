@@ -10,7 +10,9 @@ import { createInitialHeroState } from '../heroes/resetFactory';
 import { createInitialAchievementState } from '../achievements/resetFactory';
 import { createInitialEventState } from '../events/resetFactory';
 import { createInitialUnlockState } from '../unlock/resetFactory';
+import { createInitialGoldenCheeseState } from '../goldenCheese/resetFactory';
 import { useSettingsStore } from '../../settingsStore';
+import { WELCOME_BACK_SPAWN_DELAY_MS, WELCOME_BACK_MIN_OFFLINE_MS } from '../../../data/constants';
 
 // Module-level flag to prevent save during import
 let isImportingFlag = false;
@@ -80,6 +82,23 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
       totalCurdsEarned: s.totalCurdsEarned.plus(offlineProgress.curdsEarned),
     }));
 
+    // Welcome-back golden cheese: ensure spawn is at least 30s away (prevents instant pop)
+    // and for long absences (≥1h), guarantee a golden cheese is coming soon
+    const now = Date.now();
+    const gc = get().goldenCheese;
+    const offlineDurationMs = offlineProgress.secondsAway * 1000;
+    const isLongAbsence = offlineDurationMs >= WELCOME_BACK_MIN_OFFLINE_MS;
+
+    // If golden cheese is scheduled too soon (stale timestamp), or we want to guarantee one
+    if (gc.nextSpawnAt < now + WELCOME_BACK_SPAWN_DELAY_MS || isLongAbsence) {
+      get().scheduleNextGoldenCheese(WELCOME_BACK_SPAWN_DELAY_MS);
+    }
+
+    // Flag for the modal to show welcome-back message
+    if (isLongAbsence) {
+      return { ...offlineProgress, welcomeBackGoldenCheese: true };
+    }
+
     return offlineProgress;
   },
 
@@ -118,6 +137,9 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
       // Progressive unlock state - DELEGATED to factory
       ...createInitialUnlockState(),
 
+      // Golden cheese state - DELEGATED to factory (totalCollected wiped on hard reset)
+      goldenCheese: createInitialGoldenCheeseState(),
+
       // Persistence state
       lastSaved: Date.now(),
       lastSimulated: Date.now(),
@@ -151,6 +173,19 @@ export const createPersistenceSlice: SliceCreator<PersistenceSlice> = (set, get)
       lastSimulated: Date.now(),
     }));
 
-    return { curdsEarned, secondsAway: elapsedSeconds };
+    // Welcome-back golden cheese for long hidden durations
+    const isLongAbsence = hiddenDurationMs >= WELCOME_BACK_MIN_OFFLINE_MS;
+    const gc = get().goldenCheese;
+    const now = Date.now();
+
+    if (gc.nextSpawnAt < now + WELCOME_BACK_SPAWN_DELAY_MS || isLongAbsence) {
+      get().scheduleNextGoldenCheese(WELCOME_BACK_SPAWN_DELAY_MS);
+    }
+
+    return {
+      curdsEarned,
+      secondsAway: elapsedSeconds,
+      welcomeBackGoldenCheese: isLongAbsence,
+    };
   },
 });
