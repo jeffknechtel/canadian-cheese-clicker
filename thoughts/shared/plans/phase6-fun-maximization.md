@@ -208,8 +208,8 @@ Fully upgraded: 20% chance, 5× multiplier — expected click value ×1.8, and c
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Build passes: `npm run build`
-- [ ] Lint passes: `npm run lint`
+- [x] Build passes: `npm run build`
+- [x] Lint passes: `npm run lint`
 
 #### Manual Verification:
 - [ ] Base game still crits ~5% at 2× (no regression)
@@ -272,8 +272,8 @@ export const WELCOME_BACK_MIN_OFFLINE_MS = 60 * 60 * 1000; // 1 h
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Build passes: `npm run build`
-- [ ] Lint passes: `npm run lint`
+- [x] Build passes: `npm run build`
+- [x] Lint passes: `npm run lint`
 
 #### Manual Verification:
 - [ ] Set `totalCollected` to 9 via save edit, collect one → toast announces tier unlock; subsequent spawns come faster (verify `nextSpawnAt` deltas in devtools)
@@ -330,8 +330,8 @@ Design decision: buffs are **party-wide flat adds** — "+40 attack" applies to 
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Build passes: `npm run build`
-- [ ] Lint passes: `npm run lint`
+- [x] Build passes: `npm run build`
+- [x] Lint passes: `npm run lint`
 
 #### Manual Verification:
 - [ ] Eat an attack-buff cheese → start battle → hero basic attacks hit visibly harder; party panel shows raised attack
@@ -370,8 +370,8 @@ Design decision: buffs are **party-wide flat adds** — "+40 attack" applies to 
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Build passes: `npm run build`
-- [ ] Lint passes: `npm run lint`
+- [x] Build passes: `npm run build`
+- [x] Lint passes: `npm run lint`
 
 #### Manual Verification:
 - [ ] Fire ability vs `mold_sprite` (weak: fire) deals ~1.5× and shows the "Weak!" treatment
@@ -407,8 +407,8 @@ Design decision: buffs are **party-wide flat adds** — "+40 attack" applies to 
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Build passes: `npm run build`
-- [ ] Lint passes: `npm run lint`
+- [x] Build passes: `npm run build`
+- [x] Lint passes: `npm run lint`
 
 #### Manual Verification:
 - [ ] Whey upgrades appear in UpgradePanel with "whey" cost label and correct affordability gating
@@ -446,8 +446,8 @@ export const BOSS_REWARD_CPS_SECONDS = 180;
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Build passes: `npm run build`
-- [ ] Lint passes: `npm run lint`
+- [x] Build passes: `npm run build`
+- [x] Lint passes: `npm run lint`
 
 #### Manual Verification:
 - [ ] At 1e12 CPS, clearing an early stage pays ≈ 15–45 s of CPS instead of trivial static curds
@@ -484,8 +484,8 @@ Data-heavy phase: make `BUY_MILESTONES` mechanical, extend the upgrade ladder in
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Build passes: `npm run build`
-- [ ] Lint passes: `npm run lint`
+- [x] Build passes: `npm run build`
+- [x] Lint passes: `npm run lint`
 
 #### Manual Verification:
 - [ ] Buying the 25th of a generator visibly bumps CPS by ×1.5 on that generator's contribution (check CPS breakdown)
@@ -509,8 +509,8 @@ No code changes — `UPGRADES` is consumed generically. Check `UpgradePanel` vir
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Build passes: `npm run build`
-- [ ] Lint passes: `npm run lint`
+- [x] Build passes: `npm run build`
+- [x] Lint passes: `npm run lint`
 
 #### Manual Verification:
 - [ ] At 100 owned milk pails, a new upgrade appears; purchase applies ×3 to that generator
@@ -540,8 +540,8 @@ No code changes — `UPGRADES` is consumed generically. Check `UpgradePanel` vir
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Build passes: `npm run build`
-- [ ] Lint passes: `npm run lint`
+- [x] Build passes: `npm run build`
+- [x] Lint passes: `npm run lint`
 
 #### Manual Verification:
 - [ ] Mythology zones render in their own gold-styled section with badges
@@ -592,8 +592,8 @@ The decorative second and third prestige tiers become real: Vintage is reachable
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Build passes: `npm run build`
-- [ ] Lint passes: `npm run lint`
+- [x] Build passes: `npm run build`
+- [x] Lint passes: `npm run lint`
 
 #### Manual Verification:
 - [ ] Save with 10 aging resets + 150 rennet: Vintage button enables, modal previews 1 wheel + 50 rennet remainder
@@ -626,8 +626,8 @@ The decorative second and third prestige tiers become real: Vintage is reachable
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Build passes: `npm run build`
-- [ ] Lint passes: `npm run lint`
+- [x] Build passes: `npm run build`
+- [x] Lint passes: `npm run lint`
 
 #### Manual Verification:
 - [ ] Performing Legacy with 12 wheels into Québec: `legacyBonuses.quebec = 12`, global CPS gains the +12% term, Québec-zone battles pay +120% curds
@@ -663,8 +663,8 @@ The decorative second and third prestige tiers become real: Vintage is reachable
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Build passes: `npm run build`
-- [ ] Lint passes: `npm run lint`
+- [x] Build passes: `npm run build`
+- [x] Lint passes: `npm run lint`
 
 #### Manual Verification:
 - [ ] With 2 stacks of `loyal_companions`, Aging keeps the 2 highest-level heroes (levels intact, gear gone, party empty)
@@ -696,8 +696,8 @@ The decorative second and third prestige tiers become real: Vintage is reachable
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Build passes: `npm run build`
-- [ ] Lint passes: `npm run lint`
+- [x] Build passes: `npm run build`
+- [x] Lint passes: `npm run lint`
 - [ ] P3's ID-validation test passes over the new data (if vitest landed)
 
 #### Manual Verification:

@@ -1,5 +1,59 @@
 import Decimal from 'decimal.js';
 import type { Upgrade } from '../types/game';
+import { GENERATORS } from './generators';
+
+// ===== Per-Generator Tier 4/5/6 Upgrades (late-game ladder extension) =====
+
+/**
+ * Late tiers unlock at 100/150/200 owned with ×3/×4/×5 effects.
+ * Cost ≈ 25× the generator's cumulative cost at the unlock count,
+ * expressed as a factor of the generator's base cost
+ * (cumulative(N) ≈ baseCost × (1.15^N − 1) / 0.15).
+ */
+const LATE_TIER_SPECS = [
+  { tier: 4, count: 100, multiplier: 3, costFactor: 2e8 },
+  { tier: 5, count: 150, multiplier: 4, costFactor: 2e11 },
+  { tier: 6, count: 200, multiplier: 5, costFactor: 2.5e14 },
+] as const;
+
+/** Canadiana names per generator for tiers 4/5/6 (same voice as tiers 1-3) */
+const LATE_TIER_NAMES: Record<string, [string, string, string]> = {
+  milk_pail: ['Diamond-Polished Pails', 'Quantum Milk Pails', 'Pails of the Ancients'],
+  cheese_vat: ['Titanium Vats', 'Self-Stirring Vats', 'Vats of Infinite Curd'],
+  aging_rack: ['Heritage Oak Racks', 'Time-Dilated Racks', 'Racks of the Ages'],
+  cheese_cave: ['Crystal Cave Chambers', 'Echoing Cave Depths', 'The Great Cheese Hollow'],
+  fromager_apprentice: ['Journeyman Fromagers', 'Master Fromagers', 'Grand Fromager Council'],
+  curling_stone: ['Granite Championship Stones', 'Olympic Gold Stones', 'The Brier Legends'],
+  mountie_patrol: ['Mounted Cheese Division', 'RCMP Elite Squad', 'The Musical Ride Eternal'],
+  voyageur_canoe: ['Grand Portage Fleet', 'Coureur des Bois Network', 'The Voyageur Armada'],
+  hockey_churner: ['Overtime Churners', 'Playoff Beard Churners', 'Hall of Fame Churners'],
+  beaver_dam: ['Mega-Dam Complex', 'Continental Dam Network', 'The Great Beaver Dynasty'],
+  timmys_bar: ["24-Hour Timmy's", "Timmy's Nation-Wide", "Timmy's Interstellar"],
+  maple_infuser: ['Amber Grade Infusers', 'Centennial Syrup Vaults', 'The Eternal Sugar Bush'],
+  moose_mill: ['Bull Moose Battalion', 'Moose Herd Dynamo', 'The Moose Monarchy'],
+  northern_lights: ['Solar Storm Curing', 'Magnetosphere Aging', 'The Aurora Crown'],
+  thunderbird: ['Thunderbird Aerie', 'Sky Spirit Communion', 'The Thunderbird Pantheon'],
+};
+
+const MULTIPLIER_WORDS: Record<number, string> = {
+  3: 'three times',
+  4: 'four times',
+  5: 'five times',
+};
+
+function createLateTierUpgrades(): Upgrade[] {
+  return GENERATORS.flatMap((generator) =>
+    LATE_TIER_SPECS.map((spec, tierIndex): Upgrade => ({
+      id: `${generator.id}_tier${spec.tier}`,
+      name: LATE_TIER_NAMES[generator.id]?.[tierIndex] ?? `${generator.name} Mastery ${spec.tier}`,
+      description: `${generator.name}s are ${MULTIPLIER_WORDS[spec.multiplier]} as effective`,
+      cost: generator.baseCost.mul(spec.costFactor),
+      costCurrency: 'curds',
+      effect: { type: 'generatorMultiplier', generatorId: generator.id, value: spec.multiplier },
+      requirement: { type: 'generatorOwned', generatorId: generator.id, count: spec.count },
+    }))
+  );
+}
 
 export const UPGRADES: Upgrade[] = [
   // ===== Click Upgrades =====
@@ -656,4 +710,7 @@ export const UPGRADES: Upgrade[] = [
     costCurrency: 'curds',
     effect: { type: 'globalMultiplier', value: 6 },
   },
+
+  // ===== Per-Generator Tier 4/5/6 (generated; gated at 100/150/200 owned) =====
+  ...createLateTierUpgrades(),
 ];

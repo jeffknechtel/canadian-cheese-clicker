@@ -34,7 +34,8 @@ export interface HeroSliceActions {
   tickHeroXp: (deltaMs: number) => void;
   getHeroMultiplier: () => number;
   getPartyStats: () => Record<string, HeroStats>;
-  getPrestigeHeroReset: () => HeroSliceState;
+  /** Reset for prestige; retainCount > 0 keeps the N highest-level heroes (unequipped) */
+  getPrestigeHeroReset: (retainCount?: number) => HeroSliceState;
   grantEquipment: (equipmentId: string) => void;
 }
 

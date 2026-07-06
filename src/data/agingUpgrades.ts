@@ -94,12 +94,22 @@ export const AGING_UPGRADES: AgingUpgrade[] = [
   {
     id: 'canadian_perseverance',
     name: 'Canadian Perseverance',
-    description: '+50% all production, -25% Rennet on next reset',
+    description: '+50% all production',
     cost: 500,
     effect: { type: 'productionBonus', value: 0.5 },
     maxPurchases: 1,
     icon: '🍁',
     requirement: { type: 'rennetSpent', amount: 500 },
+  },
+  {
+    id: 'loyal_companions',
+    name: 'Loyal Companions',
+    description: 'Your most devoted heroes refuse to leave (keep your N highest-level heroes through Aging)',
+    cost: 75,
+    effect: { type: 'heroRetention', value: 1 },
+    maxPurchases: 3,
+    icon: '🤝',
+    requirement: { type: 'agingResets', count: 3 },
   },
 ];
 

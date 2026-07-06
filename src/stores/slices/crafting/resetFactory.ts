@@ -17,25 +17,28 @@ export function createInitialCraftingState(): CraftingState {
 
 /**
  * Creates reset state for prestige tier.
- * Aging: preserve unlocks, reset transient state.
+ * Aging/Vintage: preserve unlocks, reset transient state (Vintage is "deeper Aging").
+ * Legacy: true rebirth — only the cheese collection (permanent codex) survives.
  */
 export function createPrestigeCraftingState(
   current: CraftingState,
   tier: 'aging' | 'vintage' | 'legacy'
 ): CraftingState {
-  if (tier === 'aging') {
+  if (tier === 'legacy') {
     return {
-      // Preserve permanent progress
-      unlockedIngredients: current.unlockedIngredients,
-      unlockedRecipes: current.unlockedRecipes,
-      unlockedCaves: current.unlockedCaves,
+      ...createInitialCraftingState(),
       cheeseCollection: current.cheeseCollection,
-      // Reset transient state
-      activeJobs: [],
-      cheeseInventory: [],
-      activeBuffs: [],
     };
   }
-  // Vintage/Legacy TBD - for now preserve everything
-  return current;
+  return {
+    // Preserve permanent progress
+    unlockedIngredients: current.unlockedIngredients,
+    unlockedRecipes: current.unlockedRecipes,
+    unlockedCaves: current.unlockedCaves,
+    cheeseCollection: current.cheeseCollection,
+    // Reset transient state
+    activeJobs: [],
+    cheeseInventory: [],
+    activeBuffs: [],
+  };
 }

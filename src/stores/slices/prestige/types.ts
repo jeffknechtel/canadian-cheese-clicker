@@ -1,4 +1,4 @@
-import type { PrestigeState } from '../../../types/game';
+import type { PrestigeState, Province } from '../../../types/game';
 
 export interface PrestigeSliceState {
   prestige: PrestigeState;
@@ -21,7 +21,8 @@ export interface PrestigeSliceActions {
   canPerformVintage: () => boolean;
   performVintage: () => { wheelsGained: number; newTotal: number };
   canPerformLegacy: () => boolean;
-  performLegacy: () => { legacyGained: number };
+  /** Legacy reset: all gained points are allocated to the chosen province */
+  performLegacy: (province: Province) => { legacyGained: number };
   spendRennet: (amount: number) => boolean;
   grantRennet: (amount: number) => void;
 }

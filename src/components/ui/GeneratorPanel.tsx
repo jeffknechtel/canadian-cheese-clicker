@@ -3,7 +3,7 @@ import { useGameStore } from '../../stores';
 import { useGameStoreShallow } from '../../utils/zustandOptimization';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { GENERATORS } from '../../data/generators';
-import { UNLOCK_THRESHOLDS } from '../../data/constants';
+import { UNLOCK_THRESHOLDS, BUY_MILESTONES, MILESTONE_MULTIPLIER } from '../../data/constants';
 import { formatNumber } from '../../utils/formatNumber';
 import { calculateTimeToAfford } from '../../utils/timeToAfford';
 import { playPurchaseSound } from '../../systems/audioSystem';
@@ -58,6 +58,7 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
   const effectiveAmount = buyAmount === 'max' ? getMaxAffordable(generator.id) : buyAmount;
   const cost = getGeneratorCost(generator.id, effectiveAmount || 1);
   const canAfford = effectiveAmount > 0 && canAffordGenerator(generator.id, effectiveAmount);
+  const nextMilestone = owned > 0 ? BUY_MILESTONES.find((m) => m > owned) : undefined;
 
   const timeToAfford = useMemo(() => {
     if (canAfford) return null;
@@ -135,6 +136,14 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
         <p className={`text-xs ${isCanadianTier ? 'text-red-600' : 'text-amber-600'}`}>
           +{formatNumber(generator.baseCps)} cps each
         </p>
+        {nextMilestone && (
+          <p
+            className="text-xs text-purple-600 tabular-nums"
+            title={`Reach ${nextMilestone} owned for a ×${MILESTONE_MULTIPLIER} production milestone`}
+          >
+            🏆 {owned}/{nextMilestone} → ×{MILESTONE_MULTIPLIER}
+          </p>
+        )}
       </div>
       <div className="flex flex-col items-end">
         <button

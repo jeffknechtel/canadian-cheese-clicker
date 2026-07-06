@@ -369,16 +369,36 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
     return stats;
   },
 
-  getPrestigeHeroReset: () => ({
-    heroes: {},
-    party: {
-      frontLeft: null,
-      frontRight: null,
-      backLeft: null,
-      backRight: null,
-    },
-    equipmentInventory: [],
-  }),
+  getPrestigeHeroReset: (retainCount: number = 0) => {
+    const emptyReset = {
+      heroes: {} as Record<string, HeroState>,
+      party: {
+        frontLeft: null,
+        frontRight: null,
+        backLeft: null,
+        backRight: null,
+      },
+      equipmentInventory: [],
+    };
+
+    if (retainCount <= 0) {
+      return emptyReset;
+    }
+
+    // Keep the N highest-level heroes (levels + XP intact). Equipment inventory
+    // is still fully wiped, so retained heroes are unequipped to avoid dangling
+    // item IDs. Party formation resets — the player re-forms it.
+    const retained = Object.values(get().heroes)
+      .sort((a, b) => b.level - a.level || b.xp - a.xp)
+      .slice(0, retainCount);
+
+    const retainedHeroes: Record<string, HeroState> = {};
+    for (const hero of retained) {
+      retainedHeroes[hero.id] = { ...hero, equipment: {} };
+    }
+
+    return { ...emptyReset, heroes: retainedHeroes };
+  },
 
   grantEquipment: (equipmentId: string) => {
     const { equipmentInventory } = get();

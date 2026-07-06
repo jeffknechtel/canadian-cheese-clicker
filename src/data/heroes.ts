@@ -1441,7 +1441,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     cooldown: 6,
     targetType: 'allEnemies',
     effects: [
-      { type: 'damage', multiplier: 1.5 },
+      { type: 'damage', multiplier: 1.5, damageType: 'fire' },
       { type: 'debuff', stat: 'speed', value: -30, duration: 4 },
     ],
   },
@@ -1467,7 +1467,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     cooldown: 5,
     targetType: 'singleEnemy',
     effects: [
-      { type: 'damage', multiplier: 3.0 },
+      { type: 'damage', multiplier: 3.0, damageType: 'physical' },
       { type: 'debuff', stat: 'speed', value: -100, duration: 2 }, // Stun effect (speed to 0)
     ],
   },
@@ -1519,7 +1519,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     cooldown: 8,
     targetType: 'singleEnemy',
     effects: [
-      { type: 'damage', multiplier: 0.5 }, // Initial hit
+      { type: 'damage', multiplier: 0.5, damageType: 'physical' }, // Initial hit
       { type: 'debuff', stat: 'damageOverTime', value: 12, duration: 8 }, // DoT over 8 seconds
       { type: 'debuff', stat: 'speed', value: -50, duration: 8 }, // Movement reduction
     ],
@@ -1560,7 +1560,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     cooldown: 6,
     targetType: 'singleEnemy',
     effects: [
-      { type: 'damage', multiplier: 2.5 },
+      { type: 'damage', multiplier: 2.5, damageType: 'physical' },
       { type: 'debuff', stat: 'speed', value: -100, duration: 2 }, // Stun
       { type: 'buff', stat: 'attack', value: 25, duration: 5 },
     ],
@@ -1600,7 +1600,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     cooldown: 7,
     targetType: 'singleEnemy',
     effects: [
-      { type: 'damage', multiplier: 3.5 },
+      { type: 'damage', multiplier: 3.5, damageType: 'physical' },
       { type: 'dropRateBonus', value: 25, duration: 1 },
     ],
   },
@@ -1625,10 +1625,10 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     cooldown: 6,
     targetType: 'singleEnemy',
     effects: [
-      { type: 'damage', multiplier: 0.8 },
-      { type: 'damage', multiplier: 0.8 },
-      { type: 'damage', multiplier: 0.8 },
-      { type: 'damage', multiplier: 0.8 },
+      { type: 'damage', multiplier: 0.8, damageType: 'physical' },
+      { type: 'damage', multiplier: 0.8, damageType: 'physical' },
+      { type: 'damage', multiplier: 0.8, damageType: 'physical' },
+      { type: 'damage', multiplier: 0.8, damageType: 'physical' },
     ],
   },
 
@@ -1654,7 +1654,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     cooldown: 7,
     targetType: 'singleEnemy',
     effects: [
-      { type: 'damage', multiplier: 2.5 }, // Average between 2.0 and 3.0
+      { type: 'damage', multiplier: 2.5, damageType: 'nature' }, // Average between 2.0 and 3.0
     ],
   },
 
@@ -1693,7 +1693,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     cooldown: 8,
     targetType: 'allEnemies',
     effects: [
-      { type: 'damage', multiplier: 1.8 },
+      { type: 'damage', multiplier: 1.8, damageType: 'lightning' },
       { type: 'debuff', stat: 'defense', value: -25, duration: 5 },
     ],
   },
@@ -1732,7 +1732,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     cooldown: 6,
     targetType: 'singleEnemy',
     effects: [
-      { type: 'damage', multiplier: 2.8 },
+      { type: 'damage', multiplier: 2.8, damageType: 'physical' },
       { type: 'debuff', stat: 'defense', value: -50, duration: 3 },
     ],
   },
@@ -1745,7 +1745,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     cooldown: 8,
     targetType: 'singleEnemy',
     effects: [
-      { type: 'damage', multiplier: 3.2 },
+      { type: 'damage', multiplier: 3.2, damageType: 'ice' },
       { type: 'debuff', stat: 'damageOverTime', value: 16, duration: 6 },
     ],
   },
@@ -1770,7 +1770,7 @@ export const HERO_ABILITIES: Record<string, HeroAbilityDefinition> = {
     cooldown: 10,
     targetType: 'allEnemies',
     effects: [
-      { type: 'damage', multiplier: 4.0 },
+      { type: 'damage', multiplier: 4.0, damageType: 'holy' },
     ],
   },
 
@@ -1839,7 +1839,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     targetType: 'allEnemies',
     effects: [
       { type: 'immunity', immunityType: 'allDebuffs', duration: 3 },
-      { type: 'damage', multiplier: 4.0 },
+      { type: 'damage', multiplier: 4.0, damageType: 'holy' },
     ],
     animation: 'charge',
   },
@@ -1852,7 +1852,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     heroId: 'poutine_mage',
     targetType: 'allEnemies',
     effects: [
-      { type: 'damage', multiplier: 5.0 },
+      { type: 'damage', multiplier: 5.0, damageType: 'fire' },
       { type: 'heal', amount: 100, isPercentage: true }, // Full heal applied to party separately
     ],
     animation: 'explosion',
@@ -1866,9 +1866,9 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     heroId: 'hockey_enforcer',
     targetType: 'singleEnemy',
     effects: [
-      { type: 'damage', multiplier: 2.5 },
-      { type: 'damage', multiplier: 2.5 },
-      { type: 'damage', multiplier: 2.5 },
+      { type: 'damage', multiplier: 2.5, damageType: 'physical' },
+      { type: 'damage', multiplier: 2.5, damageType: 'physical' },
+      { type: 'damage', multiplier: 2.5, damageType: 'physical' },
     ],
     animation: 'triple_hit',
   },
@@ -1883,7 +1883,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     heroId: 'stampede_rider',
     targetType: 'allEnemies',
     effects: [
-      { type: 'damage', multiplier: 4.5 },
+      { type: 'damage', multiplier: 4.5, damageType: 'nature' },
       { type: 'debuff', stat: 'speed', value: -50, duration: 4 },
     ],
     animation: 'stampede',
@@ -1897,7 +1897,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     heroId: 'sourdough_miner',
     targetType: 'singleEnemy',
     effects: [
-      { type: 'damage', multiplier: 6.0 },
+      { type: 'damage', multiplier: 6.0, damageType: 'physical' },
       { type: 'dropRateBonus', value: 100, duration: 1 },
     ],
     animation: 'gold_explosion',
@@ -1911,10 +1911,10 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     heroId: 'bluenose_sailor',
     targetType: 'allEnemies',
     effects: [
-      { type: 'damage', multiplier: 1.5 },
-      { type: 'damage', multiplier: 1.5 },
-      { type: 'damage', multiplier: 1.5 },
-      { type: 'damage', multiplier: 1.5 },
+      { type: 'damage', multiplier: 1.5, damageType: 'lightning' },
+      { type: 'damage', multiplier: 1.5, damageType: 'lightning' },
+      { type: 'damage', multiplier: 1.5, damageType: 'lightning' },
+      { type: 'damage', multiplier: 1.5, damageType: 'lightning' },
     ],
     animation: 'hurricane',
   },
@@ -1927,7 +1927,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     heroId: 'fundy_fisher',
     targetType: 'allEnemies',
     effects: [
-      { type: 'damage', multiplier: 5.0 },
+      { type: 'damage', multiplier: 5.0, damageType: 'nature' },
       { type: 'debuff', stat: 'speed', value: -75, duration: 5 },
     ],
     animation: 'tidal_wave',
@@ -1941,7 +1941,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     heroId: 'screech_captain',
     targetType: 'allEnemies',
     effects: [
-      { type: 'damage', multiplier: 4.0 },
+      { type: 'damage', multiplier: 4.0, damageType: 'dark' },
       { type: 'buff', stat: 'attack', value: 50, duration: 6 },
     ],
     animation: 'cod_ritual',
@@ -1955,7 +1955,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     heroId: 'viking_descendant',
     targetType: 'singleEnemy',
     effects: [
-      { type: 'damage', multiplier: 5.5 },
+      { type: 'damage', multiplier: 5.5, damageType: 'physical' },
       { type: 'buff', stat: 'attack', value: 75, duration: 8 },
       { type: 'heal', amount: 50, isPercentage: true },
     ],
@@ -1970,7 +1970,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     heroId: 'diamond_miner',
     targetType: 'singleEnemy',
     effects: [
-      { type: 'damage', multiplier: 6.5 },
+      { type: 'damage', multiplier: 6.5, damageType: 'physical' },
       { type: 'debuff', stat: 'defense', value: -100, duration: 4 },
     ],
     animation: 'diamond_strike',
@@ -1984,7 +1984,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     heroId: 'inuit_hunter',
     targetType: 'singleEnemy',
     effects: [
-      { type: 'damage', multiplier: 7.0 },
+      { type: 'damage', multiplier: 7.0, damageType: 'ice' },
       { type: 'debuff', stat: 'damageOverTime', value: 30, duration: 8 },
     ],
     animation: 'spirit_hunt',
@@ -1998,7 +1998,7 @@ export const LIMIT_BREAKS: LimitBreakDefinition[] = [
     heroId: 'the_great_one',
     targetType: 'allEnemies',
     effects: [
-      { type: 'damage', multiplier: 9.9 }, // 99 reference!
+      { type: 'damage', multiplier: 9.9, damageType: 'holy' }, // 99 reference!
       { type: 'buff', stat: 'attack', value: 99, duration: 9 },
     ],
     animation: 'legendary_goal',

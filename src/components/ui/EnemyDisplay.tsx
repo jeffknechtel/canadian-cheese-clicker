@@ -4,6 +4,7 @@ import { getAnyEnemy } from '../../domain';
 import { CombatATBBar } from './CombatATBBar';
 import { ProgressBar } from './shared/ProgressBar';
 import { ATB_MAX, HP_LOW_THRESHOLD, HP_MEDIUM_THRESHOLD } from '../../systems/combatEngine';
+import { DAMAGE_TYPE_ICONS } from '../../utils/damageTypes';
 
 interface StatusEffectBadgeProps {
   effect: StatusEffect;
@@ -97,7 +98,14 @@ export const EnemyCard = memo(function EnemyCard({ enemy, showATB = true }: Enem
           <div className="flex items-center gap-1 text-xs text-gray-500">
             <span className="capitalize">{enemyDef.type}</span>
             {enemyDef.weakness && (
-              <span className="text-amber-600">• Weak: {enemyDef.weakness}</span>
+              <span className="text-amber-600">
+                • Weak: {DAMAGE_TYPE_ICONS[enemyDef.weakness]} {enemyDef.weakness}
+              </span>
+            )}
+            {enemyDef.resistance && (
+              <span className="text-gray-400">
+                • Resists: {DAMAGE_TYPE_ICONS[enemyDef.resistance]} {enemyDef.resistance}
+              </span>
             )}
           </div>
         </div>

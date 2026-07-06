@@ -472,6 +472,23 @@ export function calculatePrestigeXpMultiplier(prestige: PrestigeState): number {
 }
 
 /**
+ * Number of highest-level heroes retained through an Aging reset
+ * (from stacked heroRetention upgrades, e.g. Loyal Companions)
+ */
+export function calculateHeroRetentionCount(prestige: PrestigeState): number {
+  let retained = 0;
+
+  for (const upgradeId of prestige.agingUpgrades) {
+    const upgrade = getAgingUpgradeById(upgradeId);
+    if (upgrade && upgrade.effect.type === 'heroRetention') {
+      retained += upgrade.effect.value;
+    }
+  }
+
+  return retained;
+}
+
+/**
  * Calculate combat reward bonus from prestige upgrades
  */
 export function calculatePrestigeCombatMultiplier(prestige: PrestigeState): number {

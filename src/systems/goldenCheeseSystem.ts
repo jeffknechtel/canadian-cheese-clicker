@@ -17,6 +17,8 @@ import {
   LUCKY_CURDS_MINUTES,
   GOLDEN_CHEESE_META_TIERS,
   GOLDEN_BUFF_DURATION_MULTIPLIER,
+  GOLDEN_RUSH_CHANCE,
+  type GoldenCheeseMetaPerk,
 } from '../data/constants';
 
 // Balance constants live in data/constants.ts (Golden Cheese section);
@@ -47,7 +49,7 @@ export function getUnlockedPerks(totalCollected: number): Set<string> {
 }
 
 /** Get next perk tier info */
-export function getNextPerkTier(totalCollected: number): { collected: number; perk: string } | null {
+export function getNextPerkTier(totalCollected: number): (typeof GOLDEN_CHEESE_META_TIERS)[number] | null {
   for (const tier of GOLDEN_CHEESE_META_TIERS) {
     if (totalCollected < tier.collected) {
       return tier;
@@ -174,15 +176,26 @@ export function applyReward(
   }
 }
 
-/** Get human-readable reward description for notifications */
+/** Get human-readable reward description for notifications (derived from constants) */
 export function getRewardDescription(rewardType: GoldenCheeseRewardType): string {
   const descriptions: Record<GoldenCheeseRewardType, string> = {
-    cheeseFrenzy: 'Cheese Frenzy! 7x CPS for 77s',
+    cheeseFrenzy: `Cheese Frenzy! ${CHEESE_FRENZY_MULTIPLIER}x CPS for ${Math.round(CHEESE_FRENZY_DURATION_MS / 1000)}s`,
     luckyCurds: 'Lucky Curds!',
-    clickStorm: 'Click Storm! 77x clicks for 13s',
+    clickStorm: `Click Storm! ${CLICK_STORM_MULTIPLIER}x clicks for ${Math.round(CLICK_STORM_DURATION_MS / 1000)}s`,
     rareIngredient: 'Rare Find!',
-    heroRally: 'Hero Rally! 5x XP for 60s',
-    curdTsunami: 'CURD TSUNAMI! 777x CPS for 7s',
+    heroRally: `Hero Rally! ${HERO_RALLY_MULTIPLIER}x XP for ${Math.round(HERO_RALLY_DURATION_MS / 1000)}s`,
+    curdTsunami: `CURD TSUNAMI! ${CURD_TSUNAMI_MULTIPLIER}x CPS for ${Math.round(CURD_TSUNAMI_DURATION_MS / 1000)}s`,
   };
   return descriptions[rewardType];
+}
+
+/** Human-readable description of each lifetime-collection perk */
+export function getPerkDescription(perk: GoldenCheeseMetaPerk): string {
+  const descriptions: Record<GoldenCheeseMetaPerk, string> = {
+    spawnWindow1: 'golden cheese spawns faster (3–8 min)',
+    buffDuration: `golden buffs last ${Math.round((GOLDEN_BUFF_DURATION_MULTIPLIER - 1) * 100)}% longer`,
+    spawnWindow2: 'golden cheese spawns much faster (2–7 min)',
+    goldenRush: `${Math.round(GOLDEN_RUSH_CHANCE * 100)}% chance of a rapid golden rush spawn`,
+  };
+  return descriptions[perk];
 }

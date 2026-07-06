@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useGameStore } from '../../stores';
 import { useSettingsStore } from '../../stores/settingsStore';
-import { getRewardDescription } from '../../systems/goldenCheeseSystem';
+import { getRewardDescription, getPerkDescription, getNextPerkTier } from '../../systems/goldenCheeseSystem';
+import { GOLDEN_CHEESE_META_TIERS } from '../../data/constants';
 import type { GoldenCheeseRewardType } from '../../types/game';
 import {
   type Particle,
@@ -16,7 +17,22 @@ interface NotificationItem {
   id: string;
   rewardType: GoldenCheeseRewardType;
   description: string;
+  /** Meta-progression line: perk unlocked or progress toward the next tier */
+  metaLine: string | null;
   timestamp: number;
+}
+
+/** Build the meta-progression line shown under the reward description */
+function buildMetaLine(totalCollected: number): string | null {
+  const unlockedTier = GOLDEN_CHEESE_META_TIERS.find((t) => t.collected === totalCollected);
+  if (unlockedTier) {
+    return `Perk unlocked: ${getPerkDescription(unlockedTier.perk)}!`;
+  }
+  const nextTier = getNextPerkTier(totalCollected);
+  if (nextTier) {
+    return `${totalCollected} collected — next perk at ${nextTier.collected}: ${getPerkDescription(nextTier.perk)}`;
+  }
+  return `${totalCollected} collected — all perks unlocked!`;
 }
 
 const NOTIFICATION_DURATION_MS = 2500;
@@ -171,6 +187,11 @@ function GoldenCheeseNotificationItem({ item, onDismiss }: NotificationItemProps
         <p className="font-bold text-lg truncate drop-shadow-md">
           {item.description}
         </p>
+        {item.metaLine && (
+          <p className="text-xs text-white/90 truncate drop-shadow-sm">
+            {item.metaLine}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -178,46 +199,39 @@ function GoldenCheeseNotificationItem({ item, onDismiss }: NotificationItemProps
 
 export function GoldenCheeseNotificationContainer() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const lastCollectedRef = useRef(0);
 
   const totalCollected = useGameStore((s) => s.goldenCheese.totalCollected);
-  const isVisible = useGameStore((s) => s.goldenCheese.isVisible);
   const currentReward = useGameStore((s) => s.goldenCheese.currentReward);
 
-  // Track when a golden cheese is collected
+  // Remember the last visible reward: collectGoldenCheese clears currentReward
+  // in the same set() that increments totalCollected, so we need it captured
+  // before the collection lands.
+  const lastRewardRef = useRef<GoldenCheeseRewardType | null>(currentReward);
   useEffect(() => {
-    if (totalCollected > lastCollectedRef.current && totalCollected > 0) {
-      lastCollectedRef.current = totalCollected;
-
-      // The reward was just collected - show notification
-      // We need to figure out what the reward was
-      // Since currentReward is cleared after collection, we need to catch it before
+    if (currentReward) {
+      lastRewardRef.current = currentReward;
     }
-  }, [totalCollected]);
+  }, [currentReward]);
 
-  // Watch for the moment of collection (isVisible goes false and totalCollected increments)
-  const prevVisibleRef = useRef(isVisible);
-  const prevRewardRef = useRef(currentReward);
-
+  // A totalCollected increment is the one signal unique to collection —
+  // natural expiry clears visibility without touching the counter.
+  const prevCollectedRef = useRef(totalCollected);
   useEffect(() => {
-    if (prevVisibleRef.current && !isVisible && prevRewardRef.current) {
-      // A golden cheese was just collected
-      const rewardType = prevRewardRef.current;
-      const description = getRewardDescription(rewardType);
+    if (totalCollected > prevCollectedRef.current && lastRewardRef.current) {
+      const rewardType = lastRewardRef.current;
 
       const newNotification: NotificationItem = {
         id: `golden-${Date.now()}`,
         rewardType,
-        description,
+        description: getRewardDescription(rewardType),
+        metaLine: buildMetaLine(totalCollected),
         timestamp: Date.now(),
       };
 
       setNotifications((prev) => [...prev, newNotification]);
     }
-
-    prevVisibleRef.current = isVisible;
-    prevRewardRef.current = currentReward;
-  }, [isVisible, currentReward]);
+    prevCollectedRef.current = totalCollected;
+  }, [totalCollected]);
 
   const removeNotification = useCallback((id: string) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));

@@ -84,6 +84,50 @@ export const EVENTS: GameEvent[] = [
     startMonth: 2, startDay: 1,   // February 1
     endMonth: 2, endDay: 21,      // February 21 (3 weeks in February)
   },
+  {
+    id: 'maple_syrup_festival',
+    name: 'Maple Syrup Festival',
+    description: 'The sugar shacks are boiling — sweeten every click!',
+    isActive: false,
+    bonuses: [
+      {
+        type: 'production',
+        multiplier: 1.5,
+        description: '+50% production',
+      },
+      {
+        type: 'click',
+        multiplier: 2,
+        description: '2x click power',
+      },
+    ],
+    exclusiveContent: {},
+    icon: '🥞',
+    startMonth: 3, startDay: 15,  // March 15
+    endMonth: 3, endDay: 25,      // March 25
+  },
+  {
+    id: 'harvest_hoedown',
+    name: 'Harvest Hoedown',
+    description: 'Bring in the harvest with a barn-raising bash!',
+    isActive: false,
+    bonuses: [
+      {
+        type: 'xp',
+        multiplier: 1.5,
+        description: '+50% hero XP',
+      },
+      {
+        type: 'drops',
+        multiplier: 1.5,
+        description: '+50% combat drops',
+      },
+    ],
+    exclusiveContent: {},
+    icon: '🌾',
+    startMonth: 10, startDay: 5,  // October 5
+    endMonth: 10, endDay: 14,     // October 14
+  },
 ];
 
 /**
