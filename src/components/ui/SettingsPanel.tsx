@@ -111,7 +111,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
         <div
           role="tablist"
           aria-label="Settings categories"
-          className="flex border-b border-timber-200 overflow-x-auto scrollbar-thin bg-timber-50"
+          className="flex flex-col sm:flex-row border-b border-timber-200 bg-timber-50"
         >
           {(['audio', 'graphics', 'accessibility', 'game', 'data'] as SettingsTab[]).map((tab) => (
             <button
@@ -123,10 +123,10 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
               tabIndex={activeTab === tab ? 0 : -1}
               onClick={() => setActiveTab(tab)}
               className={`
-                shrink-0 py-3 px-4 text-sm font-medium capitalize transition-colors min-h-[44px]
+                py-3 px-4 text-sm font-medium capitalize transition-colors min-h-[44px]
                 ${activeTab === tab
-                  ? 'text-timber-700 bg-white border-b-2 border-cheddar-400'
-                  : 'text-timber-500 border-b-2 border-transparent hover:text-timber-700'
+                  ? 'text-timber-700 bg-white border-l-4 sm:border-l-0 sm:border-b-2 border-cheddar-400'
+                  : 'text-timber-500 border-l-4 sm:border-l-0 sm:border-b-2 border-transparent hover:text-timber-700 hover:bg-timber-100'
                 }
               `}
             >

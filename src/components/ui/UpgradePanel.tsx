@@ -111,7 +111,7 @@ const UpgradeCard = memo(function UpgradeCard({ upgrade, isPurchased, index }: U
       }
       aria-disabled={isPurchased || !canAfford}
       className={`
-        p-3 rounded-lg transition-all item-canadian btn-scale
+        p-3 rounded-lg transition-all item-canadian btn-scale card-lift
         ${isPurchased
           ? 'bg-timber-100/70 border border-timber-300'
           : canAfford
