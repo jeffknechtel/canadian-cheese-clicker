@@ -1,5 +1,7 @@
 import Decimal from 'decimal.js';
 import type { GameState, HeroState, PartyFormation, PrestigeState, ZoneProgress, CraftingState, GoldenCheeseState, SynergyState, ChallengeState, FeatureId, HintId } from '../types/game';
+import type { TutorialStepId, LoreEntryId, CodexSectionId } from '../stores/slices/tutorial';
+import { createInitialTutorialState } from '../stores/slices/tutorial';
 import { MAX_OFFLINE_SECONDS } from '../data/constants';
 import { CURRENT_VERSION, runMigrations } from './migrations';
 import type { AudioPreferences } from './audioSystem';
@@ -58,6 +60,11 @@ interface SerializedGameState {
   // Progressive unlock system
   unlockedFeatures?: FeatureId[];
   shownHints?: HintId[];
+  // Tutorial system
+  tutorialEnabled?: boolean;
+  completedSteps?: TutorialStepId[];
+  discoveredLore?: LoreEntryId[];
+  unlockedCodexSections?: CodexSectionId[];
 }
 
 function serializeState(state: GameState): SerializedGameState {
@@ -95,6 +102,11 @@ function serializeState(state: GameState): SerializedGameState {
     // Progressive unlock system
     unlockedFeatures: Array.from(state.unlockedFeatures),
     shownHints: Array.from(state.shownHints),
+    // Tutorial system
+    tutorialEnabled: state.tutorialEnabled,
+    completedSteps: Array.from(state.completedSteps),
+    discoveredLore: Array.from(state.discoveredLore),
+    unlockedCodexSections: Array.from(state.unlockedCodexSections),
   };
 }
 
@@ -167,6 +179,20 @@ function deserializeState(serialized: SerializedGameState): GameState {
       ? new Set(serialized.unlockedFeatures)
       : new Set(['upgrades', 'combat', 'heroes', 'crafting', 'prestige', 'achievements'] as FeatureId[]),
     shownHints: new Set(serialized.shownHints ?? []),
+    // Tutorial system - for existing saves, disable tutorial (they're not new players)
+    ...(serialized.completedSteps !== undefined
+      ? {
+          tutorialEnabled: serialized.tutorialEnabled ?? true,
+          completedSteps: new Set(serialized.completedSteps),
+          discoveredLore: new Set(serialized.discoveredLore ?? []),
+          unlockedCodexSections: new Set(serialized.unlockedCodexSections ?? []),
+          pendingToast: null,
+          toastQueue: [],
+        }
+      : {
+          ...createInitialTutorialState(),
+          tutorialEnabled: false, // Existing players don't need tutorial
+        }),
   };
 }
 

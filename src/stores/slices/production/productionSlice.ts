@@ -83,6 +83,7 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
       lastClickWasCrit: isCrit,
       lastClickValue: clickValue,
     });
+    publish({ type: 'CurdsEarned', amount: clickValue, source: 'click' });
     get().incrementChallengeProgress('collectClicks', 1);
     get().incrementChallengeProgress('earnCurds', Math.min(clickValue.toNumber(), Number.MAX_SAFE_INTEGER));
     get().checkAchievements();

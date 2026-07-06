@@ -14,6 +14,9 @@ import { ParticleContainer } from './components/ui/ParticleContainer';
 import { DialogueToastContainer } from './components/ui/DialogueToast';
 import { GoldenCheeseNotificationContainer } from './components/ui/GoldenCheeseNotification';
 import { SaveToastContainer } from './components/ui/SaveToast';
+import { TutorialToastContainer } from './components/ui/TutorialToast';
+import { LoreCodex } from './components/ui/LoreCodex';
+import { useTutorialEvents } from './hooks/useTutorialEvents';
 import { ZoneSelectPanel } from './components/ui/ZoneSelectPanel';
 import { CombatResultsModal } from './components/ui/CombatResultsModal';
 import { ActiveBuffsBar } from './components/ui/crafting/ActiveBuffsBar';
@@ -69,9 +72,9 @@ function PanelLoader() {
   );
 }
 
-type MobileTab = 'generators' | 'upgrades' | 'achievements' | 'heroes' | 'combat' | 'prestige' | 'crafting';
+type MobileTab = 'generators' | 'upgrades' | 'achievements' | 'heroes' | 'combat' | 'prestige' | 'crafting' | 'lore';
 
-type RightPanelView = 'upgrades' | 'achievements' | 'heroes' | 'combat' | 'prestige' | 'crafting';
+type RightPanelView = 'upgrades' | 'achievements' | 'heroes' | 'combat' | 'prestige' | 'crafting' | 'lore';
 
 // Equipment modal state
 interface EquipmentModalState {
@@ -317,6 +320,9 @@ function App() {
   // Celebration particle effects for domain events
   useCelebrationEvents();
 
+  // Tutorial system event subscriptions
+  useTutorialEvents();
+
   // Save on visibility change (tab hidden) and before unload
   useEffect(() => {
     if (!isLoaded) return;
@@ -533,10 +539,11 @@ function App() {
               {BETA_FEATURES.debugPanel && (
                 <DebugPanel />
               )}
-              <h1 className="text-lg sm:text-2xl font-bold truncate flex items-center gap-2">
-                <span className="text-2xl sm:text-3xl">🍁</span>
+              <h1 className="text-base sm:text-lg lg:text-xl font-bold flex items-center gap-2 whitespace-nowrap">
+                <span className="text-xl sm:text-2xl">🍁</span>
                 <span>
-                  <span className="hidden sm:inline">The Great Canadian Cheese Quest</span>
+                  <span className="hidden md:inline">The Great Canadian Cheese Quest</span>
+                  <span className="hidden sm:inline md:hidden">Canadian Cheese Quest</span>
                   <span className="sm:hidden">Cheese Quest</span>
                 </span>
               </h1>
@@ -597,6 +604,17 @@ function App() {
                     <span className="text-sm font-medium">{unlockedCount}/{totalAchievements}</span>
                   </button>
                 )}
+                <button
+                  onClick={() => setRightPanelView('lore')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors border ${
+                    rightPanelView === 'lore'
+                      ? 'bg-white/40 border-white/40'
+                      : 'bg-white/20 hover:bg-white/30 border-white/20'
+                  }`}
+                  title="Lore Codex"
+                >
+                  <span className="text-lg">📖</span>
+                </button>
                 {isTabUnlocked('prestige') && (
                   <button
                     onClick={() => setRightPanelView('prestige')}
@@ -786,6 +804,22 @@ function App() {
                 <span aria-hidden="true">🏆</span> {unlockedCount}
               </button>
             )}
+            <button
+              role="tab"
+              aria-selected={mobileTab === 'lore'}
+              aria-controls="mobile-panel-content"
+              aria-label="Lore Codex"
+              onClick={() => setMobileTab('lore')}
+              className={`
+                flex-1 py-3 px-4 text-sm font-semibold transition-all
+                ${mobileTab === 'lore'
+                  ? 'text-cheddar-700 border-b-2 border-cheddar-500 bg-white/50'
+                  : 'text-rind hover:text-cheddar-600 hover:bg-white/30'
+                }
+              `}
+            >
+              <span aria-hidden="true">📖</span>
+            </button>
             {isTabUnlocked('prestige') && (
               <button
                 role="tab"
@@ -856,6 +890,7 @@ function App() {
               </div>
             )}
             {mobileTab === 'achievements' && <AchievementPanel />}
+            {mobileTab === 'lore' && <LoreCodex />}
             {mobileTab === 'prestige' && (
               <Suspense fallback={<PanelLoader />}>
                 <PrestigePanel />
@@ -911,6 +946,7 @@ function App() {
                 <CraftingPanel />
               </Suspense>
             )}
+            {rightPanelView === 'lore' && <LoreCodex />}
           </aside>
         </main>
         )}
@@ -920,6 +956,7 @@ function App() {
       <ParticleContainer />
 
       {/* Toast Containers */}
+      <TutorialToastContainer />
       <AchievementToastContainer />
       <DialogueToastContainer />
       <GoldenCheeseNotificationContainer />

@@ -28,6 +28,8 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
 
   // Game store for data management
   const resetGame = useGameStore((state) => state.reset);
+  const tutorialEnabled = useGameStore((state) => state.tutorialEnabled);
+  const setTutorialEnabled = useGameStore((state) => state.setTutorialEnabled);
 
   // Export game save
   const handleExportSave = useCallback(() => {
@@ -180,6 +182,8 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                 onOfflineCapChange={settings.setOfflineProgressCap}
                 onNumberFormatChange={settings.setNumberFormat}
                 onHapticsChange={settings.setHapticsEnabled}
+                tutorialEnabled={tutorialEnabled}
+                onTutorialChange={setTutorialEnabled}
               />
             )}
 
@@ -491,6 +495,8 @@ interface GameSettingsProps {
   onOfflineCapChange: (h: number) => void;
   onNumberFormatChange: (f: 'standard' | 'scientific') => void;
   onHapticsChange: (enabled: boolean) => void;
+  tutorialEnabled: boolean;
+  onTutorialChange: (enabled: boolean) => void;
 }
 
 function GameSettings({
@@ -499,6 +505,8 @@ function GameSettings({
   onOfflineCapChange,
   onNumberFormatChange,
   onHapticsChange,
+  tutorialEnabled,
+  onTutorialChange,
 }: GameSettingsProps) {
   return (
     <div className="space-y-4">
@@ -538,12 +546,18 @@ function GameSettings({
         onChange={onNumberFormatChange}
       />
 
-      <div className="border-t border-cheddar-200 pt-4">
+      <div className="border-t border-cheddar-200 pt-4 space-y-2">
         <ToggleSetting
           label="Haptic Feedback"
           description="Vibration on mobile devices"
           checked={settings.game.hapticsEnabled}
           onChange={onHapticsChange}
+        />
+        <ToggleSetting
+          label="Tutorial & Tips"
+          description="Show Gus's helpful hints for new players"
+          checked={tutorialEnabled}
+          onChange={onTutorialChange}
         />
       </div>
 
