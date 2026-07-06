@@ -226,7 +226,7 @@ export function GoldenCheeseNotificationContainer() {
   if (notifications.length === 0) return null;
 
   return (
-    <div className="fixed top-1/3 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-3 max-w-md w-full px-4 pointer-events-none">
+    <div className="fixed top-1/3 left-1/2 -translate-x-1/2 z-40 flex flex-col gap-3 max-w-md w-full px-4 pointer-events-none">
       {notifications.map((notification) => (
         <div key={notification.id} className="pointer-events-auto">
           <GoldenCheeseNotificationItem item={notification} onDismiss={removeNotification} />

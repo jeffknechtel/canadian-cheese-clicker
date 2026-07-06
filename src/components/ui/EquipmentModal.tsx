@@ -216,8 +216,8 @@ export function EquipmentModal({ heroId, slot, onClose }: EquipmentModalProps) {
   }
 
   return (
-    <ModalOverlay isOpen={true} onClose={onClose} ariaLabelledBy="equipment-modal-title" className="z-60">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full min-w-[320px] max-h-[80vh] flex flex-col panel-wood-solid">
+    <ModalOverlay isOpen={true} onClose={onClose} ariaLabelledBy="equipment-modal-title" zIndexClass="z-60">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] flex flex-col panel-wood-solid">
         {/* Header */}
         <div className="p-4 border-b border-timber-200">
           <div className="flex items-center justify-between">
@@ -227,7 +227,7 @@ export function EquipmentModal({ heroId, slot, onClose }: EquipmentModalProps) {
             </h3>
             <button
               onClick={onClose}
-              className="w-8 h-8 flex items-center justify-center rounded hover:bg-timber-100 transition-colors"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded hover:bg-timber-100 transition-colors"
               aria-label="Close equipment modal"
             >
               ×
