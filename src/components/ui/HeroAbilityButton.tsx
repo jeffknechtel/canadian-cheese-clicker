@@ -61,9 +61,9 @@ export const HeroAbilityButton = memo(function HeroAbilityButton({ heroState, si
   };
 
   const sizeClasses = {
-    sm: 'px-2 py-1 text-xs',
-    md: 'px-3 py-1.5 text-sm',
-    lg: 'px-4 py-2 text-base',
+    sm: 'px-2 py-1 text-xs min-h-[44px] md:min-h-[24px]',
+    md: 'px-3 py-1.5 text-sm min-h-[44px] md:min-h-[28px]',
+    lg: 'px-4 py-2 text-base min-h-[44px] md:min-h-[36px]',
   };
 
   return (
@@ -129,9 +129,9 @@ export const LimitBreakButton = memo(function LimitBreakButton({ heroId, size = 
   };
 
   const sizeClasses = {
-    sm: 'px-2 py-1 text-xs',
-    md: 'px-3 py-1.5 text-sm',
-    lg: 'px-4 py-2 text-base',
+    sm: 'px-2 py-1 text-xs min-h-[44px] md:min-h-[24px]',
+    md: 'px-3 py-1.5 text-sm min-h-[44px] md:min-h-[28px]',
+    lg: 'px-4 py-2 text-base min-h-[44px] md:min-h-[36px]',
   };
 
   return (

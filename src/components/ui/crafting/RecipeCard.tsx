@@ -140,7 +140,7 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
               <select
                 value={selectedMilk}
                 onChange={(e) => setSelectedMilk(e.target.value as MilkType)}
-                className="w-full text-xs bg-white border border-timber-200 rounded px-2 py-1.5"
+                className="w-full text-xs bg-white border border-timber-200 rounded px-2 py-1.5 min-h-[44px] md:min-h-[28px]"
               >
                 {recipe.requiredIngredients.milkType.map((type) => {
                   const ingredient = getMilkByType(type);
@@ -160,7 +160,7 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
               <select
                 value={selectedCulture}
                 onChange={(e) => setSelectedCulture(e.target.value as CultureType)}
-                className="w-full text-xs bg-white border border-timber-200 rounded px-2 py-1.5"
+                className="w-full text-xs bg-white border border-timber-200 rounded px-2 py-1.5 min-h-[44px] md:min-h-[28px]"
               >
                 {recipe.requiredIngredients.cultureType.map((type) => {
                   const ingredient = getCultureByType(type);
@@ -180,7 +180,7 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
               <select
                 value={selectedRennet}
                 onChange={(e) => setSelectedRennet(e.target.value as RennetType)}
-                className="w-full text-xs bg-white border border-timber-200 rounded px-2 py-1.5"
+                className="w-full text-xs bg-white border border-timber-200 rounded px-2 py-1.5 min-h-[44px] md:min-h-[28px]"
               >
                 {(recipe.requiredIngredients.rennetType ?? ['animal', 'vegetable', 'microbial']).map((type) => {
                   const ingredient = getRennetByType(type);
@@ -216,7 +216,7 @@ export function RecipeCard({ recipe, selectedCaveId }: RecipeCardProps) {
           <div className="flex items-center justify-between">
             <div className="text-sm">
               <span className="text-timber-600">Cost: </span>
-              <span className={canAfford ? 'text-timber-700 font-medium' : 'text-red-500 font-medium'}>
+              <span className={canAfford ? 'text-timber-700 font-medium' : 'text-error font-medium'}>
                 {formatNumber(totalCost)} curds
               </span>
             </div>

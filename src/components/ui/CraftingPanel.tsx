@@ -43,13 +43,15 @@ export function CraftingPanel() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-3">
+      <div role="tablist" aria-label="Crafting sections" className="flex gap-1 mb-3">
         {tabs.map((tab) => (
           <TabButton
             key={tab.id}
             size="sm"
             active={activeTab === tab.id}
             onClick={() => setActiveTab(tab.id)}
+            id={`tab-crafting-${tab.id}`}
+            controls="panel-crafting-content"
           >
             {tab.label}
             {tab.count !== undefined && tab.count > 0 && (
@@ -62,7 +64,12 @@ export function CraftingPanel() {
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin">
+      <div
+        role="tabpanel"
+        id="panel-crafting-content"
+        aria-labelledby={`tab-crafting-${activeTab}`}
+        className="flex-1 overflow-y-auto scrollbar-thin"
+      >
         <AnimatedTabContent activeKey={activeTab}>
           {activeTab === 'recipes' && (
             <RecipesTab recipes={unlockedRecipes} caves={unlockedCaves} />

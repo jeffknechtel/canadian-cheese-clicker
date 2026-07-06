@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useGameStore } from '../../stores';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { ModalOverlay } from './shared/ModalOverlay';
+import { Button } from './shared/Button';
 import { startPrestigeMusic, returnToIdleMusic } from '../../systems/audioSystem';
 import { getProvinceDisplayName, PROVINCE_ICONS } from '../../data/zones';
 import { LEGACY_POINT_MULTIPLIER, LEGACY_PROVINCE_COMBAT_BONUS } from '../../data/constants';
@@ -115,25 +116,17 @@ export function LegacyConfirmModal({ onConfirm, onCancel }: LegacyConfirmModalPr
 
         {/* Buttons */}
         <div className="flex gap-3">
-          <button
-            onClick={onCancel}
-            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg transition-colors"
-          >
+          <Button variant="secondary" onClick={onCancel} className="flex-1 py-3">
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="danger"
             onClick={() => selectedProvince && onConfirm(selectedProvince)}
             disabled={!selectedProvince}
-            className={`
-              flex-1 font-bold py-3 px-6 rounded-lg transition-colors
-              ${selectedProvince
-                ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              }
-            `}
+            className="flex-1 py-3 bg-yellow-500 hover:bg-yellow-600"
           >
             {selectedProvince ? `Honour ${getProvinceDisplayName(selectedProvince)}` : 'Choose a Province'}
-          </button>
+          </Button>
         </div>
       </div>
     </ModalOverlay>

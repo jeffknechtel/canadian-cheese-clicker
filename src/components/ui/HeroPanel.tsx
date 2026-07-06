@@ -347,17 +347,32 @@ export function HeroPanel({ onEquipmentClick }: HeroPanelProps) {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-3">
-        <TabButton active={activeTab === 'roster'} onClick={() => setActiveTab('roster')}>
+      <div role="tablist" aria-label="Hero sections" className="flex gap-1 mb-3">
+        <TabButton
+          active={activeTab === 'roster'}
+          onClick={() => setActiveTab('roster')}
+          id="tab-hero-roster"
+          controls="panel-hero-content"
+        >
           Roster ({recruitedHeroes.length})
         </TabButton>
-        <TabButton active={activeTab === 'recruit'} onClick={() => setActiveTab('recruit')}>
+        <TabButton
+          active={activeTab === 'recruit'}
+          onClick={() => setActiveTab('recruit')}
+          id="tab-hero-recruit"
+          controls="panel-hero-content"
+        >
           Recruit ({availableHeroes.length})
         </TabButton>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto space-y-2 scrollbar-thin">
+      <div
+        role="tabpanel"
+        id="panel-hero-content"
+        aria-labelledby={`tab-hero-${activeTab}`}
+        className="flex-1 overflow-y-auto space-y-2 scrollbar-thin"
+      >
         {activeTab === 'roster' ? (
           recruitedHeroes.length > 0 ? (
             recruitedHeroes.map((hero) => (

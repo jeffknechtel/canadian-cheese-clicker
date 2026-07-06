@@ -5,6 +5,8 @@ interface TabButtonProps {
   className?: string;
   variant?: 'timber' | 'amber' | 'cheddar';
   size?: 'sm' | 'md';
+  id?: string;
+  controls?: string;
 }
 
 const VARIANT_STYLES = {
@@ -23,8 +25,8 @@ const VARIANT_STYLES = {
 };
 
 const SIZE_STYLES = {
-  sm: 'px-2 py-1.5 text-xs',
-  md: 'px-3 py-1.5 text-sm',
+  sm: 'px-2 py-1.5 text-xs min-h-[44px] md:min-h-[28px]',
+  md: 'px-3 py-1.5 text-sm min-h-[44px] md:min-h-[32px]',
 };
 
 export function TabButton({
@@ -34,11 +36,18 @@ export function TabButton({
   className = '',
   variant = 'timber',
   size = 'md',
+  id,
+  controls,
 }: TabButtonProps) {
   const styles = VARIANT_STYLES[variant];
 
   return (
     <button
+      role="tab"
+      aria-selected={active}
+      aria-controls={controls}
+      id={id}
+      tabIndex={active ? 0 : -1}
       onClick={onClick}
       className={`
         flex-1 ${SIZE_STYLES[size]} rounded font-medium transition-colors border btn-scale

@@ -5,6 +5,7 @@ import { SYNERGIES } from '../../data/synergies';
 import { formatNumber } from '../../utils/formatNumber';
 import { playAgingUpgradeSound } from '../../systems/audioSystem';
 import { emitParticles } from '../../systems/particleSystem';
+import { ProgressBar } from './shared/ProgressBar';
 import type { SynergyUpgrade } from '../../types/game';
 
 interface SynergyCardProps {
@@ -152,12 +153,13 @@ export function SynergiesPanel() {
 
       {/* Progress indicator */}
       <div className="flex items-center gap-2 mb-4">
-        <div className="flex-1 bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-timber-500 rounded-full h-2 transition-all duration-300"
-            style={{ width: `${(purchasedCount / SYNERGIES.length) * 100}%` }}
-          />
-        </div>
+        <ProgressBar
+          percent={(purchasedCount / SYNERGIES.length) * 100}
+          height="h-2"
+          fillColor="bg-timber-500"
+          className="flex-1"
+          ariaLabel={`Synergies progress: ${purchasedCount} of ${SYNERGIES.length}`}
+        />
         <span className="text-sm text-gray-500 tabular-nums">
           {purchasedCount}/{SYNERGIES.length}
         </span>

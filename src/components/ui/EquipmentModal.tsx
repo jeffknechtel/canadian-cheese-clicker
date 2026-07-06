@@ -5,7 +5,8 @@ import { heroRegistry, equipmentRegistry } from '../../domain';
 import { formatNumber } from '../../utils/formatNumber';
 import { playPurchaseSound } from '../../systems/audioSystem';
 import { ModalOverlay } from './shared/ModalOverlay';
-import { DISABLED_BUTTON_CLASSES } from './shared/Button';
+import { Button } from './shared/Button';
+import { TabButton } from './shared/TabButton';
 import type { EquipmentSlot, Equipment } from '../../types/game';
 
 const SLOT_LABELS: Record<EquipmentSlot, string> = {
@@ -104,40 +105,22 @@ function EquipmentCard({
       {/* Action Button */}
       <div className="mt-2">
         {isEquipped ? (
-          <button
-            onClick={onUnequip}
-            className="w-full py-1.5 rounded text-sm font-medium bg-gray-200 hover:bg-gray-300 text-gray-700 transition-colors"
-          >
+          <Button size="sm" variant="secondary" onClick={onUnequip} className="w-full">
             Unequip
-          </button>
+          </Button>
         ) : isOwned ? (
-          <button
-            onClick={onEquip}
-            disabled={isEquippedByOther}
-            className={`
-              w-full py-1.5 rounded text-sm font-medium transition-colors
-              ${isEquippedByOther
-                ? DISABLED_BUTTON_CLASSES
-                : 'bg-cheddar-600 hover:bg-cheddar-700 text-white'
-              }
-            `}
-          >
+          <Button size="sm" onClick={onEquip} disabled={isEquippedByOther} className="w-full">
             {isEquippedByOther ? 'Equipped on Another Hero' : 'Equip'}
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
+            size="sm"
             onClick={onBuy}
             disabled={!canAfford}
-            className={`
-              w-full py-1.5 rounded text-sm font-medium transition-colors
-              ${canAfford
-                ? 'bg-maple-500 hover:bg-maple-600 text-white'
-                : DISABLED_BUTTON_CLASSES
-              }
-            `}
+            className="w-full bg-maple-500 hover:bg-maple-600"
           >
             Buy for {formatNumber(equipment.cost)}
-          </button>
+          </Button>
         )}
       </div>
     </div>
@@ -248,26 +231,29 @@ export function EquipmentModal({ heroId, slot, onClose }: EquipmentModalProps) {
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex gap-1 p-3 border-b border-timber-100">
+        <div role="tablist" aria-label="Equipment filter" className="flex gap-1 p-3 border-b border-timber-100">
           {(['all', 'owned', 'buyable'] as const).map((f) => (
-            <button
+            <TabButton
               key={f}
+              active={filter === f}
               onClick={() => setFilter(f)}
-              className={`
-                flex-1 px-2 py-1 text-xs rounded font-medium transition-colors capitalize border
-                ${filter === f
-                  ? 'bg-timber-500 text-white border-timber-600'
-                  : 'bg-timber-100 text-timber-700 border-timber-300 hover:bg-timber-200'
-                }
-              `}
+              variant="timber"
+              size="sm"
+              id={`tab-equip-${f}`}
+              controls="panel-equipment-list"
             >
-              {f}
-            </button>
+              <span className="capitalize">{f}</span>
+            </TabButton>
           ))}
         </div>
 
         {/* Equipment List */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-2">
+        <div
+          role="tabpanel"
+          id="panel-equipment-list"
+          aria-labelledby={`tab-equip-${filter}`}
+          className="flex-1 overflow-y-auto p-3 space-y-2"
+        >
           {sortedEquipment.length > 0 ? (
             sortedEquipment.map((eq) => (
               <EquipmentCard
@@ -293,12 +279,9 @@ export function EquipmentModal({ heroId, slot, onClose }: EquipmentModalProps) {
 
         {/* Footer */}
         <div className="p-3 border-t border-timber-200">
-          <button
-            onClick={onClose}
-            className="w-full py-2 rounded font-medium text-sm bg-timber-500 hover:bg-timber-600 text-white transition-colors"
-          >
+          <Button onClick={onClose} className="w-full bg-timber-500 hover:bg-timber-600">
             Done
-          </button>
+          </Button>
         </div>
       </div>
     </ModalOverlay>

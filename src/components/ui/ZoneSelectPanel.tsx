@@ -7,7 +7,7 @@ import { FirstTimeHint } from './shared/FirstTimeHint';
 import { PanelContainer } from './shared/PanelContainer';
 import { ProgressBar } from './shared/ProgressBar';
 import { ModalOverlay } from './shared/ModalOverlay';
-import { DISABLED_BUTTON_CLASSES } from './shared/Button';
+import { Button, DISABLED_BUTTON_CLASSES } from './shared/Button';
 import type { ZoneDefinition } from '../../types/game';
 
 /** Bespoke icons for the legendary mythology questlines */
@@ -162,7 +162,7 @@ function ZoneCard({ zone, isUnlocked, progress, averagePartyLevel, onSelectStage
                     onClick={() => canAttempt && onSelectStage(zone.id, stage.stageNumber)}
                     disabled={!canAttempt}
                     className={`
-                      py-2 px-1 rounded text-xs font-medium transition-all duration-200 btn-scale
+                      py-2 px-1 rounded text-xs font-medium transition-all duration-200 btn-scale min-h-[44px] md:min-h-[28px]
                       ${isCleared
                         ? 'bg-cheddar-100 text-cheddar-700 border border-cheddar-300'
                         : canAttempt
@@ -186,7 +186,7 @@ function ZoneCard({ zone, isUnlocked, progress, averagePartyLevel, onSelectStage
                 }}
                 disabled={(progress?.highestStageCleared || 0) < zone.stages.length}
                 className={`
-                  py-2 px-1 rounded text-xs font-medium transition-all duration-200 btn-scale
+                  py-2 px-1 rounded text-xs font-medium transition-all duration-200 btn-scale min-h-[44px] md:min-h-[28px]
                   ${progress?.bossDefeated
                     ? 'bg-cheddar-100 text-cheddar-700 border border-cheddar-300'
                     : (progress?.highestStageCleared || 0) >= zone.stages.length
@@ -346,18 +346,12 @@ export function ZoneSelectPanel({ onStartCombat }: ZoneSelectPanelProps) {
                 averages level {averagePartyLevel}. Your heroes may not survive this battle.
               </p>
               <div className="flex gap-3">
-                <button
-                  onClick={() => setPendingStage(null)}
-                  className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg transition-colors"
-                >
+                <Button variant="secondary" onClick={() => setPendingStage(null)} className="flex-1">
                   Retreat
-                </button>
-                <button
-                  onClick={handleConfirmDangerousEntry}
-                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
-                >
+                </Button>
+                <Button variant="danger" onClick={handleConfirmDangerousEntry} className="flex-1">
                   Enter Anyway
-                </button>
+                </Button>
               </div>
             </div>
           </ModalOverlay>

@@ -18,6 +18,7 @@ import { announce } from '../../systems/accessibilityAnnouncer';
 import { ATB_MAX, LIMIT_BREAK_MAX, HP_LOW_THRESHOLD, HP_MEDIUM_THRESHOLD } from '../../systems/combatEngine';
 import { PanelContainer } from './shared/PanelContainer';
 import { ProgressBar } from './shared/ProgressBar';
+import { DISABLED_BUTTON_CLASSES } from './shared/Button';
 import type { HeroCombatState } from '../../types/game';
 
 interface HeroCombatCardProps {
@@ -535,7 +536,7 @@ export function CombatPanel({ onFlee }: CombatPanelProps) {
             flex-1 py-2 rounded font-medium text-sm transition-all btn-scale
             ${battleResult === 'ongoing'
               ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : DISABLED_BUTTON_CLASSES
             }
           `}
         >
