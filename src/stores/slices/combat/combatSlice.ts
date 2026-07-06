@@ -184,54 +184,8 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     const state = get();
     if (!state.combat.isInCombat) return;
 
-    if (result === 'victory') {
-      const zoneId = state.combat.currentZone;
-      const stageNumber = state.combat.currentStage;
-
-      // Track defeated enemies for challenges
-      const defeatedCount = state.combat.enemies.filter((e) => !e.isAlive).length;
-      if (defeatedCount > 0) {
-        get().incrementChallengeProgress('defeatEnemies', defeatedCount);
-      }
-
-      if (zoneId) {
-        const currentProgress = state.zoneProgress[zoneId] || {
-          zoneId,
-          highestStageCleared: 0,
-          bossDefeated: false,
-          timesCompleted: 0,
-        };
-
-        const isBoss = isBossStage(zoneId, stageNumber);
-        const isFirstBossDefeat = isBoss && !currentProgress.bossDefeated;
-
-        const newProgress = {
-          ...currentProgress,
-          highestStageCleared: Math.max(currentProgress.highestStageCleared, stageNumber),
-          bossDefeated: currentProgress.bossDefeated || isBoss,
-          timesCompleted: isBoss ? currentProgress.timesCompleted + 1 : currentProgress.timesCompleted,
-        };
-
-        set({
-          zoneProgress: {
-            ...state.zoneProgress,
-            [zoneId]: newProgress,
-          },
-        });
-
-        // Track stage completion for challenges
-        get().incrementChallengeProgress('completeZoneStage', 1);
-
-        if (isFirstBossDefeat) {
-          get().assignZoneGeneratorBonus(zoneId);
-          publish({ type: 'ZoneFirstBossDefeated', payload: { zoneId } } as DomainEvent);
-          playMilestoneChime();
-        }
-
-        // Check for zone/boss achievements after updating progress
-        get().checkAchievements();
-      }
-    }
+    // Note: Zone progress update moved to claimCombatRewards() for natural victories.
+    // This function is now only used for flee/defeat or debug panel forced end.
 
     const zoneIdForTracking = state.combat.currentZone;
     const stageNumberForTracking = state.combat.currentStage;
@@ -357,6 +311,50 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
     const zoneId = state.combat.currentZone;
     const stageNumber = state.combat.currentStage;
     const isBoss = zoneId ? isBossStage(zoneId, stageNumber) : false;
+
+    // Update zone progress (stage advancement happens here, not in endCombat)
+    if (zoneId) {
+      const currentProgress = state.zoneProgress[zoneId] || {
+        zoneId,
+        highestStageCleared: 0,
+        bossDefeated: false,
+        timesCompleted: 0,
+      };
+
+      const isFirstBossDefeat = isBoss && !currentProgress.bossDefeated;
+
+      const newProgress = {
+        ...currentProgress,
+        highestStageCleared: Math.max(currentProgress.highestStageCleared, stageNumber),
+        bossDefeated: currentProgress.bossDefeated || isBoss,
+        timesCompleted: isBoss ? currentProgress.timesCompleted + 1 : currentProgress.timesCompleted,
+      };
+
+      set({
+        zoneProgress: {
+          ...state.zoneProgress,
+          [zoneId]: newProgress,
+        },
+      });
+
+      // Track stage completion for challenges
+      get().incrementChallengeProgress('completeZoneStage', 1);
+
+      // Track defeated enemies for challenges
+      const defeatedCount = state.combat.enemies.filter((e) => !e.isAlive).length;
+      if (defeatedCount > 0) {
+        get().incrementChallengeProgress('defeatEnemies', defeatedCount);
+      }
+
+      if (isFirstBossDefeat) {
+        get().assignZoneGeneratorBonus(zoneId);
+        publish({ type: 'ZoneFirstBossDefeated', payload: { zoneId } } as DomainEvent);
+        playMilestoneChime();
+      }
+
+      // Check for zone/boss achievements after updating progress
+      get().checkAchievements();
+    }
 
     const partyHeroIds = [
       state.party.frontLeft,
