@@ -561,6 +561,22 @@ function App() {
               </div>
               {/* Desktop panel toggle buttons */}
               <div className="hidden md:flex items-center gap-2">
+                <button
+                  onClick={() => setRightPanelView('upgrades')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors border ${
+                    rightPanelView === 'upgrades'
+                      ? 'bg-white/40 border-white/40'
+                      : affordableUpgradesCount > 0
+                        ? 'bg-green-500/30 border-green-400/40'
+                        : 'bg-white/20 hover:bg-white/30 border-white/20'
+                  }`}
+                  title="Upgrades"
+                >
+                  <span className="text-lg">⬆️</span>
+                  {affordableUpgradesCount > 0 && (
+                    <span className="text-xs font-bold text-green-100">{affordableUpgradesCount}</span>
+                  )}
+                </button>
                 {isTabUnlocked('combat') && (
                   <button
                     onClick={() => setRightPanelView('combat')}

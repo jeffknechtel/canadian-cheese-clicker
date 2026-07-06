@@ -35,7 +35,7 @@ export function CurrencyDisplay() {
     <div className="flex flex-col items-end gap-1">
       <div className="flex items-center gap-3">
         <div
-          className="flex items-center gap-2 text-white font-bold text-2xl tabular-nums transition-transform duration-200 font-display"
+          className="flex items-center gap-2 text-white font-bold text-2xl transition-transform duration-200"
         >
           <LoonieIcon />
           {/* aria-label provides accessible name; removed aria-live to prevent screen reader spam on rapid updates */}
@@ -44,7 +44,8 @@ export function CurrencyDisplay() {
             className={!reducedMotion ? 'animate-number-pop' : ''}
             aria-label={`${formatNumber(curds)} curds`}
           >
-            {formatNumber(curds)} Curds
+            <span className="font-mono tabular-nums">{formatNumber(curds)}</span>
+            <span className="font-display"> Curds</span>
           </span>
         </div>
         {showWhey && (
@@ -59,8 +60,8 @@ export function CurrencyDisplay() {
         )}
       </div>
       {!curdPerSecond.isZero() && (
-        <div className="text-white/90 text-sm tabular-nums">
-          {formatNumber(curdPerSecond)} / sec
+        <div className="text-white/90 text-sm">
+          <span className="font-mono tabular-nums">{formatNumber(curdPerSecond)}</span> / sec
         </div>
       )}
     </div>
