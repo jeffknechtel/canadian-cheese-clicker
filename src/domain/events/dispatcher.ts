@@ -34,6 +34,10 @@ export type DomainEvent =
   | { type: 'BuffExpired'; buff: CheeseActiveBuff }
   // Achievement events
   | { type: 'AchievementUnlocked'; achievement: Achievement }
+  // Combat milestone events
+  | { type: 'ZoneFirstBossDefeated'; payload: { zoneId: string } }
+  // Challenge events
+  | { type: 'ChallengeCompleted'; payload: { challengeId: string } }
   // Event system events
   | { type: 'SeasonalEventActivated'; eventId: string }
   | { type: 'SeasonalEventDeactivated'; eventId: string }

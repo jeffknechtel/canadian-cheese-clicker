@@ -4,6 +4,7 @@ import { useGameStoreShallow } from '../../utils/zustandOptimization';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { formatNumber } from '../../utils/formatNumber';
 import { playPurchaseSound } from '../../systems/audioSystem';
+import { vibrateError } from '../../systems/haptics';
 import type { Upgrade } from '../../types/game';
 import { generatorRegistry } from '../../domain';
 import { SynergiesPanel } from './SynergiesPanel';
@@ -85,9 +86,12 @@ const UpgradeCard = memo(function UpgradeCard({ upgrade, isPurchased, index }: U
           animationTimeoutRef.current = setTimeout(() => setPurchaseAnimation(null), 400);
         }
       }
-    } else if (!isPurchased && !reducedMotion) {
-      setPurchaseAnimation('failure');
-      animationTimeoutRef.current = setTimeout(() => setPurchaseAnimation(null), 300);
+    } else if (!isPurchased) {
+      vibrateError();
+      if (!reducedMotion) {
+        setPurchaseAnimation('failure');
+        animationTimeoutRef.current = setTimeout(() => setPurchaseAnimation(null), 300);
+      }
     }
   }, [isPurchased, canAfford, buyUpgrade, upgrade.id, reducedMotion]);
 

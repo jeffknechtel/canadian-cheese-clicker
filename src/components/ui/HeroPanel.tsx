@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { useGameStore } from '../../stores';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { HEROES } from '../../data/heroes';
@@ -7,6 +7,8 @@ import { formatNumber } from '../../utils/formatNumber';
 import { playPurchaseSound, playMilestoneChime } from '../../systems/audioSystem';
 import { calculateHeroStats } from '../../systems/productionEngine';
 import { showHeroRecruitDialogue } from '../../systems/dialogueSystem';
+import { vibrateSuccess, vibrateError } from '../../systems/haptics';
+import { emitParticles } from '../../systems/particleSystem';
 import { TabButton } from './shared/TabButton';
 import { PanelContainer } from './shared/PanelContainer';
 import { ProgressBar } from './shared/ProgressBar';
@@ -178,8 +180,8 @@ interface HeroRecruitCardProps {
 
 function HeroRecruitCard({ hero }: HeroRecruitCardProps) {
   const recruitHero = useGameStore((s) => s.recruitHero);
-  // Primitive boolean subscription — updates as curds cross the recruit cost
   const canAfford = useGameStore((s) => s.canAffordHero(hero.id));
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const handleRecruit = () => {
     if (canAfford) {
@@ -187,17 +189,29 @@ function HeroRecruitCard({ hero }: HeroRecruitCardProps) {
       if (success) {
         playPurchaseSound();
         playMilestoneChime();
-        // Show hero-specific recruitment dialogue
+        vibrateSuccess();
+
+        // Spawn celebration particles centered on the card
+        if (cardRef.current) {
+          const rect = cardRef.current.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+          emitParticles(centerX, centerY, 'confetti');
+        }
+
         const heroDef = heroRegistry.get(hero.id);
         if (heroDef) {
           showHeroRecruitDialogue(heroDef);
         }
       }
+    } else {
+      vibrateError();
     }
   };
 
   return (
     <div
+      ref={cardRef}
       className={`
         p-3 rounded-lg transition-all duration-200
         ${canAfford

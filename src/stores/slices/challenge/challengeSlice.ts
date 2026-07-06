@@ -8,6 +8,10 @@ import {
   getChallengeById,
 } from '../../../data/challenges';
 import { createInitialChallengeState } from './resetFactory';
+import { publish } from '../../../domain/events';
+import type { DomainEvent } from '../../../domain/events';
+import { playAchievementFanfare, playChallengeStartSound } from '../../../systems/audioSystem';
+import { vibrateSuccess } from '../../../systems/haptics';
 
 export const createChallengeSlice: SliceCreator<ChallengeSlice> = (set, get) => ({
   challenge: createInitialChallengeState(),
@@ -30,6 +34,7 @@ export const createChallengeSlice: SliceCreator<ChallengeSlice> = (set, get) => 
         claimed: false,
       },
     });
+    playChallengeStartSound();
   },
 
   incrementChallengeProgress: (goalType: ChallengeGoalType, amount: number = 1) => {
@@ -41,6 +46,7 @@ export const createChallengeSlice: SliceCreator<ChallengeSlice> = (set, get) => 
 
     const newProgress = state.progress + amount;
     const completed = newProgress >= challenge.goal.target;
+    const justCompleted = completed && !state.completed;
 
     set({
       challenge: {
@@ -49,6 +55,12 @@ export const createChallengeSlice: SliceCreator<ChallengeSlice> = (set, get) => 
         completed,
       },
     });
+
+    if (justCompleted) {
+      playAchievementFanfare();
+      vibrateSuccess();
+      publish({ type: 'ChallengeCompleted', payload: { challengeId: state.activeChallengeId! } } as DomainEvent);
+    }
   },
 
   claimChallengeReward: () => {

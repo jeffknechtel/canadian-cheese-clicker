@@ -3,7 +3,8 @@ import { useGameStore } from '../../stores';
 import { getEquipmentBySlot } from '../../data/equipment';
 import { heroRegistry, equipmentRegistry } from '../../domain';
 import { formatNumber } from '../../utils/formatNumber';
-import { playPurchaseSound } from '../../systems/audioSystem';
+import { playPurchaseSound, playEquipSound } from '../../systems/audioSystem';
+import { vibrateClick } from '../../systems/haptics';
 import { ModalOverlay } from './shared/ModalOverlay';
 import { Button } from './shared/Button';
 import { TabButton } from './shared/TabButton';
@@ -188,10 +189,14 @@ export function EquipmentModal({ heroId, slot, onClose }: EquipmentModalProps) {
 
   const handleEquip = useCallback((equipmentId: string) => {
     equipItem(heroId, equipmentId);
+    playEquipSound();
+    vibrateClick();
   }, [heroId, equipItem]);
 
   const handleUnequip = useCallback(() => {
     unequipItem(heroId, slot);
+    playEquipSound();
+    vibrateClick();
   }, [heroId, slot, unequipItem]);
 
   if (!hero || !heroState) {

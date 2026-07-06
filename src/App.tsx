@@ -47,6 +47,7 @@ import { playMilestoneChime } from './systems/audioSystem';
 import { startGameLoop, stopGameLoop, setupVisibilityHandler } from './systems/gameLoop';
 import { useGameStore } from './stores';
 import { useHeroLevelUpEvents } from './hooks/useHeroEvents';
+import { useCelebrationEvents } from './hooks/useCelebrationEvents';
 import { useSettingsStore, initializeSettingsAudio, setupReducedMotionListener } from './stores/settingsStore';
 import { ACHIEVEMENTS } from './data/achievements';
 import {
@@ -312,6 +313,9 @@ function App() {
     showHeroLevelUpDialogue(hero, level);
     playMilestoneChime();
   }, []));
+
+  // Celebration particle effects for domain events
+  useCelebrationEvents();
 
   // Save on visibility change (tab hidden) and before unload
   useEffect(() => {
