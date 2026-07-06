@@ -1088,6 +1088,37 @@ export function playPurchaseSound(): void {
   }
 }
 
+// Play a short metallic click for equip/unequip
+export function playEquipSound(): void {
+  const volume = getEffectiveSfxVolume();
+  if (volume === 0) return;
+
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === 'suspended') return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.connect(gain);
+    gain.connect(getSfxBus());
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(800, now);
+    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.05);
+    osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+
+    gain.gain.setValueAtTime(volume * 0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+    osc.start(now);
+    osc.stop(now + 0.15);
+  } catch {
+    // Silently fail if audio not available
+  }
+}
+
 // Achievement fanfare - triumphant chord progression
 export function playAchievementFanfare(): void {
   const volume = getEffectiveSfxVolume();
@@ -1223,6 +1254,36 @@ export function playCraftingCompleteSound(): void {
       osc.connect(gainNode);
       osc.start(now + i * 0.1);
       osc.stop(now + 0.5);
+    });
+  } catch {
+    // Silently fail if audio not available
+  }
+}
+
+// Challenge start sound - quick ascending arpeggio
+export function playChallengeStartSound(): void {
+  const volume = getEffectiveSfxVolume();
+  if (volume === 0) return;
+
+  try {
+    const ctx = getAudioContext();
+    if (ctx.state === 'suspended') return;
+
+    const now = ctx.currentTime;
+
+    // Quick ascending arpeggio: A-C#-E
+    [440, 554, 659].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(getSfxBus());
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, now + i * 0.08);
+      gain.gain.linearRampToValueAtTime(volume * 0.2, now + i * 0.08 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.15);
+      osc.start(now + i * 0.08);
+      osc.stop(now + i * 0.08 + 0.15);
     });
   } catch {
     // Silently fail if audio not available

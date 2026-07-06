@@ -7,6 +7,7 @@ import { UNLOCK_THRESHOLDS, BUY_MILESTONES, MILESTONE_MULTIPLIER } from '../../d
 import { formatNumber } from '../../utils/formatNumber';
 import { calculateTimeToAfford } from '../../utils/timeToAfford';
 import { playPurchaseSound } from '../../systems/audioSystem';
+import { vibrateError } from '../../systems/haptics';
 import { announceGeneratorPurchase } from '../../systems/accessibilityAnnouncer';
 import type { Generator } from '../../types/game';
 import { CpsBreakdownPanel } from './CpsBreakdownPanel';
@@ -77,13 +78,19 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
           setPurchaseAnimation('success');
           animationTimeoutRef.current = setTimeout(() => setPurchaseAnimation(null), 400);
         }
-      } else if (!reducedMotion) {
+      } else {
+        vibrateError();
+        if (!reducedMotion) {
+          setPurchaseAnimation('failure');
+          animationTimeoutRef.current = setTimeout(() => setPurchaseAnimation(null), 300);
+        }
+      }
+    } else {
+      vibrateError();
+      if (!reducedMotion) {
         setPurchaseAnimation('failure');
         animationTimeoutRef.current = setTimeout(() => setPurchaseAnimation(null), 300);
       }
-    } else if (!reducedMotion) {
-      setPurchaseAnimation('failure');
-      animationTimeoutRef.current = setTimeout(() => setPurchaseAnimation(null), 300);
     }
   };
 

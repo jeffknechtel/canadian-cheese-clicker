@@ -2,6 +2,7 @@ import type { SliceCreator } from '../../types';
 import type { CombatSlice } from './types';
 import { createEmptyCombatState, createPrestigeCombatState } from './resetFactory';
 import { publish } from '../../../domain/events';
+import type { DomainEvent } from '../../../domain/events';
 import {
   COMBAT_LOG_MAX_ENTRIES,
   COMBAT_FEEDBACK_GRID,
@@ -34,6 +35,7 @@ import {
   playHealSound,
   playBuffSound,
   playDebuffSound,
+  playMilestoneChime,
   setCurrentProvince,
   startProvinceAmbient,
   stopAmbientSounds,
@@ -222,6 +224,8 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
 
         if (isFirstBossDefeat) {
           get().assignZoneGeneratorBonus(zoneId);
+          publish({ type: 'ZoneFirstBossDefeated', payload: { zoneId } } as DomainEvent);
+          playMilestoneChime();
         }
 
         // Check for zone/boss achievements after updating progress

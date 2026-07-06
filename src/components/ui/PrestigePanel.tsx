@@ -7,6 +7,7 @@ import {
   playAgingUpgradeSound,
   playRennetGainSound,
 } from '../../systems/audioSystem';
+import { vibrateLimitBreak } from '../../systems/haptics';
 import { AGING_UPGRADES, getAgingUpgradePurchaseCount } from '../../data/agingUpgrades';
 import {
   getPrestigeDialogue,
@@ -284,6 +285,7 @@ export function PrestigePanel() {
 
     // Play prestige sound and trigger animation
     playPrestigeSound();
+    vibrateLimitBreak();
     setShowPrestigeAnimation(true);
 
     // Trigger particle effects
@@ -320,6 +322,7 @@ export function PrestigePanel() {
     setShowVintageModal(false);
 
     playPrestigeSound();
+    vibrateLimitBreak();
     setShowPrestigeAnimation(true);
     triggerPrestigeParticles();
     setTimeout(() => {
@@ -338,6 +341,7 @@ export function PrestigePanel() {
     setShowLegacyModal(false);
 
     playPrestigeSound();
+    vibrateLimitBreak();
     setShowPrestigeAnimation(true);
     triggerPrestigeParticles();
     setTimeout(() => {

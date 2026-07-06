@@ -8,6 +8,7 @@ import {
   playGoldenCheeseCollect,
   resumeAudioContext,
 } from '../../systems/audioSystem';
+import { vibrateSuccess } from '../../systems/haptics';
 import { emitParticles } from '../../systems/particleSystem';
 import { isMobile } from '../../systems/gameLoop';
 
@@ -115,6 +116,7 @@ export function GoldenCheeseWheel() {
       const result = collectGoldenCheese();
       if (result) {
         playGoldenCheeseCollect();
+        vibrateSuccess();
 
         // Emit particles at click location
         const screenX = event.clientX ?? window.innerWidth / 2;

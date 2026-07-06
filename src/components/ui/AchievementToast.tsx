@@ -3,6 +3,7 @@ import type { Achievement } from '../../types/game';
 import { useAchievementEvents } from '../../hooks/useAchievementEvents';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { playAchievementFanfare } from '../../systems/audioSystem';
+import { vibrateSuccess } from '../../systems/haptics';
 import {
   type Particle,
   type ParticleConfig,
@@ -212,8 +213,9 @@ export function AchievementToastContainer() {
     };
     setToasts((prev) => [...prev, newToast]);
 
-    // Play achievement fanfare
+    // Play achievement fanfare and haptic
     playAchievementFanfare();
+    vibrateSuccess();
   }, []);
 
   const removeToast = useCallback((id: string) => {
