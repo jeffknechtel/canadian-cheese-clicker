@@ -3,6 +3,7 @@ import { formatNumber } from '../../../utils/formatNumber';
 import { recipeRegistry } from '../../../domain';
 import { playPurchaseSound } from '../../../systems/audioSystem';
 import { Quality } from '../../../domain/valueObjects';
+import { Button } from '../shared/Button';
 import type { CraftedCheese, CheeseEffect } from '../../../types/game';
 
 interface CheeseInventoryCardProps {
@@ -82,19 +83,13 @@ export function CheeseInventoryCard({ cheese }: CheeseInventoryCardProps) {
         {/* Actions */}
         <div className="shrink-0 flex flex-col gap-1">
           {hasEffects && (
-            <button
-              onClick={handleConsume}
-              className="px-3 py-1.5 text-xs bg-cheddar-700 hover:bg-cheddar-800 text-white rounded font-medium transition-colors"
-            >
+            <Button size="sm" onClick={handleConsume} className="px-3 py-1.5 text-xs">
               Consume
-            </button>
+            </Button>
           )}
-          <button
-            onClick={handleSell}
-            className="px-3 py-1.5 text-xs bg-timber-100 hover:bg-timber-200 text-timber-700 rounded transition-colors"
-          >
+          <Button size="sm" variant="secondary" onClick={handleSell} className="px-3 py-1.5 text-xs">
             Sell ({formatNumber(sellValue)})
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { formatAgingDuration } from '../../../data/cheeseRecipes';
 import { recipeRegistry } from '../../../domain';
 import { playPurchaseSound } from '../../../systems/audioSystem';
 import { ProgressBar } from '../shared/ProgressBar';
+import { Button } from '../shared/Button';
 import { getInteractionQualityEffect } from '../../../systems/craftingEngine';
 import type { AffinageCave, CraftingJob } from '../../../types/game';
 
@@ -158,21 +159,24 @@ function AgingJobRow({ job }: AgingJobRowProps) {
         {/* Actions */}
         <div className="shrink-0 flex gap-1">
           {!isComplete && (
-            <button
+            <Button
+              size="sm"
+              variant="secondary"
               onClick={handleTurn}
-              className="px-2 py-1 text-xs bg-timber-100 hover:bg-timber-200 text-timber-700 rounded transition-colors btn-scale"
               title="Turn cheese (+1% quality)"
+              className="px-2 py-1 text-xs"
             >
               Turn
-            </button>
+            </Button>
           )}
           {isComplete && (
-            <button
+            <Button
+              size="sm"
               onClick={handleCollect}
-              className="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded font-medium transition-colors btn-scale btn-ripple"
+              className="px-3 py-1 text-xs bg-success hover:bg-success/90"
             >
               Collect
-            </button>
+            </Button>
           )}
         </div>
       </div>

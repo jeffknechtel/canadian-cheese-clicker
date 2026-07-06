@@ -177,19 +177,31 @@ export function UpgradePanel() {
   return (
     <PanelContainer>
       {/* Main Tabs (Upgrades vs Synergies) */}
-      <div className="flex gap-1 mb-3">
-        <TabButton active={mainTab === 'upgrades'} onClick={() => setMainTab('upgrades')}>
+      <div role="tablist" aria-label="Upgrade categories" className="flex gap-1 mb-3">
+        <TabButton
+          active={mainTab === 'upgrades'}
+          onClick={() => setMainTab('upgrades')}
+          id="tab-upgrades"
+          controls="panel-upgrades"
+        >
           Upgrades
         </TabButton>
-        <TabButton active={mainTab === 'synergies'} onClick={() => setMainTab('synergies')}>
+        <TabButton
+          active={mainTab === 'synergies'}
+          onClick={() => setMainTab('synergies')}
+          id="tab-synergies"
+          controls="panel-synergies"
+        >
           Synergies ({synergyPurchased.length}/5)
         </TabButton>
       </div>
 
       {mainTab === 'synergies' ? (
-        <SynergiesPanel />
+        <div role="tabpanel" id="panel-synergies" aria-labelledby="tab-synergies">
+          <SynergiesPanel />
+        </div>
       ) : (
-        <>
+        <div role="tabpanel" id="panel-upgrades" aria-labelledby="tab-upgrades">
           {/* Header with click multiplier info */}
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-lg font-bold text-timber-700">Upgrades</h2>
@@ -201,17 +213,32 @@ export function UpgradePanel() {
           </div>
 
           {/* Upgrade Sub-Tabs */}
-          <div className="flex gap-1 mb-3">
-            <TabButton active={upgradeTab === 'available'} onClick={() => setUpgradeTab('available')}>
+          <div role="tablist" aria-label="Upgrade availability" className="flex gap-1 mb-3">
+            <TabButton
+              active={upgradeTab === 'available'}
+              onClick={() => setUpgradeTab('available')}
+              id="tab-available"
+              controls="panel-upgrade-list"
+            >
               Available ({availableUpgrades.length})
             </TabButton>
-            <TabButton active={upgradeTab === 'purchased'} onClick={() => setUpgradeTab('purchased')}>
+            <TabButton
+              active={upgradeTab === 'purchased'}
+              onClick={() => setUpgradeTab('purchased')}
+              id="tab-purchased"
+              controls="panel-upgrade-list"
+            >
               Owned ({purchasedUpgrades.length})
             </TabButton>
           </div>
 
           {/* Upgrade List */}
-          <div className="flex-1 overflow-y-auto space-y-2 scrollbar-thin">
+          <div
+            role="tabpanel"
+            id="panel-upgrade-list"
+            aria-labelledby={upgradeTab === 'available' ? 'tab-available' : 'tab-purchased'}
+            className="flex-1 overflow-y-auto space-y-2 scrollbar-thin"
+          >
             {upgradeTab === 'available' ? (
               availableUpgrades.length > 0 ? (
                 availableUpgrades.map((upgrade, index) => (
@@ -248,7 +275,7 @@ export function UpgradePanel() {
               )
             )}
           </div>
-        </>
+        </div>
       )}
     </PanelContainer>
   );

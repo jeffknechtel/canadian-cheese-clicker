@@ -9,6 +9,7 @@ import {
 } from '../../data/changelog';
 import { GAME_VERSION } from '../../config/version';
 import { ModalOverlay } from './shared/ModalOverlay';
+import { TabButton } from './shared/TabButton';
 
 interface ChangelogModalProps {
   isOpen: boolean;
@@ -119,25 +120,30 @@ export function ChangelogModal({ isOpen, onClose }: ChangelogModalProps) {
           </div>
 
           {/* Type Filter */}
-          <div className="flex gap-1 flex-wrap">
+          <div role="tablist" aria-label="Changelog type filter" className="flex gap-1 flex-wrap">
             {CHANGE_TYPE_FILTERS.map((filter) => (
-              <button
+              <TabButton
                 key={filter.value}
+                active={typeFilter === filter.value}
                 onClick={() => setTypeFilter(filter.value)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
-                  typeFilter === filter.value
-                    ? 'bg-cheddar-700 text-white'
-                    : 'bg-white hover:bg-cheddar-100 text-rind-700 border border-cheddar-200'
-                }`}
+                variant="cheddar"
+                size="sm"
+                id={`tab-changelog-${filter.value}`}
+                controls="panel-changelog-content"
               >
                 {filter.label}
-              </button>
+              </TabButton>
             ))}
           </div>
         </div>
 
         {/* Changelog Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div
+          role="tabpanel"
+          id="panel-changelog-content"
+          aria-labelledby={`tab-changelog-${typeFilter}`}
+          className="flex-1 overflow-y-auto p-6"
+        >
           {filteredEntries.length === 0 ? (
             <div className="text-center py-8 text-rind-500">
               <p>No changelog entries found</p>

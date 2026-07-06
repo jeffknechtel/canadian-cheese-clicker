@@ -407,20 +407,43 @@ export function PrestigePanel() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-3">
-        <TabButton variant="amber" active={activeTab === 'aging'} onClick={() => setActiveTab('aging')}>
+      <div role="tablist" aria-label="Prestige sections" className="flex gap-1 mb-3">
+        <TabButton
+          variant="amber"
+          active={activeTab === 'aging'}
+          onClick={() => setActiveTab('aging')}
+          id="tab-prestige-aging"
+          controls="panel-prestige-content"
+        >
           Aging
         </TabButton>
-        <TabButton variant="amber" active={activeTab === 'upgrades'} onClick={() => setActiveTab('upgrades')}>
+        <TabButton
+          variant="amber"
+          active={activeTab === 'upgrades'}
+          onClick={() => setActiveTab('upgrades')}
+          id="tab-prestige-upgrades"
+          controls="panel-prestige-content"
+        >
           Upgrades ({prestige.agingUpgrades.length})
         </TabButton>
-        <TabButton variant="amber" active={activeTab === 'stats'} onClick={() => setActiveTab('stats')}>
+        <TabButton
+          variant="amber"
+          active={activeTab === 'stats'}
+          onClick={() => setActiveTab('stats')}
+          id="tab-prestige-stats"
+          controls="panel-prestige-content"
+        >
           Stats
         </TabButton>
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin">
+      <div
+        role="tabpanel"
+        id="panel-prestige-content"
+        aria-labelledby={`tab-prestige-${activeTab}`}
+        className="flex-1 overflow-y-auto scrollbar-thin"
+      >
         {activeTab === 'aging' && (
           <div className="space-y-4">
             {/* Current Run Stats */}

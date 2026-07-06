@@ -27,9 +27,9 @@ export function SaveToastContainer() {
           key={toast.id}
           className={`px-4 py-2 rounded-lg shadow-lg text-sm font-medium animate-slide-up ${
             toast.type === 'success'
-              ? 'bg-green-600 text-white'
+              ? 'bg-success text-white'
               : toast.type === 'error'
-                ? 'bg-red-600 text-white'
+                ? 'bg-error text-white'
                 : 'bg-timber-600 text-white'
           }`}
         >

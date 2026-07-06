@@ -2,6 +2,7 @@ import { useState, useMemo, memo } from 'react';
 import { useGameStore } from '../../stores';
 import { ACHIEVEMENTS } from '../../data/achievements';
 import { AnimatedTabContent } from './shared/AnimatedTabContent';
+import { TabButton } from './shared/TabButton';
 import type { Achievement } from '../../types/game';
 
 type CategoryFilter = Achievement['category'] | 'all';
@@ -154,26 +155,29 @@ export function AchievementPanel() {
       )}
 
       {/* Category filter */}
-      <div className="flex flex-wrap gap-1 mb-3">
+      <div role="tablist" aria-label="Achievement categories" className="flex flex-wrap gap-1 mb-3">
         {categories.map((cat) => (
-          <button
+          <TabButton
             key={cat.value}
+            active={categoryFilter === cat.value}
             onClick={() => setCategoryFilter(cat.value)}
-            className={`
-              px-2 py-1 text-xs rounded font-medium transition-colors border btn-scale
-              ${categoryFilter === cat.value
-                ? 'bg-cheddar-500 text-white border-cheddar-600'
-                : 'bg-cheddar-100 text-cheddar-700 border-cheddar-300 hover:bg-cheddar-200'
-              }
-            `}
+            variant="cheddar"
+            size="sm"
+            id={`tab-achievement-${cat.value}`}
+            controls="panel-achievement-list"
           >
             {cat.label}
-          </button>
+          </TabButton>
         ))}
       </div>
 
       {/* Achievement List */}
-      <div className="flex-1 overflow-y-auto space-y-2 scrollbar-thin">
+      <div
+        role="tabpanel"
+        id="panel-achievement-list"
+        aria-labelledby={`tab-achievement-${categoryFilter}`}
+        className="flex-1 overflow-y-auto space-y-2 scrollbar-thin"
+      >
         <AnimatedTabContent activeKey={categoryFilter}>
           {sortedAchievements.length > 0 ? (
             sortedAchievements.map((achievement) => (

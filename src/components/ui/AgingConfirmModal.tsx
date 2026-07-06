@@ -5,6 +5,7 @@ import { useSettingsStore } from '../../stores/settingsStore';
 import { formatNumber } from '../../utils/formatNumber';
 import { getPrestigeDialogue } from '../../data/canadianDialogue';
 import { ModalOverlay } from './shared/ModalOverlay';
+import { Button } from './shared/Button';
 import { startPrestigeMusic, returnToIdleMusic } from '../../systems/audioSystem';
 import { calculateHeroRetentionCount } from '../../systems/productionEngine';
 import Decimal from 'decimal.js';
@@ -141,18 +142,12 @@ export function AgingConfirmModal({ onConfirm, onCancel }: AgingConfirmModalProp
 
         {/* Buttons */}
         <div className="flex gap-3">
-          <button
-            onClick={onCancel}
-            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg transition-colors"
-          >
+          <Button variant="secondary" onClick={onCancel} className="flex-1 py-3">
             Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
-          >
+          </Button>
+          <Button onClick={onConfirm} className="flex-1 py-3 bg-amber-500 hover:bg-amber-600">
             Age My Empire
-          </button>
+          </Button>
         </div>
       </div>
     </ModalOverlay>

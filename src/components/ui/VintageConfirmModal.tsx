@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useGameStore } from '../../stores';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { ModalOverlay } from './shared/ModalOverlay';
+import { Button } from './shared/Button';
 import { startPrestigeMusic, returnToIdleMusic } from '../../systems/audioSystem';
 import { VINTAGE_RENNET_COST, VINTAGE_WHEEL_MULTIPLIER } from '../../data/constants';
 
@@ -82,18 +83,12 @@ export function VintageConfirmModal({ onConfirm, onCancel }: VintageConfirmModal
 
         {/* Buttons */}
         <div className="flex gap-3">
-          <button
-            onClick={onCancel}
-            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg transition-colors"
-          >
+          <Button variant="secondary" onClick={onCancel} className="flex-1 py-3">
             Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="flex-1 bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
-          >
+          </Button>
+          <Button onClick={onConfirm} className="flex-1 py-3 bg-purple-500 hover:bg-purple-600">
             Press the Wheels
-          </button>
+          </Button>
         </div>
       </div>
     </ModalOverlay>

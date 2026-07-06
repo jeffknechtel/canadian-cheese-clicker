@@ -108,13 +108,22 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-timber-200 overflow-x-auto scrollbar-thin bg-timber-50">
+        <div
+          role="tablist"
+          aria-label="Settings categories"
+          className="flex border-b border-timber-200 overflow-x-auto scrollbar-thin bg-timber-50"
+        >
           {(['audio', 'graphics', 'accessibility', 'game', 'data'] as SettingsTab[]).map((tab) => (
             <button
               key={tab}
+              role="tab"
+              aria-selected={activeTab === tab}
+              aria-controls="panel-settings-content"
+              id={`tab-settings-${tab}`}
+              tabIndex={activeTab === tab ? 0 : -1}
               onClick={() => setActiveTab(tab)}
               className={`
-                shrink-0 py-3 px-4 text-sm font-medium capitalize transition-colors
+                shrink-0 py-3 px-4 text-sm font-medium capitalize transition-colors min-h-[44px]
                 ${activeTab === tab
                   ? 'text-timber-700 bg-white border-b-2 border-cheddar-400'
                   : 'text-timber-500 border-b-2 border-transparent hover:text-timber-700'
@@ -127,7 +136,12 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 bg-cream">
+        <div
+          role="tabpanel"
+          id="panel-settings-content"
+          aria-labelledby={`tab-settings-${activeTab}`}
+          className="flex-1 overflow-y-auto p-6 bg-cream"
+        >
           <AnimatedTabContent activeKey={activeTab}>
             {activeTab === 'audio' && (
               <AudioSettings
