@@ -78,24 +78,26 @@ export function useTutorialEvents() {
     };
   }, [tutorialEnabled, triggerTutorialStep, isTutorialStepCompleted]);
 
+  // Check generator/curd milestones periodically instead of on every state change
   useEffect(() => {
     if (!tutorialEnabled) return;
 
-    const checkGeneratorMilestones = () => {
+    const checkMilestones = () => {
       const state = useGameStore.getState();
+
+      // Check first generator
       const totalGenerators = Object.values(state.generators).reduce(
-        (sum: number, owned: number) => sum + owned,
+        (sum, owned) => sum + (owned as number),
         0
       );
-
       if (totalGenerators > 0 && generatorCountRef.current === 0) {
         if (!isTutorialStepCompleted('firstGenerator')) {
           triggerTutorialStep('firstGenerator');
         }
       }
-
       generatorCountRef.current = totalGenerators;
 
+      // Check curd milestones
       const totalCurds = state.totalCurdsEarned;
       if (totalCurds.gte(10) && !isTutorialStepCompleted('firstCurds')) {
         triggerTutorialStep('firstCurds');
@@ -105,8 +107,9 @@ export function useTutorialEvents() {
       }
     };
 
-    const unsubscribe = useGameStore.subscribe(checkGeneratorMilestones);
-    return unsubscribe;
+    // Check every 500ms instead of on every state change
+    const intervalId = setInterval(checkMilestones, 500);
+    return () => clearInterval(intervalId);
   }, [tutorialEnabled, triggerTutorialStep, isTutorialStepCompleted]);
 }
 
