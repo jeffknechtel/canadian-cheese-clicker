@@ -17,6 +17,7 @@ import { SaveToastContainer } from './components/ui/SaveToast';
 import { TutorialToastContainer } from './components/ui/TutorialToast';
 import { LoreCodex } from './components/ui/LoreCodex';
 import { useTutorialEvents } from './hooks/useTutorialEvents';
+import { useFreezeDetector } from './hooks/useFreezeDetector';
 import { ZoneSelectPanel } from './components/ui/ZoneSelectPanel';
 import { CombatResultsModal } from './components/ui/CombatResultsModal';
 import { ActiveBuffsBar } from './components/ui/crafting/ActiveBuffsBar';
@@ -322,6 +323,9 @@ function App() {
 
   // Tutorial system event subscriptions
   useTutorialEvents();
+
+  // Freeze detection for debugging UI lockups
+  useFreezeDetector();
 
   // Save on visibility change (tab hidden) and before unload
   useEffect(() => {

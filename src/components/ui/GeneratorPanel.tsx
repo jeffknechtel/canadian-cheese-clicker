@@ -8,6 +8,7 @@ import { formatNumber } from '../../utils/formatNumber';
 import { calculateTimeToAfford } from '../../utils/timeToAfford';
 import { playPurchaseSound } from '../../systems/audioSystem';
 import { vibrateError } from '../../systems/haptics';
+import { markClickProcessed } from '../../hooks/useFreezeDetector';
 import { announceGeneratorPurchase } from '../../systems/accessibilityAnnouncer';
 import type { Generator } from '../../types/game';
 import { CpsBreakdownPanel } from './CpsBreakdownPanel';
@@ -68,6 +69,7 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
 
   // Buy handler - React Compiler will optimize this automatically
   const handleBuy = () => {
+    markClickProcessed(); // Track for freeze detection
     if (effectiveAmount > 0) {
       const success = buyGenerator(generator.id, effectiveAmount);
       if (success) {

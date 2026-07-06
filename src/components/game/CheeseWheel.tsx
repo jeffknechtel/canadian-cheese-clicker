@@ -6,6 +6,7 @@ import { useSettingsStore } from '../../stores/settingsStore';
 import { playClickSound, resumeAudioContext } from '../../systems/audioSystem';
 import { isMobile } from '../../systems/gameLoop';
 import { vibrateClick } from '../../systems/haptics';
+import { markClickProcessed } from '../../hooks/useFreezeDetector';
 import { CHEESE_WHEEL_TIERS, type CheeseWheelTier } from '../../data/constants';
 import { createCheeseTexture } from './CheeseWheelTextures';
 import { CheeseHoles } from './CheeseHoles';
@@ -78,6 +79,7 @@ export function CheeseWheel({ onClickPosition, cylinderSegments = 32 }: CheeseWh
   const handleClick = useCallback(
     (event: ThreeEvent<MouseEvent>) => {
       event.stopPropagation();
+      markClickProcessed(); // Track for freeze detection
       resumeAudioContext();
       click();
       playClickSound();
