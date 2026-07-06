@@ -25,3 +25,6 @@ dist-ssr
 
 # Claude Code
 .claude
+
+# Deployment (gitignored per project setup — script, config, and any secrets)
+deploy/

@@ -4,6 +4,10 @@ import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Relative base so the built assets resolve no matter which path/prefix the
+  // site is served under (e.g. an S3 subfolder + CloudFront). Override with
+  // VITE_BASE if you ever need an absolute path.
+  base: process.env.VITE_BASE ?? './',
   plugins: [react()],
   resolve: {
     alias: {
