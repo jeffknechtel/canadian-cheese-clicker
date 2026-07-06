@@ -1,8 +1,14 @@
-const CACHE_NAME = 'cheese-quest-v1';
+const CACHE_NAME = 'cheese-quest-v2';
+
+// The worker is registered under the app's deploy base (e.g.
+// "/canadiancheeseclicker/"), so derive that prefix from the registration
+// scope rather than hardcoding the site root. This keeps the SW correct
+// whether the app is served at "/" or from a subfolder.
+const BASE_PATH = new URL(self.registration.scope).pathname; // ends with "/"
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
+  BASE_PATH,
+  `${BASE_PATH}index.html`,
+  `${BASE_PATH}manifest.json`,
 ];
 
 self.addEventListener('install', (event) => {
