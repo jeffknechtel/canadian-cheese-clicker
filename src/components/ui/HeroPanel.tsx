@@ -61,10 +61,10 @@ function HeroCard({ hero, heroState, onEquipmentClick, onAddToParty, isInParty, 
     : 100;
 
   return (
-    <div className={`p-3 rounded-lg bg-white/70 border transition-all duration-200 hover:scale-[1.01] ${
+    <div className={`p-3 rounded-lg bg-white/70 border transition-all duration-200 card-lift ${
       isInCombat && isInParty
         ? 'border-red-300 ring-2 ring-red-200 ring-opacity-50'
-        : 'border-timber-200 hover:border-maple-400 hover:shadow-md'
+        : 'border-timber-200 hover:border-maple-400'
     }`}>
       {/* Header: Icon, Name, Level, Class */}
       <div className="flex items-start gap-3">
@@ -215,7 +215,7 @@ function HeroRecruitCard({ hero }: HeroRecruitCardProps) {
       className={`
         p-3 rounded-lg transition-all duration-200
         ${canAfford
-          ? 'bg-white/70 border border-timber-200 hover:border-maple-400 hover:shadow-md hover:scale-[1.01]'
+          ? 'bg-white/70 border border-timber-200 hover:border-maple-400 card-lift'
           : 'bg-white/40 border border-gray-200 opacity-80'
         }
       `}
@@ -389,17 +389,25 @@ export function HeroPanel({ onEquipmentClick }: HeroPanelProps) {
       >
         {activeTab === 'roster' ? (
           recruitedHeroes.length > 0 ? (
-            recruitedHeroes.map((hero) => (
-              <HeroCard
-                key={hero.id}
-                hero={hero}
-                heroState={heroes[hero.id]}
-                onEquipmentClick={handleEquipmentClick}
-                onAddToParty={handleAddToParty}
-                isInParty={isHeroInParty(hero.id)}
-                isInCombat={isInCombat}
-              />
-            ))
+            recruitedHeroes.map((hero, index) => {
+              const staggerDelay = reducedMotion ? 0 : Math.min(index * 50, 250);
+              return (
+                <div
+                  key={hero.id}
+                  className={!reducedMotion ? 'animate-slide-up' : ''}
+                  style={{ animationDelay: `${staggerDelay}ms` }}
+                >
+                  <HeroCard
+                    hero={hero}
+                    heroState={heroes[hero.id]}
+                    onEquipmentClick={handleEquipmentClick}
+                    onAddToParty={handleAddToParty}
+                    isInParty={isHeroInParty(hero.id)}
+                    isInCombat={isInCombat}
+                  />
+                </div>
+              );
+            })
           ) : (
             <div className="text-center text-gray-500 py-8">
               <p className="text-3xl mb-2">🦸</p>
@@ -409,9 +417,18 @@ export function HeroPanel({ onEquipmentClick }: HeroPanelProps) {
           )
         ) : (
           availableHeroes.length > 0 ? (
-            availableHeroes.map((hero) => (
-              <HeroRecruitCard key={hero.id} hero={hero} />
-            ))
+            availableHeroes.map((hero, index) => {
+              const staggerDelay = reducedMotion ? 0 : Math.min(index * 50, 250);
+              return (
+                <div
+                  key={hero.id}
+                  className={!reducedMotion ? 'animate-slide-up' : ''}
+                  style={{ animationDelay: `${staggerDelay}ms` }}
+                >
+                  <HeroRecruitCard hero={hero} />
+                </div>
+              );
+            })
           ) : (
             <div className="text-center text-gray-500 py-8">
               <p className="text-3xl mb-2">🎉</p>

@@ -1,5 +1,6 @@
 import { useState, useMemo, memo } from 'react';
 import { useGameStore } from '../../stores';
+import { useSettingsStore } from '../../stores/settingsStore';
 import { ACHIEVEMENTS } from '../../data/achievements';
 import { AnimatedTabContent } from './shared/AnimatedTabContent';
 import { TabButton } from './shared/TabButton';
@@ -34,7 +35,7 @@ const AchievementCard = memo(function AchievementCard({ achievement, isUnlocked 
       className={`
         p-3 rounded-lg transition-all
         ${isUnlocked
-          ? 'bg-cheddar-200/70 border border-cheddar-400'
+          ? 'bg-cheddar-200/70 border border-cheddar-400 card-lift'
           : 'bg-white/30 border border-transparent opacity-60'
         }
       `}
@@ -96,6 +97,7 @@ export function AchievementPanel() {
     getAchievementGlobalMultiplier,
     getAchievementClickMultiplier,
   } = useGameStore();
+  const reducedMotion = useSettingsStore((state) => state.accessibility.reducedMotion);
 
   const unlockedAchievements = getUnlockedAchievements();
   const achievementGlobalMult = getAchievementGlobalMultiplier();
@@ -180,13 +182,21 @@ export function AchievementPanel() {
       >
         <AnimatedTabContent activeKey={categoryFilter}>
           {sortedAchievements.length > 0 ? (
-            sortedAchievements.map((achievement) => (
-              <AchievementCard
-                key={achievement.id}
-                achievement={achievement}
-                isUnlocked={unlockedIds.has(achievement.id)}
-              />
-            ))
+            sortedAchievements.map((achievement, index) => {
+              const staggerDelay = reducedMotion ? 0 : Math.min(index * 50, 250);
+              return (
+                <div
+                  key={achievement.id}
+                  className={!reducedMotion ? 'animate-slide-up' : ''}
+                  style={{ animationDelay: `${staggerDelay}ms` }}
+                >
+                  <AchievementCard
+                    achievement={achievement}
+                    isUnlocked={unlockedIds.has(achievement.id)}
+                  />
+                </div>
+              );
+            })
           ) : (
             <div className="text-center text-gray-500 py-8">
               <p className="text-sm">No achievements in this category</p>

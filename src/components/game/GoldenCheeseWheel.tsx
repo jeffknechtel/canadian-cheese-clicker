@@ -10,6 +10,7 @@ import {
 } from '../../systems/audioSystem';
 import { vibrateSuccess } from '../../systems/haptics';
 import { emitParticles } from '../../systems/particleSystem';
+import { announce } from '../../systems/accessibilityAnnouncer';
 import { isMobile } from '../../systems/gameLoop';
 
 const APPEAR_ANIMATION_MS = 300;
@@ -33,10 +34,11 @@ export function GoldenCheeseWheel() {
   const accumulatedDelta = useRef(0);
   const lastSparkleTime = useRef(0);
 
-  // Play appear sound when mounted
+  // Play appear sound and announce when mounted
   useEffect(() => {
     resumeAudioContext();
     playGoldenCheeseAppear();
+    announce('Golden cheese appeared! Collect it for a bonus reward.', 'polite');
   }, []);
 
   // Animate appearance

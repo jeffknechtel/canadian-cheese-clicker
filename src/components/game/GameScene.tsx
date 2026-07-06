@@ -8,8 +8,9 @@ import { ClickEffects } from './ClickEffects';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { useGameStore } from '../../stores';
 import { isMobile } from '../../systems/gameLoop';
-import { playClickSound, resumeAudioContext } from '../../systems/audioSystem';
+import { playClickSound, playGoldenCheeseCollect, resumeAudioContext } from '../../systems/audioSystem';
 import { announce } from '../../systems/accessibilityAnnouncer';
+import { vibrateSuccess } from '../../systems/haptics';
 import { SCENE_COLORS } from './sceneColors';
 
 // Defer non-critical scene elements for faster initial load
@@ -206,6 +207,7 @@ export function GameScene() {
   const quality = useSettingsStore((state) => state.graphics.quality);
   const click = useGameStore((state) => state.click);
   const goldenCheeseVisible = useGameStore((s) => s.goldenCheese.isVisible);
+  const collectGoldenCheese = useGameStore((state) => state.collectGoldenCheese);
 
   // Adjust pixel ratio based on quality setting for better mobile performance
   const dpr = useMemo(() => {
@@ -239,6 +241,34 @@ export function GameScene() {
     [click]
   );
 
+  // Handle golden cheese collection via keyboard
+  const handleGoldenCheeseKeyboard = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === ' ' || event.key === 'Enter') {
+        event.preventDefault();
+        resumeAudioContext();
+        const result = collectGoldenCheese();
+        if (result) {
+          playGoldenCheeseCollect();
+          vibrateSuccess();
+          announce('Golden cheese collected! Bonus reward earned.', 'assertive');
+        }
+      }
+    },
+    [collectGoldenCheese]
+  );
+
+  // Handle golden cheese click
+  const handleGoldenCheeseClick = useCallback(() => {
+    resumeAudioContext();
+    const result = collectGoldenCheese();
+    if (result) {
+      playGoldenCheeseCollect();
+      vibrateSuccess();
+      announce('Golden cheese collected! Bonus reward earned.', 'assertive');
+    }
+  }, [collectGoldenCheese]);
+
   return (
     <div className="relative w-full h-full">
       {/* Accessible button overlay for keyboard interaction with cheese wheel */}
@@ -259,6 +289,21 @@ export function GameScene() {
       >
         <span className="sr-only">Click cheese wheel</span>
       </button>
+      {/* Accessible button overlay for golden cheese wheel */}
+      {goldenCheeseVisible && (
+        <button
+          onClick={handleGoldenCheeseClick}
+          onKeyDown={handleGoldenCheeseKeyboard}
+          className="absolute right-[15%] top-[35%] z-10
+                     w-20 h-20 rounded-full opacity-0 focus-visible:opacity-100 focus-visible:ring-4
+                     focus-visible:ring-amber-400 focus-visible:ring-opacity-75 focus-visible:bg-amber-500/20
+                     transition-opacity cursor-pointer outline-none animate-pulse"
+          aria-label="Golden cheese bonus! Press Space or Enter to collect."
+          title="Golden Cheese - Click or press Space/Enter to collect"
+        >
+          <span className="sr-only">Collect golden cheese bonus</span>
+        </button>
+      )}
       <Canvas
         shadows
         camera={{ position: [0, 2, 4], fov: 50 }}

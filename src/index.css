@@ -1056,6 +1056,7 @@
 
 .animate-slide-up {
   animation: slide-up 0.3s ease-out forwards;
+  will-change: transform, opacity;
 }
 
 /* Slide down for dropdown menus */
@@ -1133,6 +1134,7 @@
 
 .animate-modal-in {
   animation: modal-in 0.25s ease-out forwards;
+  will-change: transform, opacity;
 }
 
 /* Backdrop fade in */
@@ -1213,6 +1215,28 @@
 
 .btn-scale:active:not(:disabled) {
   transform: scale(0.98);
+}
+
+/* GPU-accelerated positioning for particles and floating elements */
+.gpu-accelerated {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Subtle lift effect for interactive cards */
+.card-lift {
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-lift:hover {
+    transform: none;
+  }
 }
 
 /* Success flash animation */

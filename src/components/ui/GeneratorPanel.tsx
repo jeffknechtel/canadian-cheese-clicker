@@ -105,9 +105,8 @@ const GeneratorRow = memo(function GeneratorRow({ generator, buyAmount, isCanadi
   return (
     <article
       className={`
-        flex items-center gap-3 p-3 rounded-lg transition-all item-canadian
+        flex items-center gap-3 p-3 rounded-lg transition-all item-canadian card-lift
         ${isCanadianTier ? 'tier-canadian' : 'tier-basic'}
-        hover:shadow-md
         ${!reducedMotion ? 'animate-slide-up' : ''}
         ${purchaseAnimation === 'success' && !reducedMotion ? 'animate-success-flash' : ''}
         ${purchaseAnimation === 'failure' && !reducedMotion ? 'animate-shake' : ''}

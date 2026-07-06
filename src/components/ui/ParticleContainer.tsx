@@ -109,7 +109,7 @@ export function ParticleContainer({ className = '' }: ParticleContainerProps) {
   }
 
   return (
-    <div className={`absolute inset-0 pointer-events-none overflow-hidden ${className}`}>
+    <div className={`absolute inset-0 pointer-events-none overflow-hidden gpu-accelerated ${className}`}>
       {emissions.flatMap((emission) =>
         emission.particles.map((particle) => (
           <div key={particle.id} style={getParticleStyles(particle)} />
