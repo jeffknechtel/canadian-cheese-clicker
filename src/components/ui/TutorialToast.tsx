@@ -89,7 +89,7 @@ function TutorialToastItem({ stepId, onDismiss }: TutorialToastItemProps) {
       aria-describedby={`tutorial-message-${stepId}`}
       className={`
         relative flex gap-3 p-4 rounded-lg shadow-xl border-2 border-rind-300
-        bg-linear-to-br from-panel-wood via-panel-wood to-cheddar-50
+        bg-cream bg-linear-to-br from-cream via-cheddar-50 to-cheddar-100
         transform transition-all duration-300 overflow-hidden
         ${isExiting ? 'opacity-0 translate-y-4 scale-95' : 'opacity-100 translate-y-0 scale-100'}
       `}
