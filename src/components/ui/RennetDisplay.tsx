@@ -1,6 +1,7 @@
 import { useGameStore } from '../../stores';
 import { useGameStoreShallow } from '../../utils/zustandOptimization';
 import { formatNumber } from '../../utils/formatNumber';
+import { VINTAGE_WHEEL_MULTIPLIER } from '../../data/constants';
 
 interface RennetDisplayProps {
   showPotential?: boolean;
@@ -10,6 +11,8 @@ interface RennetDisplayProps {
 export function RennetDisplay({ showPotential = false, className = '' }: RennetDisplayProps) {
   const rennet = useGameStore((s) => s.prestige.rennet);
   const agingResetCount = useGameStore((s) => s.prestige.agingResetCount);
+  const vintageWheels = useGameStore((s) => s.prestige.vintageWheels);
+  const totalVintageWheels = useGameStore((s) => s.prestige.totalVintageWheels);
   const potentialRennet = useGameStore((s) => s.getPotentialRennet());
   const multipliers = useGameStoreShallow((s) => s.getPrestigeMultipliers());
 
@@ -30,6 +33,13 @@ export function RennetDisplay({ showPotential = false, className = '' }: RennetD
         </span>
       )}
 
+      {totalVintageWheels > 0 && (
+        <>
+          <span className="text-lg ml-1" title="Vintage Wheels">🍷</span>
+          <span className="font-bold text-purple-700">{vintageWheels}</span>
+        </>
+      )}
+
       {/* Tooltip */}
       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-rind text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-30 shadow-lg">
         <div className="font-semibold mb-1">Prestige Bonuses</div>
@@ -43,6 +53,11 @@ export function RennetDisplay({ showPotential = false, className = '' }: RennetD
         <div className="text-white/90 mt-1 pt-1 border-t border-white/30">
           Aging Resets: {agingResetCount}
         </div>
+        {totalVintageWheels > 0 && (
+          <div className="text-white/90">
+            Vintage Wheels: {vintageWheels} (+{(vintageWheels * VINTAGE_WHEEL_MULTIPLIER * 100).toFixed(0)}% production)
+          </div>
+        )}
         {/* Tooltip arrow */}
         <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-rind" />
       </div>

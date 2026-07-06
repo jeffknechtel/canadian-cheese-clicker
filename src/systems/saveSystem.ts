@@ -233,6 +233,8 @@ export function loadGame(): GameState | null {
 export interface OfflineProgress {
   curdsEarned: Decimal;
   secondsAway: number;
+  /** Set for long absences (≥1h): a welcome-back golden cheese is scheduled */
+  welcomeBackGoldenCheese?: boolean;
 }
 
 export function calculateOfflineProgress(

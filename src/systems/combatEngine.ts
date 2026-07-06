@@ -533,13 +533,15 @@ export function initializeCombat(
  *
  * @param heroStates - Optional hero states to check for drop rate bonuses
  * @param cpsFloor - Minimum curd reward (seconds of CPS) so battles always pay
+ * @param legacyProvinceMultiplier - Bonus multiplier when the battle's province holds legacy points
  */
 export function calculateCombatRewards(
   enemies: CombatEnemy[],
   partyHeroIds: string[],
   isBoss: boolean,
   heroStates?: Record<string, HeroCombatState>,
-  cpsFloor: Decimal = new Decimal(0)
+  cpsFloor: Decimal = new Decimal(0),
+  legacyProvinceMultiplier: number = 1
 ): CombatRewards {
   let totalCurds = new Decimal(0);
   let totalXp = 0;
@@ -608,6 +610,11 @@ export function calculateCombatRewards(
   // Apply CPS floor so battles always pay proportionally to player's economy
   // Floor is applied AFTER boss multipliers so the boost is visible
   totalCurds = Decimal.max(totalCurds, cpsFloor);
+
+  // Legacy province bonus multiplies the floored value (whey derives from it too)
+  if (legacyProvinceMultiplier !== 1) {
+    totalCurds = totalCurds.mul(legacyProvinceMultiplier);
+  }
 
   // Distribute XP among party members
   const xpPerHero = Math.floor(totalXp / partyHeroIds.length);

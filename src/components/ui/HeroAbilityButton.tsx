@@ -6,7 +6,16 @@ import { getHeroAbility, getHeroLimitBreak, heroHasLimitBreak } from '../../data
 import { heroRegistry } from '../../domain';
 import { getAbilityCooldown, isAbilityReady, LIMIT_BREAK_MAX } from '../../systems/combatEngine';
 import { DISABLED_BUTTON_CLASSES } from './shared/Button';
-import type { HeroCombatState } from '../../types/game';
+import { DAMAGE_TYPE_ICONS, getDamageTypeLabel } from '../../utils/damageTypes';
+import type { AbilityEffect, DamageType, HeroCombatState } from '../../types/game';
+
+/** Element of the first damage effect (undefined for non-damaging abilities) */
+function getAbilityElement(effects: AbilityEffect[]): DamageType | undefined {
+  for (const effect of effects) {
+    if (effect.type === 'damage') return effect.damageType;
+  }
+  return undefined;
+}
 
 interface HeroAbilityButtonProps {
   heroState: HeroCombatState;
@@ -42,6 +51,8 @@ export const HeroAbilityButton = memo(function HeroAbilityButton({ heroState, si
   const cooldown = getAbilityCooldown(heroState, heroState.heroId);
   const abilityIsReady = isAbilityReady(heroState, heroState.heroId);
   const isDisabled = !canUse || battleResult !== 'ongoing';
+  const element = getAbilityElement(ability.effects);
+  const elementSuffix = element ? ` [${getDamageTypeLabel(element)}]` : '';
 
   const handleClick = () => {
     if (!isDisabled) {
@@ -60,7 +71,7 @@ export const HeroAbilityButton = memo(function HeroAbilityButton({ heroState, si
       <button
         onClick={handleClick}
         disabled={isDisabled}
-        title={!canUse ? reason : ability.description}
+        title={!canUse ? reason : `${ability.description}${elementSuffix}`}
         className={`
           ${sizeClasses[size]}
           rounded font-medium transition-all duration-200 w-full btn-scale
@@ -73,6 +84,7 @@ export const HeroAbilityButton = memo(function HeroAbilityButton({ heroState, si
         `}
       >
         <div className="flex items-center justify-center gap-1">
+          {element && <span aria-hidden="true">{DAMAGE_TYPE_ICONS[element]}</span>}
           <span>{ability.name}</span>
           {cooldown > 0 && (
             <span className="bg-black/20 px-1 rounded text-[10px]">

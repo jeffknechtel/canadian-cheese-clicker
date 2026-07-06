@@ -52,6 +52,14 @@ export function OfflineProgressModal({
           <p className="text-center text-rind">curds while you were away!</p>
         </div>
 
+        {progress.welcomeBackGoldenCheese && (
+          <div className={`bg-amber-100 border border-amber-300 rounded-lg p-3 mb-6 ${!reducedMotion ? 'animate-slide-up' : ''}`} style={{ animationDelay: '200ms' }}>
+            <p className="text-center text-amber-700 font-medium">
+              A golden cheese is on its way! 🧀✨
+            </p>
+          </div>
+        )}
+
         <button
           onClick={onDismiss}
           className="w-full bg-cheddar-700 hover:bg-cheddar-800 text-white font-bold py-3 px-6 rounded-lg transition-colors btn-ripple btn-scale"

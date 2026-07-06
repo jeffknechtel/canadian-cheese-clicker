@@ -30,7 +30,6 @@ export interface PrestigeState {
   vintageWheels: number;                   // Current Vintage Wheels
   totalVintageWheels: number;              // Lifetime Vintage Wheels created
   vintageResetCount: number;               // Number of Vintage resets performed
-  vintageUnlocks: string[];                // Unlocked Vintage content IDs
 
   // Third Prestige: Legacy
   legacy: number;                          // Legacy points
@@ -57,7 +56,8 @@ export type AgingUpgradeEffect =
   | { type: 'startingCurds'; value: number }        // Start with X curds after reset
   | { type: 'startingGenerators'; generatorId: string; value: number } // Start with X of generator
   | { type: 'xpBonus'; value: number }              // +X% hero XP gain
-  | { type: 'combatBonus'; value: number };         // +X% combat rewards
+  | { type: 'combatBonus'; value: number }          // +X% combat rewards
+  | { type: 'heroRetention'; value: number };       // Keep N highest-level heroes through Aging
 
 // ===== Synergy Upgrade Types =====
 
@@ -484,6 +484,8 @@ export interface ZoneDefinition {
   unlockRequirement: ZoneUnlockRequirement;
   backgroundImage?: string;
   recommendedLevel: number;
+  /** Mythology questlines: endgame content presented in its own gold-styled section */
+  isLegendary?: boolean;
 }
 
 export interface StageDefinition {

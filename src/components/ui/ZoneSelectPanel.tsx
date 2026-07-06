@@ -1,47 +1,70 @@
 import { useState } from 'react';
 import { useGameStore } from '../../stores';
-import { ZONES, getProvinceDisplayName, isZoneUnlocked, getTotalStages, getZoneCompletionPercent } from '../../data/zones';
+import { ZONES, getZoneById, getProvinceDisplayName, isZoneUnlocked, getTotalStages, getZoneCompletionPercent, PROVINCE_ICONS } from '../../data/zones';
+import { getAchievementById } from '../../data/achievements';
+import { formatNumber } from '../../utils/formatNumber';
 import { FirstTimeHint } from './shared/FirstTimeHint';
 import { PanelContainer } from './shared/PanelContainer';
 import { ProgressBar } from './shared/ProgressBar';
+import { ModalOverlay } from './shared/ModalOverlay';
 import { DISABLED_BUTTON_CLASSES } from './shared/Button';
-import type { ZoneDefinition, Province } from '../../types/game';
+import type { ZoneDefinition } from '../../types/game';
 
-const PROVINCE_ICONS: Record<Province, string> = {
-  ontario: '🍁',
-  quebec: '⚜️',
-  alberta: '🛢️',
-  manitoba: '🏒',
-  saskatchewan: '🌾',
-  yukon: '❄️',
-  bc: '🌲',
-  nova_scotia: '🦞',
-  new_brunswick: '🌉',
-  pei: '🥔',
-  newfoundland: '⚓',
-  nwt: '🌌',
-  nunavut: '🐻‍❄️',
+/** Bespoke icons for the legendary mythology questlines */
+const LEGENDARY_ICONS: Record<string, string> = {
+  thunderbird_saga: '⚡🦅',
+  wendigo_warning: '🐺',
+  chasse_galerie: '🛶',
 };
+
+/** How far below the recommended level triggers the danger warning */
+const LEVEL_WARNING_MARGIN = 10;
+
+/** Human-readable unlock requirement for locked zone cards */
+function getUnlockRequirementText(zone: ZoneDefinition): string {
+  const req = zone.unlockRequirement;
+  switch (req.type) {
+    case 'zone_complete': {
+      const requiredZone = getZoneById(req.zoneId);
+      return `Clear ${requiredZone?.name ?? req.zoneId}'s boss`;
+    }
+    case 'curds':
+      return `Earn ${formatNumber(req.amount)} curds`;
+    case 'achievement': {
+      const achievement = getAchievementById(req.achievementId);
+      return `Unlock achievement: ${achievement?.name ?? req.achievementId}`;
+    }
+    case 'none':
+    default:
+      return 'Locked';
+  }
+}
 
 interface ZoneCardProps {
   zone: ZoneDefinition;
   isUnlocked: boolean;
   progress?: { highestStageCleared: number; bossDefeated: boolean };
+  averagePartyLevel: number | null;
   onSelectStage: (zoneId: string, stageNumber: number) => void;
 }
 
-function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) {
+function ZoneCard({ zone, isUnlocked, progress, averagePartyLevel, onSelectStage }: ZoneCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const completion = progress
     ? getZoneCompletionPercent(zone, progress.highestStageCleared, progress.bossDefeated)
     : 0;
+  const isLegendary = zone.isLegendary === true;
+  const isUnderleveled =
+    averagePartyLevel !== null && averagePartyLevel < zone.recommendedLevel - LEVEL_WARNING_MARGIN;
 
   return (
     <div
       className={`
         rounded-lg border transition-all duration-200
         ${isUnlocked
-          ? 'bg-white/70 border-timber-200 hover:border-maple-400 hover:shadow-md cursor-pointer'
+          ? isLegendary
+            ? 'bg-gradient-to-r from-amber-50 to-purple-50 border-2 border-amber-400 hover:border-purple-400 hover:shadow-lg cursor-pointer'
+            : 'bg-white/70 border-timber-200 hover:border-maple-400 hover:shadow-md cursor-pointer'
           : 'bg-gray-100/50 border-gray-200 opacity-60 cursor-not-allowed'
         }
       `}
@@ -56,16 +79,25 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
           <div
             className={`
               w-12 h-12 flex items-center justify-center rounded-lg text-2xl
-              ${isUnlocked ? 'bg-maple-100' : 'bg-gray-200 grayscale'}
+              ${isUnlocked
+                ? isLegendary
+                  ? 'bg-gradient-to-br from-amber-100 to-purple-100'
+                  : 'bg-maple-100'
+                : 'bg-gray-200 grayscale'}
             `}
           >
-            {PROVINCE_ICONS[zone.province]}
+            {isLegendary ? LEGENDARY_ICONS[zone.id] ?? '⚜️' : PROVINCE_ICONS[zone.province]}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className={`font-semibold truncate ${isUnlocked ? 'text-timber-700' : 'text-gray-500'}`}>
+              <span className={`font-semibold truncate ${isUnlocked ? (isLegendary ? 'text-purple-800' : 'text-timber-700') : 'text-gray-500'}`}>
                 {zone.name}
               </span>
+              {isLegendary && (
+                <span className="text-xs bg-gradient-to-r from-amber-500 to-purple-600 text-white px-1.5 py-0.5 rounded font-bold tracking-wider">
+                  LEGENDARY
+                </span>
+              )}
               {progress?.bossDefeated && (
                 <span className="text-xs bg-cheddar-100 text-cheddar-700 px-1.5 py-0.5 rounded">
                   ✓ Complete
@@ -74,6 +106,11 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
             </div>
             <p className="text-xs text-gray-500">{getProvinceDisplayName(zone.province)}</p>
             <p className="text-xs text-gray-500 mt-0.5">Recommended Lv. {zone.recommendedLevel}</p>
+            {isUnlocked && isUnderleveled && (
+              <p className="text-xs text-warning mt-0.5">
+                ⚠️ Your party may not survive (avg Lv {averagePartyLevel} vs recommended Lv {zone.recommendedLevel})
+              </p>
+            )}
           </div>
           <div className="shrink-0 text-right">
             {isUnlocked ? (
@@ -84,7 +121,9 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
                 </div>
               </>
             ) : (
-              <div className="text-xs text-gray-500">🔒 Locked</div>
+              <div className="text-xs text-gray-500 max-w-[9rem] text-right">
+                🔒 {getUnlockRequirementText(zone)}
+              </div>
             )}
           </div>
         </div>
@@ -98,7 +137,9 @@ function ZoneCard({ zone, isUnlocked, progress, onSelectStage }: ZoneCardProps) 
             fillColor={
               progress?.bossDefeated
                 ? 'bg-linear-to-r from-cheddar-400 to-cheddar-600'
-                : 'bg-linear-to-r from-maple-400 to-maple-600'
+                : isLegendary
+                  ? 'bg-linear-to-r from-amber-400 to-purple-500'
+                  : 'bg-linear-to-r from-maple-400 to-maple-600'
             }
             transitionClass="transition-all duration-500"
             ariaLabel={`${zone.name} completion: ${completion}%`}
@@ -176,17 +217,62 @@ export function ZoneSelectPanel({ onStartCombat }: ZoneSelectPanelProps) {
   const party = useGameStore((state) => state.party);
   const heroes = useGameStore((state) => state.heroes);
 
+  // Underleveled confirmation dialog target
+  const [pendingStage, setPendingStage] = useState<{ zoneId: string; stageNumber: number; zoneName: string; recommendedLevel: number } | null>(null);
+
   // Check if player has any heroes in party
-  const hasPartyMembers = [
+  const partyHeroIds = [
     party.frontLeft,
     party.frontRight,
     party.backLeft,
     party.backRight,
-  ].some((id) => id !== null && heroes[id] !== undefined);
+  ].filter((id): id is string => id !== null && heroes[id] !== undefined);
+  const hasPartyMembers = partyHeroIds.length > 0;
+
+  const averagePartyLevel = hasPartyMembers
+    ? Math.round(partyHeroIds.reduce((sum, id) => sum + heroes[id].level, 0) / partyHeroIds.length)
+    : null;
+
+  const provincialZones = ZONES.filter((z) => !z.isLegendary);
+  const legendaryZones = ZONES.filter((z) => z.isLegendary);
 
   const handleSelectStage = (zoneId: string, stageNumber: number) => {
     if (!hasPartyMembers) return;
+
+    const zone = getZoneById(zoneId);
+    const isUnderleveled =
+      zone !== undefined &&
+      averagePartyLevel !== null &&
+      averagePartyLevel < zone.recommendedLevel - LEVEL_WARNING_MARGIN;
+
+    if (isUnderleveled) {
+      setPendingStage({ zoneId, stageNumber, zoneName: zone.name, recommendedLevel: zone.recommendedLevel });
+      return;
+    }
+
     onStartCombat(zoneId, stageNumber);
+  };
+
+  const handleConfirmDangerousEntry = () => {
+    if (pendingStage) {
+      onStartCombat(pendingStage.zoneId, pendingStage.stageNumber);
+      setPendingStage(null);
+    }
+  };
+
+  const renderZoneCard = (zone: ZoneDefinition) => {
+    const unlocked = isZoneUnlocked(zone, zoneProgress, curds, achievements);
+    const progress = zoneProgress[zone.id];
+    return (
+      <ZoneCard
+        key={zone.id}
+        zone={zone}
+        isUnlocked={unlocked}
+        progress={progress}
+        averagePartyLevel={averagePartyLevel}
+        onSelectStage={handleSelectStage}
+      />
+    );
   };
 
   return (
@@ -215,19 +301,22 @@ export function ZoneSelectPanel({ onStartCombat }: ZoneSelectPanelProps) {
 
       {/* Zone List */}
       <div className="flex-1 overflow-y-auto space-y-2 scrollbar-thin">
-        {ZONES.map((zone) => {
-          const unlocked = isZoneUnlocked(zone, zoneProgress, curds, achievements);
-          const progress = zoneProgress[zone.id];
-          return (
-            <ZoneCard
-              key={zone.id}
-              zone={zone}
-              isUnlocked={unlocked}
-              progress={progress}
-              onSelectStage={handleSelectStage}
-            />
-          );
-        })}
+        {provincialZones.map(renderZoneCard)}
+
+        {/* Legendary Questlines Section */}
+        {legendaryZones.length > 0 && (
+          <>
+            <div className="flex items-center gap-2 pt-3 pb-1">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
+              <span className="text-sm font-bold text-purple-700 whitespace-nowrap">⚜️ Legendary Questlines</span>
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
+            </div>
+            <p className="text-xs text-gray-500 pb-1">
+              Endgame mythology sagas — far deadlier than their unlock order suggests.
+            </p>
+            {legendaryZones.map(renderZoneCard)}
+          </>
+        )}
       </div>
 
         {/* Legend */}
@@ -244,6 +333,35 @@ export function ZoneSelectPanel({ onStartCombat }: ZoneSelectPanelProps) {
             </span>
           </div>
         </div>
+
+        {/* Underleveled Confirmation */}
+        {pendingStage && (
+          <ModalOverlay isOpen={true} onClose={() => setPendingStage(null)} ariaLabelledBy="danger-entry-title">
+            <div className="bg-white panel-wood-solid border-4 border-amber-500 rounded-lg p-6 max-w-md mx-4 shadow-2xl">
+              <h2 id="danger-entry-title" className="text-xl font-bold text-warning mb-2 text-center">
+                ⚠️ Dangerous Territory
+              </h2>
+              <p className="text-sm text-rind mb-4 text-center">
+                {pendingStage.zoneName} recommends level {pendingStage.recommendedLevel}, but your party
+                averages level {averagePartyLevel}. Your heroes may not survive this battle.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setPendingStage(null)}
+                  className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg transition-colors"
+                >
+                  Retreat
+                </button>
+                <button
+                  onClick={handleConfirmDangerousEntry}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                >
+                  Enter Anyway
+                </button>
+              </div>
+            </div>
+          </ModalOverlay>
+        )}
       </PanelContainer>
     </FirstTimeHint>
   );

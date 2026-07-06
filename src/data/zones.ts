@@ -884,8 +884,9 @@ export const ZONES: ZoneDefinition[] = [
     id: 'thunderbird_saga',
     name: 'Thunderbird Saga',
     province: 'bc', // Pacific Northwest mythology
-    description: 'Ally with the legendary Thunderbird against chaos forces. A 15-stage epic questline featuring sky battles and cosmic enemies. Complete 5 provinces to unlock.',
+    description: 'Ally with the legendary Thunderbird against chaos forces. A 15-stage epic questline featuring sky battles and cosmic enemies.',
     recommendedLevel: 80,
+    isLegendary: true,
     unlockRequirement: { type: 'zone_complete', zoneId: 'bc_coastal_caves' },
     stages: [
       {
@@ -975,8 +976,9 @@ export const ZONES: ZoneDefinition[] = [
     id: 'wendigo_warning',
     name: 'Wendigo Warning',
     province: 'yukon', // Northern horror mythology
-    description: 'A cautionary tale about greed in the frozen north. The hunger mechanic drains curds over time - defeat enemies quickly to minimize losses. Anti-hoarding challenge zone.',
+    description: 'A cautionary tale about greed in the frozen north. Shades of hunger and phantoms of greed stalk the ice — the most punishing foes this side of the treeline.',
     recommendedLevel: 90,
+    isLegendary: true,
     unlockRequirement: { type: 'zone_complete', zoneId: 'yukon_gold_rush' },
     stages: [
       {
@@ -1041,8 +1043,9 @@ export const ZONES: ZoneDefinition[] = [
     id: 'chasse_galerie',
     name: 'La Chasse-Galerie',
     province: 'quebec', // French-Canadian folklore
-    description: 'Race across the night sky in the legendary flying canoe! A 7-stage timed challenge based on the famous Quebec legend. Speed and precision are key - the Devil awaits those who fail.',
+    description: 'Ride the night sky in the legendary flying canoe! A 7-stage gauntlet from the famous Quebec legend — and at the end, the Devil himself waits to collect on the deal.',
     recommendedLevel: 70,
+    isLegendary: true,
     unlockRequirement: { type: 'zone_complete', zoneId: 'quebec_fromagerie' },
     stages: [
       {
@@ -1179,6 +1182,23 @@ export function getZoneCompletionPercent(
 
   return Math.floor((highestStageCleared / totalStages) * 100);
 }
+
+/** Icon for each province (zone cards, province pickers) */
+export const PROVINCE_ICONS: Record<Province, string> = {
+  ontario: '🍁',
+  quebec: '⚜️',
+  alberta: '🛢️',
+  manitoba: '🏒',
+  saskatchewan: '🌾',
+  yukon: '❄️',
+  bc: '🌲',
+  nova_scotia: '🦞',
+  new_brunswick: '🌉',
+  pei: '🥔',
+  newfoundland: '⚓',
+  nwt: '🌌',
+  nunavut: '🐻‍❄️',
+};
 
 /**
  * Get province display name with proper capitalization

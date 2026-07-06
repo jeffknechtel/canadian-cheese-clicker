@@ -6,6 +6,7 @@ import { formatNumber } from '../../utils/formatNumber';
 import { getPrestigeDialogue } from '../../data/canadianDialogue';
 import { ModalOverlay } from './shared/ModalOverlay';
 import { startPrestigeMusic, returnToIdleMusic } from '../../systems/audioSystem';
+import { calculateHeroRetentionCount } from '../../systems/productionEngine';
 import Decimal from 'decimal.js';
 
 interface AgingConfirmModalProps {
@@ -55,6 +56,9 @@ export function AgingConfirmModal({ onConfirm, onCancel }: AgingConfirmModalProp
 
   // Count generators
   const totalGenerators = Object.values(generators).reduce((sum, count) => sum + count, 0);
+
+  // Loyal Companions: number of highest-level heroes that survive the reset
+  const retainedHeroCount = calculateHeroRetentionCount(prestige);
 
   return (
     <ModalOverlay isOpen={true} onClose={onCancel} ariaLabelledBy="aging-modal-title">
@@ -112,17 +116,25 @@ export function AgingConfirmModal({ onConfirm, onCancel }: AgingConfirmModalProp
               <li>Generators: {totalGenerators}</li>
               <li>Upgrades: {upgrades.length}</li>
               <li>Whey currency</li>
+              <li>{retainedHeroCount > 0 ? 'Heroes (except retained)' : 'Heroes & Levels'}</li>
+              <li>Equipment</li>
+              <li>Zone Progress</li>
+              <li>Crafting jobs & cheese inventory</li>
             </ul>
           </div>
 
           <div className="bg-green-50 rounded-lg p-3">
             <h3 className="text-sm font-semibold text-green-700 mb-2">Will Be Kept</h3>
             <ul className="text-xs text-green-600 space-y-1">
-              <li>Heroes & Levels</li>
-              <li>Equipment</li>
+              {retainedHeroCount > 0 && (
+                <li className="font-semibold">Top {retainedHeroCount} hero{retainedHeroCount > 1 ? 'es' : ''} (Loyal Companions)</li>
+              )}
               <li>Achievements</li>
-              <li>Zone Progress</li>
-              <li>Aging Upgrades</li>
+              <li>Aging Upgrades & Rennet</li>
+              <li>Recipe, ingredient & cave unlocks</li>
+              <li>Cheese collection</li>
+              <li>Synergies</li>
+              <li>Golden cheese perks</li>
             </ul>
           </div>
         </div>

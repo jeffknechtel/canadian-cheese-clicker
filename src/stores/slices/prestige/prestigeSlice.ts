@@ -8,7 +8,9 @@ import {
   calculatePrestigeCostReduction,
   calculatePrestigeXpMultiplier,
   calculatePrestigeCombatMultiplier,
+  calculateHeroRetentionCount,
 } from '../../../systems/productionEngine';
+import type { Province } from '../../../types/game';
 import {
   getAgingUpgradeById,
   getAgingUpgradePurchaseCount as getAgingUpgradePurchaseCountHelper,
@@ -18,6 +20,8 @@ import { trackPrestige } from '../../../systems/analyticsService';
 import {
   VINTAGE_AGING_RESETS_REQUIRED,
   VINTAGE_RENNET_COST,
+  LEGACY_VINTAGE_RESETS_REQUIRED,
+  LEGACY_WHEELS_REQUIRED,
 } from '../../../data/constants';
 
 export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
@@ -30,7 +34,6 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
     vintageWheels: 0,
     totalVintageWheels: 0,
     vintageResetCount: 0,
-    vintageUnlocks: [],
     legacy: 0,
     legacyBonuses: {
       ontario: 0,
@@ -73,7 +76,8 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
     const productionReset = state.getPrestigeProductionReset();
     const combatReset = state.getPrestigeCombatReset();
     const craftingReset = state.getPrestigeCraftingReset('aging');
-    const heroReset = state.getPrestigeHeroReset();
+    // Loyal Companions: keep the N highest-level heroes through Aging only
+    const heroReset = state.getPrestigeHeroReset(calculateHeroRetentionCount(state.prestige));
 
     set({
       // Production reset - DELEGATED to production slice
@@ -171,13 +175,13 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
       return { wheelsGained: 0, newTotal: state.prestige.vintageWheels };
     }
 
-    const wheelsGained = Math.floor(state.prestige.rennet / 100);
+    const wheelsGained = Math.floor(state.prestige.rennet / VINTAGE_RENNET_COST);
 
     // Get reset states FROM OTHER SLICES (same pattern as performAging)
     const productionReset = state.getPrestigeProductionReset();
     const combatReset = state.getPrestigeCombatReset();
     const craftingReset = state.getPrestigeCraftingReset('vintage');
-    const heroReset = state.getPrestigeHeroReset();
+    const heroReset = state.getPrestigeHeroReset(0); // Vintage wipes all heroes
 
     set({
       // Production reset - DELEGATED to production slice
@@ -195,7 +199,7 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
       // Prestige update - also reset aging upgrades and aging reset count
       prestige: {
         ...state.prestige,
-        rennet: state.prestige.rennet % 100,
+        rennet: state.prestige.rennet % VINTAGE_RENNET_COST,
         vintageWheels: state.prestige.vintageWheels + wheelsGained,
         totalVintageWheels: state.prestige.totalVintageWheels + wheelsGained,
         vintageResetCount: state.prestige.vintageResetCount + 1,
@@ -222,10 +226,13 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
 
   canPerformLegacy: () => {
     const { prestige } = get();
-    return prestige.vintageResetCount >= 10 && prestige.vintageWheels >= 10;
+    return (
+      prestige.vintageResetCount >= LEGACY_VINTAGE_RESETS_REQUIRED &&
+      prestige.vintageWheels >= LEGACY_WHEELS_REQUIRED
+    );
   },
 
-  performLegacy: () => {
+  performLegacy: (province: Province) => {
     const state = get();
     if (!state.canPerformLegacy()) {
       return { legacyGained: 0 };
@@ -237,7 +244,7 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
     const productionReset = state.getPrestigeProductionReset();
     const combatReset = state.getPrestigeCombatReset();
     const craftingReset = state.getPrestigeCraftingReset('legacy');
-    const heroReset = state.getPrestigeHeroReset();
+    const heroReset = state.getPrestigeHeroReset(0); // Legacy wipes all heroes
 
     set({
       // Production reset - DELEGATED to production slice
@@ -257,8 +264,12 @@ export const createPrestigeSlice: SliceCreator<PrestigeSlice> = (set, get) => ({
         ...state.prestige,
         vintageWheels: 0,
         legacy: state.prestige.legacy + legacyGained,
+        // Province allocation: the production engine reads this map directly
+        legacyBonuses: {
+          ...state.prestige.legacyBonuses,
+          [province]: state.prestige.legacyBonuses[province] + legacyGained,
+        },
         legacyResetCount: state.prestige.legacyResetCount + 1,
-        vintageUnlocks: [],
         vintageResetCount: 0, // Reset vintage count for legacy tier
         agingUpgrades: [],
         agingResetCount: 0,

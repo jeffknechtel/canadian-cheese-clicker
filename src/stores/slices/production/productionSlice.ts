@@ -23,7 +23,7 @@ import {
   trackGeneratorPurchase,
   trackUpgradePurchase,
 } from '../../../systems/analyticsService';
-import { EH_DIVISOR, EH_BONUS_PER_TIER, CLICK_CRIT_BASE_CHANCE, CLICK_CRIT_BASE_MULTIPLIER, BUY_MILESTONES } from '../../../data/constants';
+import { EH_DIVISOR, EH_BONUS_PER_TIER, CLICK_CRIT_BASE_CHANCE, CLICK_CRIT_BASE_MULTIPLIER, BUY_MILESTONES, MILESTONE_MULTIPLIER } from '../../../data/constants';
 import { playCriticalSound, playBuyMilestoneSound } from '../../../systems/audioSystem';
 import { vibrateCrit, vibrateSuccess } from '../../../systems/haptics';
 import { emitParticles } from '../../../systems/particleSystem';
@@ -84,6 +84,7 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
       lastClickValue: clickValue,
     });
     get().incrementChallengeProgress('collectClicks', 1);
+    get().incrementChallengeProgress('earnCurds', Math.min(clickValue.toNumber(), Number.MAX_SAFE_INTEGER));
     get().checkAchievements();
   },
 
@@ -103,6 +104,8 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
       curds: state.curds.plus(curdsEarned),
       totalCurdsEarned: state.totalCurdsEarned.plus(curdsEarned),
     });
+    // No-ops unless the active weekly challenge tracks earnCurds
+    get().incrementChallengeProgress('earnCurds', Math.min(curdsEarned.toNumber(), Number.MAX_SAFE_INTEGER));
   },
 
   addCurds: (amount: Decimal) => {
@@ -111,6 +114,7 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
       curds: state.curds.plus(amount),
       totalCurdsEarned: state.totalCurdsEarned.plus(amount),
     });
+    get().incrementChallengeProgress('earnCurds', Math.min(amount.toNumber(), Number.MAX_SAFE_INTEGER));
   },
 
   spendCurds: (amount: Decimal) => {
@@ -153,7 +157,7 @@ export const createProductionSlice: SliceCreator<ProductionSlice> = (set, get) =
     // Celebrate milestone with multiplier info
     if (highestMilestone) {
       const generator = GENERATORS.find((g) => g.id === id);
-      const multiplierGained = Math.pow(1.5, crossedMilestones.length);
+      const multiplierGained = Math.pow(MILESTONE_MULTIPLIER, crossedMilestones.length);
       playBuyMilestoneSound(highestMilestone);
       vibrateSuccess();
       emitParticles(window.innerWidth / 2, window.innerHeight / 3, 'fireworks');

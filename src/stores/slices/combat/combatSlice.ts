@@ -8,6 +8,7 @@ import {
   STAGE_REWARD_CPS_SECONDS_BASE,
   STAGE_REWARD_CPS_SECONDS_PER_STAGE,
   BOSS_REWARD_CPS_SECONDS,
+  LEGACY_PROVINCE_COMBAT_BONUS,
 } from '../../../data/constants';
 import {
   initializeCombat,
@@ -366,7 +367,19 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
       : STAGE_REWARD_CPS_SECONDS_BASE + stageNumber * STAGE_REWARD_CPS_SECONDS_PER_STAGE;
     const cpsFloor = state.curdPerSecond.mul(cpsSeconds);
 
-    const rewards = calculateCombatRewards(state.combat.enemies, partyHeroIds, isBoss, state.combat.heroStates, cpsFloor);
+    // Legacy province bonus: battles in a province with legacy points pay more
+    const zoneProvince = zoneId ? getZoneById(zoneId)?.province : undefined;
+    const legacyPoints = zoneProvince ? state.prestige.legacyBonuses[zoneProvince] : 0;
+    const legacyProvinceMultiplier = 1 + legacyPoints * LEGACY_PROVINCE_COMBAT_BONUS;
+
+    const rewards = calculateCombatRewards(
+      state.combat.enemies,
+      partyHeroIds,
+      isBoss,
+      state.combat.heroStates,
+      cpsFloor,
+      legacyProvinceMultiplier
+    );
 
     // Publish event for cross-context handlers (production and heroes subscribe)
     publish({

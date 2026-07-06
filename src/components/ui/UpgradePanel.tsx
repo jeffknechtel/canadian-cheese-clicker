@@ -31,8 +31,12 @@ function getEffectDescription(upgrade: Upgrade): string {
     }
     case 'globalMultiplier':
       return `×${effect.value} all production`;
-    default:
-      return 'Unknown effect';
+    case 'clickCpsPercent':
+      return `+${Math.round(effect.value * 100)}% of CPS per click`;
+    case 'critChance':
+      return `+${Math.round(effect.value * 100)}% crit chance`;
+    case 'critMultiplier':
+      return `+${effect.value}× crit damage`;
   }
 }
 

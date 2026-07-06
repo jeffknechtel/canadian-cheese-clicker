@@ -1,6 +1,10 @@
 import { useGameStore } from '../../stores';
 import { useGameStoreShallow } from '../../utils/zustandOptimization';
 import { AGING_UPGRADES, getAgingUpgradePurchaseCount } from '../../data/agingUpgrades';
+import { getUnlockedPerks, getNextPerkTier, getPerkDescription } from '../../systems/goldenCheeseSystem';
+import { getProvinceDisplayName } from '../../data/zones';
+import { GOLDEN_CHEESE_META_TIERS, VINTAGE_WHEEL_MULTIPLIER, LEGACY_POINT_MULTIPLIER } from '../../data/constants';
+import type { Province } from '../../types/game';
 
 interface StatRowProps {
   label: string;
@@ -21,7 +25,11 @@ function StatRow({ label, value, highlight = false }: StatRowProps) {
 
 export function PrestigeStats() {
   const prestige = useGameStore((s) => s.prestige);
+  const goldenTotalCollected = useGameStore((s) => s.goldenCheese.totalCollected);
   const multipliers = useGameStoreShallow((s) => s.getPrestigeMultipliers());
+
+  const goldenPerks = getUnlockedPerks(goldenTotalCollected);
+  const nextGoldenTier = getNextPerkTier(goldenTotalCollected);
 
   // Calculate starting bonuses
   let startingCurds = 0;
@@ -105,10 +113,15 @@ export function PrestigeStats() {
       )}
 
       {/* Vintage Stats Section */}
-      {(prestige.vintageWheels > 0 || prestige.vintageResetCount > 0) && (
+      {(prestige.totalVintageWheels > 0 || prestige.vintageResetCount > 0) && (
         <div className="bg-purple-50 rounded-lg p-3">
           <h3 className="text-sm font-semibold text-purple-700 mb-2">Vintage Statistics</h3>
           <StatRow label="Vintage Wheels" value={prestige.vintageWheels.toString()} />
+          <StatRow
+            label="Wheel Production Bonus"
+            value={`+${(prestige.vintageWheels * VINTAGE_WHEEL_MULTIPLIER * 100).toFixed(0)}%`}
+            highlight={prestige.vintageWheels > 0}
+          />
           <StatRow label="Total Wheels Earned" value={prestige.totalVintageWheels.toString()} />
           <StatRow label="Vintage Resets" value={prestige.vintageResetCount.toString()} />
         </div>
@@ -119,7 +132,47 @@ export function PrestigeStats() {
         <div className="bg-yellow-50 rounded-lg p-3">
           <h3 className="text-sm font-semibold text-yellow-700 mb-2">Legacy Statistics</h3>
           <StatRow label="Legacy Points" value={prestige.legacy.toString()} />
+          <StatRow
+            label="Legacy Production Bonus"
+            value={`+${(Object.values(prestige.legacyBonuses).reduce((a, b) => a + b, 0) * LEGACY_POINT_MULTIPLIER * 100).toFixed(0)}%`}
+            highlight={prestige.legacy > 0}
+          />
           <StatRow label="Legacy Resets" value={prestige.legacyResetCount.toString()} />
+          {/* Per-province allocation */}
+          <div className="mt-2 pt-2 border-t border-yellow-200">
+            <h4 className="text-xs font-semibold text-yellow-700 mb-1">Province Allocation</h4>
+            {(Object.entries(prestige.legacyBonuses) as [Province, number][])
+              .filter(([, points]) => points > 0)
+              .map(([province, points]) => (
+                <StatRow
+                  key={province}
+                  label={getProvinceDisplayName(province)}
+                  value={`${points} pts`}
+                  highlight
+                />
+              ))}
+          </div>
+        </div>
+      )}
+
+      {/* Golden Cheese Section */}
+      {goldenTotalCollected > 0 && (
+        <div className="bg-amber-50 rounded-lg p-3">
+          <h3 className="text-sm font-semibold text-amber-700 mb-2">Golden Cheese</h3>
+          <StatRow label="Total Collected" value={goldenTotalCollected.toString()} highlight />
+          {GOLDEN_CHEESE_META_TIERS.map((tier) => (
+            <StatRow
+              key={tier.perk}
+              label={`${tier.collected}: ${getPerkDescription(tier.perk)}`}
+              value={goldenPerks.has(tier.perk) ? '✓' : '🔒'}
+              highlight={goldenPerks.has(tier.perk)}
+            />
+          ))}
+          {nextGoldenTier && (
+            <p className="text-xs text-amber-600 mt-1">
+              Next perk at {nextGoldenTier.collected} collected
+            </p>
+          )}
         </div>
       )}
 

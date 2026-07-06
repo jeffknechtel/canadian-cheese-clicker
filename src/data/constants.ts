@@ -310,6 +310,15 @@ export const VINTAGE_AGING_RESETS_REQUIRED = 10;
 /** Rennet cost for Vintage reset */
 export const VINTAGE_RENNET_COST = 100;
 
+/** Number of vintage resets required to unlock Legacy */
+export const LEGACY_VINTAGE_RESETS_REQUIRED = 10;
+
+/** Vintage wheels required (and consumed) for a Legacy reset */
+export const LEGACY_WHEELS_REQUIRED = 10;
+
+/** Bonus curd rewards per legacy point in the battle's province (+10%/point) */
+export const LEGACY_PROVINCE_COMBAT_BONUS = 0.10;
+
 // ===== Combat CPS Scaling =====
 
 /** Combat curd rewards are floored at seconds-of-CPS so battles always pay. */

@@ -14,7 +14,16 @@ import {
   getRennetMilestoneMessage,
 } from '../../data/canadianDialogue';
 import { AgingConfirmModal } from './AgingConfirmModal';
+import { VintageConfirmModal } from './VintageConfirmModal';
+import { LegacyConfirmModal } from './LegacyConfirmModal';
 import { PrestigeStats } from './PrestigeStats';
+import {
+  VINTAGE_AGING_RESETS_REQUIRED,
+  VINTAGE_RENNET_COST,
+  LEGACY_VINTAGE_RESETS_REQUIRED,
+  LEGACY_WHEELS_REQUIRED,
+} from '../../data/constants';
+import type { Province } from '../../types/game';
 import { FirstTimeHint } from './shared/FirstTimeHint';
 import { TabButton } from './shared/TabButton';
 import { PanelContainer } from './shared/PanelContainer';
@@ -160,6 +169,8 @@ function AgingUpgradeCard({ upgrade, purchaseCount, canPurchase, onPurchase }: A
 export function PrestigePanel() {
   const [activeTab, setActiveTab] = useState<TabType>('aging');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showVintageModal, setShowVintageModal] = useState(false);
+  const [showLegacyModal, setShowLegacyModal] = useState(false);
   const [prestigeMessage, setPrestigeMessage] = useState<string | null>(null);
   const [showPrestigeAnimation, setShowPrestigeAnimation] = useState(false);
   const [particles, setParticles] = useState<Particle[]>([]);
@@ -180,7 +191,9 @@ export function PrestigePanel() {
     purchaseAgingUpgrade,
     canPurchaseAgingUpgrade,
     canPerformVintage,
+    performVintage,
     canPerformLegacy,
+    performLegacy,
     checkAchievements,
   } = useGameStore();
 
@@ -302,9 +315,47 @@ export function PrestigePanel() {
     }
   };
 
-  // Calculate progress toward Vintage and Legacy
-  const vintageProgress = Math.min(prestige.agingResetCount / 100, 1);
-  const legacyProgress = Math.min(prestige.vintageResetCount / 10, 1);
+  const handleConfirmVintage = () => {
+    const result = performVintage();
+    setShowVintageModal(false);
+
+    playPrestigeSound();
+    setShowPrestigeAnimation(true);
+    triggerPrestigeParticles();
+    setTimeout(() => {
+      playRennetGainSound();
+    }, 500);
+
+    setPrestigeMessage(
+      `Pressed ${result.wheelsGained} Vintage Wheel${result.wheelsGained !== 1 ? 's' : ''}! ` +
+      `Your cheese empire is reborn with timeless flavour. 🍷`
+    );
+    checkAchievements();
+  };
+
+  const handleConfirmLegacy = (province: Province) => {
+    const result = performLegacy(province);
+    setShowLegacyModal(false);
+
+    playPrestigeSound();
+    setShowPrestigeAnimation(true);
+    triggerPrestigeParticles();
+    setTimeout(() => {
+      playRennetGainSound();
+    }, 500);
+
+    setPrestigeMessage(
+      `Legacy established! +${result.legacyGained} point${result.legacyGained !== 1 ? 's' : ''} honour the province forever. 👑`
+    );
+    checkAchievements();
+  };
+
+  // Dual-gate progress toward Vintage (aging resets AND held rennet)
+  const vintageResetProgress = Math.min(prestige.agingResetCount / VINTAGE_AGING_RESETS_REQUIRED, 1);
+  const vintageRennetProgress = Math.min(prestige.rennet / VINTAGE_RENNET_COST, 1);
+  // Dual-gate progress toward Legacy (vintage resets AND held wheels)
+  const legacyResetProgress = Math.min(prestige.vintageResetCount / LEGACY_VINTAGE_RESETS_REQUIRED, 1);
+  const legacyWheelProgress = Math.min(prestige.vintageWheels / LEGACY_WHEELS_REQUIRED, 1);
 
   return (
     <FirstTimeHint hintId="firstPrestige" position="top">
@@ -413,8 +464,8 @@ export function PrestigePanel() {
               {canAge ? 'Age Your Empire' : 'Not Enough Curds'}
             </button>
 
-            {/* Vintage Section (Locked) */}
-            <div className="bg-purple-50 rounded-lg p-3 opacity-75">
+            {/* Vintage Section */}
+            <div className={`bg-purple-50 rounded-lg p-3 ${canPerformVintage() ? '' : 'opacity-75'}`}>
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-semibold text-purple-700 flex items-center gap-2">
                   <span>🍷</span> Vintage Tier
@@ -422,21 +473,47 @@ export function PrestigePanel() {
                 </h3>
               </div>
               <div className="text-xs text-purple-600 mb-2">
-                Sacrifice 100 Rennet for powerful Vintage Wheels
+                Sacrifice {VINTAGE_RENNET_COST} Rennet for powerful Vintage Wheels (+5% production each, forever)
               </div>
+              {/* Gate 1: Aging resets */}
               <div className="w-full bg-purple-200 rounded-full h-2">
                 <div
                   className="bg-purple-500 h-2 rounded-full transition-all"
-                  style={{ width: `${vintageProgress * 100}%` }}
+                  style={{ width: `${vintageResetProgress * 100}%` }}
                 />
               </div>
-              <div className="text-xs text-purple-500 mt-1">
-                {prestige.agingResetCount}/100 Aging resets required
+              <div className="text-xs text-purple-500 mt-1 mb-2">
+                {prestige.agingResetCount}/{VINTAGE_AGING_RESETS_REQUIRED} Aging resets
               </div>
+              {/* Gate 2: held Rennet */}
+              <div className="w-full bg-purple-200 rounded-full h-2">
+                <div
+                  className="bg-purple-400 h-2 rounded-full transition-all"
+                  style={{ width: `${vintageRennetProgress * 100}%` }}
+                />
+              </div>
+              <div className="text-xs text-purple-500 mt-1 mb-2">
+                {prestige.rennet}/{VINTAGE_RENNET_COST} Rennet held
+              </div>
+              <button
+                onClick={() => canPerformVintage() && setShowVintageModal(true)}
+                disabled={!canPerformVintage()}
+                className={`
+                  w-full py-2 px-4 rounded-lg font-bold text-sm transition-all
+                  ${canPerformVintage()
+                    ? 'bg-purple-500 hover:bg-purple-600 text-white shadow-md hover:shadow-lg'
+                    : DISABLED_BUTTON_CLASSES
+                  }
+                `}
+              >
+                {canPerformVintage()
+                  ? `Press ${Math.floor(prestige.rennet / VINTAGE_RENNET_COST)} Vintage Wheel${Math.floor(prestige.rennet / VINTAGE_RENNET_COST) !== 1 ? 's' : ''}`
+                  : 'Vintage Locked'}
+              </button>
             </div>
 
-            {/* Legacy Section (Locked) */}
-            <div className="bg-yellow-50 rounded-lg p-3 opacity-60">
+            {/* Legacy Section */}
+            <div className={`bg-yellow-50 rounded-lg p-3 ${canPerformLegacy() ? '' : 'opacity-60'}`}>
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-semibold text-yellow-700 flex items-center gap-2">
                   <span>👑</span> Legacy Tier
@@ -444,17 +521,41 @@ export function PrestigePanel() {
                 </h3>
               </div>
               <div className="text-xs text-yellow-600 mb-2">
-                Establish permanent province-based bonuses
+                Convert Vintage Wheels into permanent province-based bonuses
               </div>
+              {/* Gate 1: Vintage resets */}
               <div className="w-full bg-yellow-200 rounded-full h-2">
                 <div
                   className="bg-yellow-500 h-2 rounded-full transition-all"
-                  style={{ width: `${legacyProgress * 100}%` }}
+                  style={{ width: `${legacyResetProgress * 100}%` }}
                 />
               </div>
-              <div className="text-xs text-yellow-500 mt-1">
-                {prestige.vintageResetCount}/10 Vintage resets required
+              <div className="text-xs text-yellow-500 mt-1 mb-2">
+                {prestige.vintageResetCount}/{LEGACY_VINTAGE_RESETS_REQUIRED} Vintage resets
               </div>
+              {/* Gate 2: held wheels */}
+              <div className="w-full bg-yellow-200 rounded-full h-2">
+                <div
+                  className="bg-yellow-400 h-2 rounded-full transition-all"
+                  style={{ width: `${legacyWheelProgress * 100}%` }}
+                />
+              </div>
+              <div className="text-xs text-yellow-500 mt-1 mb-2">
+                {prestige.vintageWheels}/{LEGACY_WHEELS_REQUIRED} Vintage Wheels held
+              </div>
+              <button
+                onClick={() => canPerformLegacy() && setShowLegacyModal(true)}
+                disabled={!canPerformLegacy()}
+                className={`
+                  w-full py-2 px-4 rounded-lg font-bold text-sm transition-all
+                  ${canPerformLegacy()
+                    ? 'bg-yellow-500 hover:bg-yellow-600 text-white shadow-md hover:shadow-lg'
+                    : DISABLED_BUTTON_CLASSES
+                  }
+                `}
+              >
+                {canPerformLegacy() ? 'Establish Your Legacy' : 'Legacy Locked'}
+              </button>
             </div>
           </div>
         )}
@@ -486,11 +587,23 @@ export function PrestigePanel() {
         {activeTab === 'stats' && <PrestigeStats />}
       </div>
 
-        {/* Confirmation Modal */}
+        {/* Confirmation Modals */}
         {showConfirmModal && (
           <AgingConfirmModal
             onConfirm={handleConfirmAging}
             onCancel={() => setShowConfirmModal(false)}
+          />
+        )}
+        {showVintageModal && (
+          <VintageConfirmModal
+            onConfirm={handleConfirmVintage}
+            onCancel={() => setShowVintageModal(false)}
+          />
+        )}
+        {showLegacyModal && (
+          <LegacyConfirmModal
+            onConfirm={handleConfirmLegacy}
+            onCancel={() => setShowLegacyModal(false)}
           />
         )}
       </PanelContainer>

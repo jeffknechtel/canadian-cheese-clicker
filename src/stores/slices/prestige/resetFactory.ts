@@ -9,7 +9,6 @@ export function createInitialPrestigeState(): PrestigeState {
     vintageWheels: 0,
     totalVintageWheels: 0,
     vintageResetCount: 0,
-    vintageUnlocks: [],
     legacy: 0,
     legacyBonuses: {
       ontario: 0,
