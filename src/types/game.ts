@@ -1,4 +1,5 @@
 import Decimal from 'decimal.js';
+import type { TutorialStepId, LoreEntryId, CodexSectionId } from '../stores/slices/tutorial';
 
 // ===== Progressive Unlock Types =====
 
@@ -158,6 +159,14 @@ export interface GameState {
   // Progressive unlock system
   unlockedFeatures: Set<FeatureId>;
   shownHints: Set<HintId>;
+
+  // Tutorial system
+  completedSteps: Set<TutorialStepId>;
+  tutorialEnabled: boolean;
+  discoveredLore: Set<LoreEntryId>;
+  unlockedCodexSections: Set<CodexSectionId>;
+  pendingToast: TutorialStepId | null;
+  toastQueue: TutorialStepId[];
 }
 
 export interface SynergyState {

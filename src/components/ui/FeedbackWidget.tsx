@@ -94,6 +94,13 @@ export function FeedbackWidget({ className = '' }: FeedbackWidgetProps) {
         challenge: state.challenge,
         unlockedFeatures: state.unlockedFeatures,
         shownHints: state.shownHints,
+        // Tutorial system
+        completedSteps: state.completedSteps,
+        tutorialEnabled: state.tutorialEnabled,
+        discoveredLore: state.discoveredLore,
+        unlockedCodexSections: state.unlockedCodexSections,
+        pendingToast: state.pendingToast,
+        toastQueue: state.toastQueue,
       };
       const report = createBugReport(description, category, gameState, screenshot);
       const result = await submitBugReport(report);

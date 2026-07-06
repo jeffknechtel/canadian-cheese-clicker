@@ -1,8 +1,8 @@
 import { useGameStore } from '../stores';
 import type { FeatureId } from '../types/game';
 
-type MobileTab = 'generators' | 'upgrades' | 'combat' | 'heroes' | 'achievements' | 'prestige' | 'crafting';
-type RightPanelView = 'upgrades' | 'achievements' | 'heroes' | 'combat' | 'prestige' | 'crafting';
+type MobileTab = 'generators' | 'upgrades' | 'combat' | 'heroes' | 'achievements' | 'prestige' | 'crafting' | 'lore';
+type RightPanelView = 'upgrades' | 'achievements' | 'heroes' | 'combat' | 'prestige' | 'crafting' | 'lore';
 
 const TAB_TO_FEATURE: Record<MobileTab, FeatureId | null> = {
   generators: null, // Always visible
@@ -12,10 +12,11 @@ const TAB_TO_FEATURE: Record<MobileTab, FeatureId | null> = {
   achievements: 'achievements',
   prestige: 'prestige',
   crafting: 'crafting',
+  lore: null, // Always visible (codex)
 };
 
-const ALL_MOBILE_TABS: MobileTab[] = ['generators', 'upgrades', 'combat', 'heroes', 'achievements', 'prestige', 'crafting'];
-const ALL_DESKTOP_PANELS: RightPanelView[] = ['upgrades', 'combat', 'heroes', 'achievements', 'prestige', 'crafting'];
+const ALL_MOBILE_TABS: MobileTab[] = ['generators', 'upgrades', 'combat', 'heroes', 'achievements', 'prestige', 'crafting', 'lore'];
+const ALL_DESKTOP_PANELS: RightPanelView[] = ['upgrades', 'combat', 'heroes', 'achievements', 'prestige', 'crafting', 'lore'];
 
 export function useUnlockedTabs() {
   const isFeatureUnlocked = useGameStore((s) => s.isFeatureUnlocked);

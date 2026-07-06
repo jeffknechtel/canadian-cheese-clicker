@@ -13,6 +13,7 @@ import { createGoldenCheeseSlice } from './slices/goldenCheese';
 import { createSynergySlice } from './slices/synergy';
 import { createChallengeSlice } from './slices/challenge';
 import { createUnlockSlice } from './slices/unlock';
+import { createTutorialSlice } from './slices/tutorial';
 import { initProductionEventSubscriber } from './slices/production/eventSubscriber';
 import { initHeroEventSubscriber } from './slices/heroes/eventSubscriber';
 
@@ -29,6 +30,7 @@ export const useGameStore = create<GameStore>()((...a) => ({
   ...createSynergySlice(...a),
   ...createChallengeSlice(...a),
   ...createUnlockSlice(...a),
+  ...createTutorialSlice(...a),
 }));
 
 // Initialize event subscribers
