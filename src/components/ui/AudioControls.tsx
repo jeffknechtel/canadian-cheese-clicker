@@ -117,7 +117,7 @@ export function AudioControls() {
       <button
         onClick={handleToggleMute}
         onMouseEnter={() => setShowPanel(true)}
-        className="p-2 rounded-lg bg-cheddar-500/30 hover:bg-cheddar-500/50 transition-colors"
+        className="min-w-[44px] min-h-[44px] p-2 rounded-lg bg-cheddar-500/30 hover:bg-cheddar-500/50 transition-colors flex items-center justify-center"
         title={isMuted ? 'Unmute' : 'Mute'}
         aria-label={isMuted ? 'Unmute' : 'Mute'}
       >

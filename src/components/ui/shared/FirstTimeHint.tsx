@@ -39,25 +39,27 @@ export function FirstTimeHint({ hintId, children, position = 'bottom' }: FirstTi
     return <>{children}</>;
   }
 
+  // Position classes for the tooltip container
   const positionClasses: Record<string, string> = {
-    top: 'bottom-full mb-2',
-    bottom: 'top-full mt-2',
-    left: 'right-full mr-2',
-    right: 'left-full ml-2',
+    top: 'bottom-full mb-2 left-1/2 -translate-x-1/2',
+    bottom: 'top-full mt-2 left-1/2 -translate-x-1/2',
+    left: 'right-full mr-2 top-1/2 -translate-y-1/2',
+    right: 'left-full ml-2 top-1/2 -translate-y-1/2',
   };
 
+  // Arrow classes for the tooltip pointer
   const arrowClasses: Record<string, string> = {
-    top: '-bottom-1 border-t-rind-600',
-    bottom: '-top-1 border-b-rind-600',
-    left: '-right-1 border-l-rind-600',
-    right: '-left-1 border-r-rind-600',
+    top: '-bottom-1 left-1/2 -translate-x-1/2 border-t-rind-600',
+    bottom: '-top-1 left-1/2 -translate-x-1/2 border-b-rind-600',
+    left: '-right-1 top-1/2 -translate-y-1/2 border-l-rind-600',
+    right: '-left-1 top-1/2 -translate-y-1/2 border-r-rind-600',
   };
 
   return (
     <div className="relative">
       {children}
       <div
-        className={`absolute ${positionClasses[position]} left-1/2 -translate-x-1/2 z-50 w-64 animate-fade-in`}
+        className={`absolute ${positionClasses[position]} z-30 w-64 animate-fade-in`}
         role="tooltip"
       >
         <div className="bg-rind-600 text-white rounded-lg shadow-lg p-3">
@@ -68,7 +70,7 @@ export function FirstTimeHint({ hintId, children, position = 'bottom' }: FirstTi
             </div>
             <button
               onClick={() => markHintShown(hintId)}
-              className="text-white/70 hover:text-white shrink-0"
+              className="text-white/70 hover:text-white shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2 -mt-2"
               aria-label="Dismiss hint"
             >
               ✕
@@ -76,13 +78,13 @@ export function FirstTimeHint({ hintId, children, position = 'bottom' }: FirstTi
           </div>
           <button
             onClick={() => markHintShown(hintId)}
-            className="mt-2 w-full text-xs bg-white/20 hover:bg-white/30 rounded py-1 transition-colors"
+            className="mt-2 w-full text-xs bg-white/20 hover:bg-white/30 rounded py-2 min-h-[44px] transition-colors"
           >
             Got it!
           </button>
         </div>
         <div
-          className={`absolute left-1/2 -translate-x-1/2 ${arrowClasses[position]} border-4 border-transparent`}
+          className={`absolute ${arrowClasses[position]} border-4 border-transparent`}
         />
       </div>
     </div>

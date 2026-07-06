@@ -191,8 +191,8 @@ export function DebugPanel({ className = '' }: DebugPanelProps) {
 
       {/* Debug panel - fixed position when open */}
       {isOpen && (
-        <div className="fixed top-16 left-4 z-50">
-        <div className="w-80 sm:w-96 bg-gray-900/95 text-white rounded-lg shadow-2xl overflow-hidden font-mono text-xs">
+        <div className="fixed top-16 left-4 z-40 max-w-[calc(100vw-2rem)]">
+        <div className="w-80 sm:w-96 max-w-full bg-gray-900/95 text-white rounded-lg shadow-2xl overflow-hidden font-mono text-xs">
           {/* Header */}
           <div className="flex items-center justify-between px-3 py-2 bg-gray-800 border-b border-gray-700">
             <span className="font-bold text-yellow-400">🛠️ Debug Panel</span>
