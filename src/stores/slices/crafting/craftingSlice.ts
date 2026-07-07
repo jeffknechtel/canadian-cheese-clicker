@@ -3,6 +3,7 @@ import type { SliceCreator } from '../../types';
 import type { CraftingSlice } from './types';
 import { createInitialCraftingState, createPrestigeCraftingState } from './resetFactory';
 import { recipeRegistry, publish } from '../../../domain';
+import type { RecipeUnlockContext } from '../../../domain/entities/Recipe';
 import { CHEESE_RECIPES } from '../../../data/cheeseRecipes';
 import { getCaveById, CAVES } from '../../../data/caves';
 import { INTERACTION_LIMITS } from '../../../data/constants';
@@ -85,10 +86,14 @@ export const createCraftingSlice: SliceCreator<CraftingSlice> = (set, get) => ({
     if (!recipe) return false;
     if (state.crafting.unlockedRecipes.includes(recipeId)) return false;
 
-    if (recipe.unlockRequirement) {
-      const ctx = buildUnlockContext(state);
-      if (!checkUnlockRequirement(recipe.unlockRequirement, ctx)) return false;
-    }
+    // Use Recipe entity method for unlock check
+    const ctx: RecipeUnlockContext = {
+      totalRennet: state.prestige.totalRennet,
+      totalVintageWheels: state.prestige.totalVintageWheels,
+      cheeseCollection: state.crafting.cheeseCollection,
+      zoneProgress: state.zoneProgress,
+    };
+    if (!recipe.isUnlockable(ctx)) return false;
 
     set({
       crafting: {

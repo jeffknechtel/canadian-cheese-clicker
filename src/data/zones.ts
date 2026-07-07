@@ -1,5 +1,6 @@
 import Decimal from 'decimal.js';
 import type { ZoneDefinition, Province } from '../types/game';
+import { Zone } from '../domain/entities/Zone';
 
 /**
  * Province zones for the combat system
@@ -1117,7 +1118,8 @@ export function getZonesInOrder(): ZoneDefinition[] {
 }
 
 /**
- * Check if a zone is unlocked based on progress
+ * Check if a zone is unlocked based on progress.
+ * @deprecated Use Zone.isUnlocked() directly with a Zone entity instance.
  */
 export function isZoneUnlocked(
   zone: ZoneDefinition,
@@ -1125,24 +1127,8 @@ export function isZoneUnlocked(
   curds: Decimal,
   achievements: string[]
 ): boolean {
-  const req = zone.unlockRequirement;
-
-  switch (req.type) {
-    case 'none':
-      return true;
-
-    case 'zone_complete':
-      return zoneProgress[req.zoneId]?.bossDefeated ?? false;
-
-    case 'curds':
-      return curds.gte(req.amount);
-
-    case 'achievement':
-      return achievements.includes(req.achievementId);
-
-    default:
-      return false;
-  }
+  const zoneEntity = Zone.fromDefinition(zone);
+  return zoneEntity.isUnlocked({ zoneProgress, curds, achievements });
 }
 
 /**

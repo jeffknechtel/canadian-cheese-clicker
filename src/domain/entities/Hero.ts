@@ -9,6 +9,21 @@ import type {
 import { BaseEntity } from './BaseEntity';
 import { equipmentRegistry } from '../registry/equipment';
 import { Stats } from '../valueObjects';
+import { getXpForLevel, HERO_MAX_LEVEL } from '../../data/heroes';
+
+/**
+ * Result of processing XP gain for a hero.
+ */
+export interface XpGainResult {
+  /** New XP value (after subtracting level-up thresholds) */
+  xp: number;
+  /** New level */
+  level: number;
+  /** XP needed for next level (0 if max level) */
+  xpToNextLevel: number;
+  /** Levels gained during this XP application */
+  levelsGained: number[];
+}
 
 /**
  * Rich domain model for Hero definition.
@@ -70,6 +85,45 @@ export class Hero extends BaseEntity<HeroDefinition> implements HeroDefinition {
     }
 
     return stats;
+  }
+
+  /**
+   * Process XP gain for a hero state, handling level-ups.
+   * Pure function - returns new state values without mutation.
+   */
+  static processXpGain(
+    currentXp: number,
+    currentLevel: number,
+    currentXpToNextLevel: number,
+    xpAmount: number
+  ): XpGainResult {
+    if (currentLevel >= HERO_MAX_LEVEL) {
+      return {
+        xp: 0,
+        level: currentLevel,
+        xpToNextLevel: 0,
+        levelsGained: [],
+      };
+    }
+
+    const levelsGained: number[] = [];
+    let xp = currentXp + xpAmount;
+    let level = currentLevel;
+    let xpToNextLevel = currentXpToNextLevel;
+
+    while (xp >= xpToNextLevel && level < HERO_MAX_LEVEL) {
+      xp -= xpToNextLevel;
+      level += 1;
+      xpToNextLevel = getXpForLevel(level);
+      levelsGained.push(level);
+    }
+
+    if (level >= HERO_MAX_LEVEL) {
+      xp = 0;
+      xpToNextLevel = 0;
+    }
+
+    return { xp, level, xpToNextLevel, levelsGained };
   }
 
   static fromDefinition(data: HeroDefinition): Hero {

@@ -18,9 +18,6 @@ export const STAGES_PER_ZONE = 10;
 
 // ===== Hero Balance =====
 
-/** Maximum hero level */
-export const HERO_MAX_LEVEL = 50;
-
 /** Base XP required for level 2 */
 export const BASE_XP_REQUIREMENT = 100;
 
