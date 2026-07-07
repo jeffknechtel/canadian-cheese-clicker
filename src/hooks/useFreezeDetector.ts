@@ -19,7 +19,7 @@ interface FreezeState {
   processedCount: number;
 }
 
-let globalState: FreezeState = {
+const globalState: FreezeState = {
   lastClickTime: 0,
   lastClickProcessed: true,
   clickCount: 0,
