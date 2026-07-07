@@ -22,19 +22,7 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
-
-    /* Path aliases */
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"],
-      "@/components/*": ["./src/components/*"],
-      "@/stores/*": ["./src/stores/*"],
-      "@/systems/*": ["./src/systems/*"],
-      "@/data/*": ["./src/data/*"],
-      "@/types/*": ["./src/types/*"],
-      "@/utils/*": ["./src/utils/*"]
-    }
+    "noUncheckedSideEffectImports": true
   },
   "include": ["src"]
 }
