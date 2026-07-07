@@ -7,7 +7,8 @@ import {
   calculateFormationMultiplier,
 } from '../../../systems/productionEngine';
 import { heroRegistry, equipmentRegistry, Party, publish } from '../../../domain';
-import { HEROES, getXpForLevel, HERO_MAX_LEVEL } from '../../../data/heroes';
+import { Hero } from '../../../domain/entities/Hero';
+import { HEROES, HERO_MAX_LEVEL, getXpForLevel } from '../../../data/heroes';
 import {
   trackHeroRecruit,
   trackHeroLevelUp,
@@ -48,6 +49,7 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
     });
 
     publish({ type: 'CpsInputsChanged' });
+    publish({ type: 'HeroRecruited', heroId });
 
     const totalRecruited = Object.keys(get().heroes).length;
     trackHeroRecruit(heroId, totalRecruited);
@@ -230,29 +232,18 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
     if (!heroState) return;
     if (heroState.level >= HERO_MAX_LEVEL) return;
 
-    const levelUps: Array<{ level: number }> = [];
-
-    let xp = heroState.xp + amount;
-    let level = heroState.level;
-    let xpToNextLevel = heroState.xpToNextLevel;
-
-    while (xp >= xpToNextLevel && level < HERO_MAX_LEVEL) {
-      xp -= xpToNextLevel;
-      level += 1;
-      xpToNextLevel = getXpForLevel(level);
-      levelUps.push({ level });
-    }
-
-    if (level >= HERO_MAX_LEVEL) {
-      xp = 0;
-      xpToNextLevel = 0;
-    }
+    const result = Hero.processXpGain(
+      heroState.xp,
+      heroState.level,
+      heroState.xpToNextLevel,
+      amount
+    );
 
     const newHero: HeroState = {
       ...heroState,
-      xp,
-      level,
-      xpToNextLevel,
+      xp: result.xp,
+      level: result.level,
+      xpToNextLevel: result.xpToNextLevel,
     };
 
     set({
@@ -261,9 +252,9 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
 
     publish({ type: 'CpsInputsChanged' });
 
-    if (levelUps.length > 0) {
+    if (result.levelsGained.length > 0) {
       const heroDef = heroRegistry.get(heroId);
-      for (const { level: lvl } of levelUps) {
+      for (const lvl of result.levelsGained) {
         if (heroDef) {
           publish({ type: 'HeroLeveledUp', heroId, hero: heroDef, newLevel: lvl });
         }
@@ -296,23 +287,23 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set, get) => ({
       const heroState = state.heroes[heroId];
       if (!heroState || heroState.level >= HERO_MAX_LEVEL) continue;
 
-      let xp = heroState.xp + xpPerHero;
-      let level = heroState.level;
-      let xpToNextLevel = heroState.xpToNextLevel;
+      const result = Hero.processXpGain(
+        heroState.xp,
+        heroState.level,
+        heroState.xpToNextLevel,
+        xpPerHero
+      );
 
-      while (xp >= xpToNextLevel && level < HERO_MAX_LEVEL) {
-        xp -= xpToNextLevel;
-        level += 1;
-        xpToNextLevel = getXpForLevel(level);
-        levelUps.push({ heroId, level });
+      heroUpdates[heroId] = {
+        ...heroState,
+        xp: result.xp,
+        level: result.level,
+        xpToNextLevel: result.xpToNextLevel,
+      };
+
+      for (const lvl of result.levelsGained) {
+        levelUps.push({ heroId, level: lvl });
       }
-
-      if (level >= HERO_MAX_LEVEL) {
-        xp = 0;
-        xpToNextLevel = 0;
-      }
-
-      heroUpdates[heroId] = { ...heroState, xp, level, xpToNextLevel };
     }
 
     // Single state update for all heroes
